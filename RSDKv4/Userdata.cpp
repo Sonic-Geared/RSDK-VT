@@ -265,9 +265,9 @@ void InitUserdata()
 
         ini.SetInteger("Game", "Language", Engine.language = RETRO_EN);
         ini.SetInteger("Game", "GameType", Engine.gameTypeID = 0);
-        ini.SetBool("Game", "SkipStartMenu", skipStartMenu = false);
+        ini.SetBool("Game", "SkipStartMenu", skipStartMenu = true);
         skipStartMenu_Config = skipStartMenu;
-        ini.SetInteger("Game", "DisableFocusPause", disableFocusPause = 0);
+        ini.SetInteger("Game", "DisableFocusPause", disableFocusPause = 1);
         disableFocusPause_Config = disableFocusPause;
 
 #if RETRO_USE_NETWORKING
@@ -695,11 +695,11 @@ void WriteSettings()
     ini.SetComment("Game", "GameTypeComment", "Determines game type in scripts (0 = Standalone/Original releases, 1 = Origins release)");
     ini.SetInteger("Game", "GameType", Engine.gameTypeID);
     ini.SetComment("Game", "SSMenuComment", "If set to true, disables the start menu");
-    ini.SetBool("Game", "SkipStartMenu", 1);
+    ini.SetBool("Game", "SkipStartMenu", skipStartMenu_Config);
     ini.SetComment("Game", "DFPMenuComment",
                    "Handles pausing behaviour when focus is lost\n; 0 = Game focus enabled, engine focus enabled\n; 1 = Game focus disabled, "
                    "engine focus enabled\n; 2 = Game focus enabled, engine focus disabled\n; 3 = Game focus disabled, engine focus disabled");
-    ini.SetInteger("Game", "DisableFocusPause", 2);
+    ini.SetInteger("Game", "DisableFocusPause", disableFocusPause_Config);
 
 #if RETRO_USE_NETWORKING
     ini.SetComment("Network", "HostComment", "The host (IP address or \"URL\") that the game will try to connect to.");
