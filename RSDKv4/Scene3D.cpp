@@ -208,7 +208,6 @@ void MatrixRotateXYZ(Matrix *matrix, short rotationX, short rotationY, short rot
     matrix->values[3][2] = 0;
     matrix->values[3][3] = 0x100;
 }
-#if !RETRO_REV00
 void MatrixInverse(Matrix *matrix)
 {
     double inv[16], det;
@@ -261,7 +260,6 @@ void MatrixInverse(Matrix *matrix)
     for (int i = 0; i < 0x10; ++i) inv[i] = (int)((inv[i] * det) * 256);
     for (int i = 0; i < 0x10; ++i) matrix->values[i / 4][i % 4] = inv[i];
 }
-#endif
 void TransformVertexBuffer()
 {
     matFinal.values[0][0] = matWorld.values[0][0];

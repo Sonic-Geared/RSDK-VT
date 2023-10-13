@@ -298,13 +298,11 @@ void ProcessStage(void)
             DrawObjectList(3);
             DrawObjectList(4);
             DrawObjectList(5);
-#if RETRO_REV03
 #if !RETRO_USE_ORIGINAL_CODE
             // Hacky fix for Tails Object not working properly in special stages on non-Origins bytecode
             if (forceUseScripts || GetGlobalVariableID("game.playMode") != 0xFF)
 #endif
                 DrawObjectList(7);
-#endif
             DrawObjectList(6);
 
 #if !RETRO_USE_ORIGINAL_CODE
@@ -344,7 +342,6 @@ void ProcessStage(void)
             DrawStageGFX();
             break;
 
-#if !RETRO_REV00
         case STAGEMODE_2P:
             drawStageGFXHQ = false;
             if (fadeMode > 0)
@@ -398,7 +395,6 @@ void ProcessStage(void)
             ProcessParallaxAutoScroll();
             DrawStageGFX();
             break;
-#endif
 
         case STAGEMODE_NORMAL_STEP:
             drawStageGFXHQ = false;
@@ -481,13 +477,11 @@ void ProcessStage(void)
                 DrawObjectList(3);
                 DrawObjectList(4);
                 DrawObjectList(5);
-#if RETRO_REV03
 #if !RETRO_USE_ORIGINAL_CODE
                 // Hacky fix for Tails Object not working properly in special stages on non-Origins bytecode
                 if (forceUseScripts || GetGlobalVariableID("game.playMode") != 0xFF)
 #endif
                     DrawObjectList(7);
-#endif
                 DrawObjectList(6);
 
 #if !RETRO_USE_ORIGINAL_CODE
@@ -541,7 +535,6 @@ void ProcessStage(void)
             }
             break;
 
-#if !RETRO_REV00
         case STAGEMODE_2P_STEP:
             drawStageGFXHQ = false;
             if (fadeMode > 0)
@@ -597,7 +590,6 @@ void ProcessStage(void)
                 ResumeSound();
             }
             break;
-#endif
     }
 }
 

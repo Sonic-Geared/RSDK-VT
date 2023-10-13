@@ -6,10 +6,8 @@ enum CollisionSides {
     CSIDE_LWALL   = 1,
     CSIDE_RWALL   = 2,
     CSIDE_ROOF    = 3,
-#if RETRO_REV03
     CSIDE_LENTITY = 4, // Added in Origins Plus
     CSIDE_RENTITY = 5, // Added in Origins Plus
-#endif
 };
 
 enum CollisionModes {
@@ -76,7 +74,7 @@ extern int collisionBottom;
 
 extern int collisionTolerance;
 
-extern CollisionSensor sensors[RETRO_REV00 ? 6 : 7];
+extern CollisionSensor sensors[7];
 
 void FindFloorPosition(Entity *player, CollisionSensor *sensor, int startYPos);
 void FindLWallPosition(Entity *player, CollisionSensor *sensor, int startXPos);
@@ -112,9 +110,7 @@ void ObjectFloorGrip(int xOffset, int yOffset, int cPath);
 void ObjectLWallGrip(int xOffset, int yOffset, int cPath);
 void ObjectRoofGrip(int xOffset, int yOffset, int cPath);
 void ObjectRWallGrip(int xOffset, int yOffset, int cPath);
-#if RETRO_REV03
 void ObjectLEntityGrip(int xOffset, int yOffset, int cPath); // Added in Origins Plus
 void ObjectREntityGrip(int xOffset, int yOffset, int cPath); // Added in Origins Plus
-#endif
 
 #endif // !COLLISION_H

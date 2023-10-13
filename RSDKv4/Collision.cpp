@@ -7,7 +7,7 @@ int collisionBottom = 0;
 
 int collisionTolerance = 0;
 
-CollisionSensor sensors[RETRO_REV00 ? 6 : 7];
+CollisionSensor sensors[7];
 
 #if !RETRO_USE_ORIGINAL_CODE
 byte showHitboxes = 0;
@@ -1014,7 +1014,7 @@ void ProcessPathGrip(Entity *entity)
     int sinValue256;
     sensors[4].xpos = entity->xpos;
     sensors[4].ypos = entity->ypos;
-    for (int i = 0; i < (RETRO_REV00 ? 6 : 7); ++i) {
+    for (int i = 0; i < 7; ++i) {
         sensors[i].angle    = entity->angle;
         sensors[i].collided = false;
     }
@@ -1044,10 +1044,8 @@ void ProcessPathGrip(Entity *entity)
         sensors[0].collided = false;
         sensors[1].collided = false;
         sensors[2].collided = false;
-#if !RETRO_REV00
         sensors[5].collided = false;
         sensors[6].collided = false;
-#endif
         sensors[4].xpos += cosValue256;
         sensors[4].ypos += sinValue256;
         int tileDistance = -1;
@@ -1082,13 +1080,11 @@ void ProcessPathGrip(Entity *entity)
                     FindFloorPosition(entity, &sensors[i], sensors[i].ypos >> 16);
                 }
 
-#if !RETRO_REV00
                 for (int i = 5; i < 7; i++) {
                     sensors[i].xpos += cosValue256;
                     sensors[i].ypos += sinValue256;
                     FindFloorPosition(entity, &sensors[i], sensors[i].ypos >> 16);
                 }
-#endif
 
                 tileDistance = -1;
                 for (int i = 0; i < 3; i++) {
@@ -1304,10 +1300,8 @@ void ProcessPathGrip(Entity *entity)
                 entity->floorSensors[0] = sensors[0].collided;
                 entity->floorSensors[1] = sensors[1].collided;
                 entity->floorSensors[2] = sensors[2].collided;
-#if !RETRO_REV00
                 entity->floorSensors[3] = sensors[5].collided;
                 entity->floorSensors[4] = sensors[6].collided;
-#endif
                 if (!sensors[3].collided) {
                     entity->pushing = 0;
                     entity->xpos    = sensors[4].xpos;
@@ -1524,18 +1518,14 @@ void SetPathGripSensors(Entity *player)
             sensors[1].ypos = sensors[0].ypos;
             sensors[2].ypos = sensors[0].ypos;
             sensors[3].ypos = sensors[4].ypos + 0x40000;
-#if !RETRO_REV00
             sensors[5].ypos = sensors[0].ypos;
             sensors[6].ypos = sensors[0].ypos;
-#endif
 
             sensors[0].xpos = sensors[4].xpos + ((playerHitbox->left[1] - 1) << 16);
             sensors[1].xpos = sensors[4].xpos;
             sensors[2].xpos = sensors[4].xpos + (playerHitbox->right[1] << 16);
-#if !RETRO_REV00
             sensors[5].xpos = sensors[4].xpos + (playerHitbox->left[1] << 15);
             sensors[6].xpos = sensors[4].xpos + (playerHitbox->right[1] << 15);
-#endif
             if (player->speed > 0) {
                 sensors[3].xpos = sensors[4].xpos + ((collisionRight + 1) << 16);
             }
@@ -1613,10 +1603,8 @@ void ProcessTileCollisions(Entity *player)
     player->floorSensors[0] = false;
     player->floorSensors[1] = false;
     player->floorSensors[2] = false;
-#if !RETRO_REV00
     player->floorSensors[3] = false;
     player->floorSensors[4] = false;
-#endif
     scriptEng.checkResult = false;
 
     collisionTolerance = 15;
@@ -2146,7 +2134,6 @@ void ObjectRWallGrip(int xOffset, int yOffset, int cPath)
         scriptEng.checkResult = false;
     }
 }
-#if RETRO_REV03
 void ObjectLEntityGrip(int xOffset, int yOffset, int cPath)
 {
     scriptEng.checkResult = false;
@@ -2277,7 +2264,6 @@ void ObjectREntityGrip(int xOffset, int yOffset, int cPath)
     }
     ObjectRWallGrip(xOffset, yOffset, cPath);
 }
-#endif
 void TouchCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight, int thisBottom, Entity *otherEntity, int otherLeft, int otherTop,
                     int otherRight, int otherBottom)
 {
@@ -2419,7 +2405,7 @@ void BoxCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight, 
         sensors[0].ypos = ry + otherBottom;
 
         if (otherEntity->yvel >= 0) {
-            for (int i = 0; i < (RETRO_REV00 ? 3 : 5); ++i) {
+            for (int i = 0; i < 5; ++i) {
                 if (thisLeft < sensors[i].xpos && thisRight > sensors[i].xpos && thisTop <= sensors[0].ypos
                     && thisTop > otherEntity->ypos - otherEntity->yvel) {
                     sensors[i].collided          = true;
@@ -2599,7 +2585,7 @@ void BoxCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRight, 
 
                 sensors[0].ypos = ry + otherBottom;
                 if (otherEntity->yvel >= 0) {
-                    for (int i = 0; i < (RETRO_REV00 ? 3 : 5); ++i) {
+                    for (int i = 0; i < 5; ++i) {
                         if (thisLeft < sensors[i].xpos && thisRight > sensors[i].xpos && thisTop <= sensors[0].ypos
                             && thisTop > otherEntity->ypos - otherEntity->yvel) {
                             sensors[i].collided          = true;
@@ -3026,7 +3012,7 @@ void PlatformCollision(Entity *thisEntity, int thisLeft, int thisTop, int thisRi
 
     sensors[0].ypos = (otherBottom << 16) + ry;
 
-    for (int i = 0; i < (RETRO_REV00 ? 3 : 5); ++i) {
+    for (int i = 0; i < 5; ++i) {
         if (thisLeft < sensors[i].xpos && thisRight > sensors[i].xpos && thisTop - 1 <= sensors[0].ypos && thisBottom > sensors[0].ypos
             && otherEntity->yvel >= 0) {
             sensors[i].collided          = true;

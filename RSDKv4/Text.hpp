@@ -26,7 +26,6 @@ struct TextMenu {
     sbyte timer;
 };
 
-#if RETRO_REV00 || RETRO_REV01
 #define FONTCHAR_COUNT (0x400)
 
 struct FontCharacter {
@@ -39,7 +38,6 @@ struct FontCharacter {
     short pivotY;
     short xAdvance;
 };
-#endif
 
 struct BitmapFontCharacter {
     ushort id;
@@ -73,11 +71,9 @@ extern char playerListText[0x80][0x20];
 
 extern BitmapFont fontList[FONTLIST_COUNT];
 
-#if RETRO_REV00 || RETRO_REV01
 extern FontCharacter fontCharacterList[FONTCHAR_COUNT];
 
 void LoadFontFile(const char *filePath);
-#endif
 
 void LoadTextFile(TextMenu *menu, const char *filePath, byte mapCode);
 void LoadConfigListText(TextMenu *menu, int listNo);

@@ -1181,7 +1181,6 @@ void ShowWebsite(int websiteID)
     }
 }
 
-#if RETRO_REV03
 enum NotifyCallbackIDs {
     NOTIFY_DEATH_EVENT         = 128,
     NOTIFY_TOUCH_SIGNPOST      = 129,
@@ -1298,7 +1297,6 @@ void NotifyCallback(int *callback, int *param1, int *param2, int *param3)
         case NOTIFY_STATS_CHARA_ACTION2: PrintLog("NOTIFY: StatsCharaAction2() -> %d, %d, %d", *param1, *param2, *param3); break;
     }
 }
-#endif
 
 void ExitGame() { Engine.running = false; }
 

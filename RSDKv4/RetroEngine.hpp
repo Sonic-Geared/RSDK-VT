@@ -255,7 +255,6 @@ enum RetroLanguages {
     RETRO_ZS = 10,
 };
 
-#if RETRO_REV00
 enum RetroEngineMessages {
     MESSAGE_NONE      = 0,
     MESSAGE_MESSAGE_1 = 1,
@@ -263,7 +262,6 @@ enum RetroEngineMessages {
     MESSAGE_MESSAGE_3 = 3,
     MESSAGE_MESSAGE_4 = 4,
 };
-#endif
 
 enum RetroStates {
     ENGINE_DEVMENU     = 0,
@@ -379,9 +377,7 @@ public:
 
     int gameMode = ENGINE_MAINGAME;
     int language = RETRO_EN;
-#if RETRO_REV00
     int message = 0;
-#endif
     int gameDeviceType    = RETRO_STANDARD;
     int globalBoxRegion   = REGION_JP;
     bool nativeMenuFadeIn = false;

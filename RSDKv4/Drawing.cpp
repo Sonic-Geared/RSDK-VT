@@ -1229,13 +1229,11 @@ void DrawStageGFX()
         }
 
         DrawObjectList(5);
-#if RETRO_REV03
 #if !RETRO_USE_ORIGINAL_CODE
         // Hacky fix for Tails Object not working properly in special stages on non-Origins bytecode
         if (forceUseScripts || GetGlobalVariableID("game.playMode") != 0xFF)
 #endif
             DrawObjectList(7);
-#endif
         DrawObjectList(6);
     }
 
@@ -2930,7 +2928,6 @@ void DrawSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, i
 #endif
 }
 
-#if RETRO_REV00
 void DrawSpriteClipped(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID, int clipY)
 {
     if (width + XPos > GFX_LINESIZE)
@@ -2971,7 +2968,6 @@ void DrawSpriteClipped(int XPos, int YPos, int width, int height, int sprX, int 
         gfxDataPtr += gfxPitch;
     }
 }
-#endif
 
 void DrawSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int sprY, int direction, int sheetID)
 {
@@ -3201,7 +3197,6 @@ void DrawSpriteScaled(int direction, int XPos, int YPos, int pivotX, int pivotY,
     }
 #endif
 }
-#if RETRO_REV00 || RETRO_REV01
 void DrawScaledChar(int direction, int XPos, int YPos, int pivotX, int pivotY, int scaleX, int scaleY, int width, int height, int sprX, int sprY,
                     int sheetID)
 {
@@ -3209,7 +3204,6 @@ void DrawScaledChar(int direction, int XPos, int YPos, int pivotX, int pivotY, i
     // Not avaliable in SW Render mode
 #endif
 }
-#endif
 void DrawSpriteRotated(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY, int width, int height, int rotation,
                        int sheetID)
 {
@@ -4363,7 +4357,6 @@ void DrawTexturedFaceBlended(void *v, byte sheetID)
 #endif
 }
 
-#if RETRO_REV00 || RETRO_REV01
 void DrawBitmapText(void *menu, int XPos, int YPos, int scale, int spacing, int rowStart, int rowCount)
 {
     TextMenu *tMenu = (TextMenu *)menu;
@@ -4389,7 +4382,6 @@ void DrawBitmapText(void *menu, int XPos, int YPos, int scale, int spacing, int 
         rowCount--;
     }
 }
-#endif
 
 void DrawTextMenuEntry(void *menu, int rowID, int XPos, int YPos, int textHighlight)
 {

@@ -50,10 +50,8 @@ bool ProcessEvents()
                     case SDL_WINDOWEVENT_FOCUS_LOST:
                         if (Engine.gameMode == ENGINE_MAINGAME && !(disableFocusPause & 1))
                             Engine.gameMode = ENGINE_INITPAUSE;
-#if RETRO_REV00
                         if (!(disableFocusPause & 1))
                             Engine.message = MESSAGE_LOSTFOCUS;
-#endif
                         Engine.hasFocus = false;
                         break;
                     case SDL_WINDOWEVENT_FOCUS_GAINED: Engine.hasFocus = true; break;
@@ -64,10 +62,8 @@ bool ProcessEvents()
             case SDL_APP_WILLENTERBACKGROUND:
                 if (Engine.gameMode == ENGINE_MAINGAME && !(disableFocusPause & 1))
                     Engine.gameMode = ENGINE_INITPAUSE;
-#if RETRO_REV00
                 if (!(disableFocusPause & 1))
                     Engine.message = MESSAGE_LOSTFOCUS;
-#endif
                 Engine.hasFocus = false;
                 break;
             case SDL_APP_WILLENTERFOREGROUND: Engine.hasFocus = true; break;
@@ -310,7 +306,6 @@ void RetroEngine::Init()
 #elif RETRO_PLATFORM == RETRO_ANDROID
     StrCopy(dest, gamePath);
     StrAdd(dest, Engine.dataFile[0]);
-    disableFocusPause = 0; // focus pause is ALWAYS enabled.
 #else
 
     StrCopy(dest, BASE_PATH);
@@ -584,9 +579,7 @@ void RetroEngine::Run()
             }
 #endif
 
-#if RETRO_REV00
             Engine.message = MESSAGE_NONE;
-#endif
 
 #if RETRO_USE_HAPTICS
             int hapticID = GetHapticEffectNum();
@@ -1239,9 +1232,9 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
 #endif
     }
 
-#if RETRO_REV03
     SetGlobalVariableByName("game.hasPlusDLC", !RSDK_AUTOBUILD);
-#endif
+
+    SetGlobalVariableByName("engine.useVT", 1);
 
     // These need to be set every time its reloaded
     nativeFunctionCount = 0;
@@ -1263,9 +1256,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     AddNativeFunction("NativePlayerWaitingAds", NativePlayerWaitingAds);
     AddNativeFunction("NativeWaterPlayerWaitingAds", NativeWaterPlayerWaitingAds);
 
-#if RETRO_REV03
     AddNativeFunction("NotifyCallback", NotifyCallback);
-#endif
 
 #if RETRO_USE_NETWORKING
     AddNativeFunction("SetNetworkGameName", SetNetworkGameName);

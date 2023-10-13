@@ -44,17 +44,13 @@ enum StageModes {
     STAGEMODE_PAUSED,
     STAGEMODE_FROZEN,
 
-#if !RETRO_REV00
     STAGEMODE_2P,
-#endif
 
     STAGEMODE_NORMAL_STEP,
     STAGEMODE_PAUSED_STEP,
     STAGEMODE_FROZEN_STEP,
 
-#if !RETRO_REV00
     STAGEMODE_2P_STEP,
-#endif
 };
 
 enum TileInfo {
