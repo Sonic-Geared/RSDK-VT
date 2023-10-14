@@ -25,8 +25,6 @@ A Modded Version Of RSDK V4 for Fan Game Development in Mind.
 
 Even if your platform isn't supported by the official releases, you **must** buy or officially download it for the assets (you don't need to run the official release, you just need the game assets). (if Running the Original games)
 
-If you want to transfer your save(s) from the official mobile version(s), the **Android pre-forever** file path is `Android/data/com.sega.sonic1 or 2/SGame.bin` (other versions may have different file paths). Copy that file into the decompilation's folder with the name `SData.bin`.
-
 # Additional Tweaks
 * Added the built in script compiler from RSDKv5U.
 * Added a built in mod loader and API, allowing to easily create and play mods with features such as save file redirection, custom achievements and XML GameConfig data.
@@ -43,7 +41,7 @@ If you want to transfer your save(s) from the official mobile version(s), the **
   * `F8` and `F9` will visualize touch screen and object hitboxes.
   * `F10` will activate a palette overlay that shows the game's 8 internal palettes in real time.
 * Added the idle screen dimming feature from Sonic Mania Plus, as well as allowing the user to disable it or set how long it takes for the screen to dim.
-* fixed a bug with `Skip main Menu` on mobile
+* The Disable Focus Pause option was reimplemented in the android port
 
 # Planned Features
 * Video Playback
