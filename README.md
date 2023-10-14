@@ -1,9 +1,9 @@
 ![](header.png?raw=true)
 
-A complete decompilation of Retro Engine v4 and the menus from Sonic 1 and 2 (2013).
+A Modded Version Of RSDK V4 for Fan Game Development in Mind.
 
 # **SUPPORT THE OFFICIAL RELEASE OF SONIC 1 & 2**
-+ Without assets from the official releases, this decompilation will not run.
++ Without the Offical Releases this Project wouldent Be possible
 
 + You can get official releases of Sonic 1 & Sonic 2 from:
   * Windows
@@ -20,7 +20,10 @@ A complete decompilation of Retro Engine v4 and the menus from Sonic 1 and 2 (20
     * [Sonic 2, Via Amazon](https://www.amazon.com.au/Sega-of-America-Sonic-Hedgehog/dp/B00HAPRVWS)
     * A tutorial for finding the game assets from the Android versions can be found [here](https://gamebanana.com/tuts/14492).
 
-Even if your platform isn't supported by the official releases, you **must** buy or officially download it for the assets (you don't need to run the official release, you just need the game assets).
+   * However if you want a project that made for VT in mind check out its companion project, [RSDK-GDT 2.0](https://github.com/youngerelk1/RSDK-GDT/tree/main)
+   * the first (and only) Framework for the Retro Engine!
+
+Even if your platform isn't supported by the official releases, you **must** buy or officially download it for the assets (you don't need to run the official release, you just need the game assets). (if Running the Original games)
 
 If you want to transfer your save(s) from the official mobile version(s), the **Android pre-forever** file path is `Android/data/com.sega.sonic1 or 2/SGame.bin` (other versions may have different file paths). Copy that file into the decompilation's folder with the name `SData.bin`.
 
@@ -40,6 +43,10 @@ If you want to transfer your save(s) from the official mobile version(s), the **
   * `F8` and `F9` will visualize touch screen and object hitboxes.
   * `F10` will activate a palette overlay that shows the game's 8 internal palettes in real time.
 * Added the idle screen dimming feature from Sonic Mania Plus, as well as allowing the user to disable it or set how long it takes for the screen to dim.
+* fixed a bug with `Skip main Menu` on mobile
+
+# Planned Features
+* Video Playback
 
 # How to Build
 
@@ -101,19 +108,6 @@ The following cmake arguments are available when compiling:
 - `RETRO_ORIGINAL_CODE`: Removes any custom code. *A playable game will not be built with this enabled.* Takes a boolean, defaults to `off`.
 - `RETRO_SDL_VERSION`: *Only change this if you know what you're doing.* Switches between using SDL1 or SDL2. Takes an integer of either `1` or `2`, defaults to `2`.
 
-## Unofficial Branches
-Follow the installation instructions in the readme of each branch.
-* For the **PlayStation Vita**, go to [Xeeynamo's fork](https://github.com/xeeynamo/Sonic-1-2-2013-Decompilation).
-* For the **Nintendo Switch**, go to [heyjoeway's fork](https://github.com/heyjoeway/Sonic-1-2-2013-Decompilation).
-* For the **Nintendo 3DS**, go to [JeffRuLz's fork](https://github.com/JeffRuLz/Sonic-1-2-2013-Decompilation).
-  * A New Nintendo 3DS is required for the games to run smoothly.
-* To play it on the web using **Wasm**, go to [mattConn's fork](https://github.com/mattConn/Sonic-Decompilation-WASM).
-
-Because these branches are unofficial, we can't provide support for them and they may not be up-to-date.
-
-## Other Platforms
-Currently the only supported platforms are the ones listed above, however the backend uses libogg, libvorbis & SDL2 to power it (as well as tinyxml2 for the mod API and asio for networking), so the codebase is very multiplatform.
-If you're able to, you can clone this repo and port it to a platform not on the list.
 
 # Server
 The multiplayer server requires Python 3.8 or later. You can download Python [here](https://www.python.org/downloads/).
@@ -122,6 +116,9 @@ Note that the C++ server found in the `Server` folder has been deprecated and no
 
 # FAQ
 You can find the FAQ [here](./FAQ.md).
+
+# **Reminder this branch is unofficial, REMS and the OG Decomp Team can't provide support for this and it may not be up-to-date.**
+
 
 # Special Thanks
 * [st×tic](https://github.com/stxticOVFL) for helping me fix bugs, tweaking up my sometimes sloppy code and generally being really helpful and fun to work with on this project.
