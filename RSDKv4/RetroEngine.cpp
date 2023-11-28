@@ -1234,7 +1234,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
 
     SetGlobalVariableByName("game.hasPlusDLC", !RSDK_AUTOBUILD);
 
-    SetGlobalVariableByName("engine.useVT", 1);
+    SetGlobalVariableByName("engine.isScarletEngine", 1);
 
     // These need to be set every time its reloaded
     nativeFunctionCount = 0;
