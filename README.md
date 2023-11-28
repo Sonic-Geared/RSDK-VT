@@ -1,6 +1,6 @@
 ![](header.png?raw=true)
 
-A Modded Version Of RSDK V4 for Fan Game Development in Mind.
+A modded version of RSDKv4 with Fangames development in mind.
 
 # **SUPPORT THE OFFICIAL RELEASE OF SONIC 1 & 2**
 + Without the Offical Releases this Project wouldent Be possible
