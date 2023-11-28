@@ -22,7 +22,7 @@ A modded version of RSDKv4 with fan game development in mind.
 
    * However, if you want a project that was made with Scarlet in mind, check out its companion project: [RSDK-GDT 2.0](https://github.com/youngerelk1/RSDK-GDT/tree/main), the first (and only) framework for the Retro Engine!
 
-Even if your platform isn't supported by the official releases, you **must** buy or officially download it for the assets (you don't need to run the official release, you just need the game assets). (if rinning the original games (Sonic 1 & Sonic 2 in this case))
+Even if your platform isn't supported by the official releases, you **must** buy or officially download it for the assets (you don't need to run the official release, you just need the game assets). (if running the original games (Sonic 1 & Sonic 2 in this case))
 
 # Additional Tweaks over RSDKv4
 * Added all the features from every revision of RSDKv4 (REV00, REV01, REV02 & REV03)
