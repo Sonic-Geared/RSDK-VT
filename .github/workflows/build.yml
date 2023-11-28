@@ -1,4 +1,4 @@
-name: Build RSDKv4
+name: Build Scarlet Engine
 on:
   push:
     branches:
@@ -6,7 +6,7 @@ on:
       - continuous-delivery
 
 jobs:
-  v4-windows:
+  scarlet-windows:
     runs-on: windows-2022
     steps:
       - name: Checkout
@@ -37,7 +37,7 @@ jobs:
         run: |
           vcpkg install libogg:x86-windows-static-md libvorbis:x86-windows-static-md
           vcpkg integrate install
-      - name: Build RSDKv4
+      - name: Build Scarlet Engine
         run: |
           msbuild RSDKv4.sln -target:RSDKv4-ogl /p:Configuration=Release /p:Platform=x86 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions.props"
       - name: Move artifacts
@@ -48,9 +48,9 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v1.0.0
         with:
-          name: v4-windows
+          name: scarlet-windows
           path: artifacts
-  v4-windows-x64:
+  scarlet-windows-x64:
     runs-on: windows-2022
     steps:
       - name: Checkout
@@ -81,7 +81,7 @@ jobs:
         run: |
           vcpkg install libogg:x64-windows-static-md libvorbis:x64-windows-static-md
           vcpkg integrate install
-      - name: Build RSDKv4
+      - name: Build Scarlet Engine
         run: |
           msbuild RSDKv4.sln -target:RSDKv4-ogl /p:Configuration=Release /p:Platform=x64 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions_x64.props"
       - name: Move artifacts
@@ -92,10 +92,10 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v1.0.0
         with:
-          name: v4-windows-x64
+          name: scarlet-windows-x64
           path: artifacts
 
-  v4-android:
+  scarlet-android:
     runs-on: windows-latest
     steps:
       - name: Checkout repository Android
@@ -135,16 +135,16 @@ jobs:
         with:
           distribution: "zulu"
           java-version: 11
-      - name: Build RSDKv4 Android
+      - name: Build Scarlet Engine Android
         working-directory: ./android
         run: |
           ./gradlew.bat assembleDebug --no-daemon -PABIFILTERS="armeabi-v7a;arm64-v8a" -PRETRO_DISABLE_PLUS
       - name: Upload artifact Android
         uses: actions/upload-artifact@v2
         with:
-          name: v4-android
+          name: scarlet-android
           path: ./android/app/build/outputs/apk
-  v4-linux:
+  scarlet-linux:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -156,10 +156,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install libogg-dev libvorbis-dev libsdl2-dev libglew-dev libtheora-dev
           ls ./dependencies/all
-      - name: Build RSDKv4
+      - name: Build Scarlet Engine
         run: make RETRO_DISABLE_PLUS=1
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: v4-linux
+          name: scarlet-linux
           path: bin
