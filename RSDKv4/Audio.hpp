@@ -62,7 +62,7 @@ struct ChannelInfo {
 };
 
 struct StreamFile {
-    byte buffer;
+    byte buffer[0x2000000];
     int fileSize;
     int filePos;
 };
