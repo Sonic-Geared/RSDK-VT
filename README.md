@@ -3,7 +3,7 @@
 A modded version of RSDKv4 with Fangames development in mind.
 
 # **SUPPORT THE OFFICIAL RELEASE OF SONIC 1 & 2**
-+ Without the Offical Releases this Project wouldent Be possible
++ Without the offical releases, this 0roject wouldn't be possible
 
 + You can get official releases of Sonic 1 & Sonic 2 from:
   * Windows
@@ -20,8 +20,7 @@ A modded version of RSDKv4 with Fangames development in mind.
     * [Sonic 2, Via Amazon](https://www.amazon.com.au/Sega-of-America-Sonic-Hedgehog/dp/B00HAPRVWS)
     * A tutorial for finding the game assets from the Android versions can be found [here](https://gamebanana.com/tuts/14492).
 
-   * However if you want a project that made for VT in mind check out its companion project, [RSDK-GDT 2.0](https://github.com/youngerelk1/RSDK-GDT/tree/main)
-   * the first (and only) Framework for the Retro Engine!
+   * However, if you want a project that was made with Scarlet in mind, check out its companion project: [RSDK-GDT 2.0](https://github.com/youngerelk1/RSDK-GDT/tree/main), the first (and only) framework for the Retro Engine!
 
 Even if your platform isn't supported by the official releases, you **must** buy or officially download it for the assets (you don't need to run the official release, you just need the game assets). (if Running the Original games)
 
@@ -44,7 +43,7 @@ Even if your platform isn't supported by the official releases, you **must** buy
 * The Disable Focus Pause option was reimplemented in the android port
 
 # Planned Features
-* Video Playback
+* Video Playback from RSDKv3
 
 # How to Build
 
@@ -97,6 +96,7 @@ The following cmake arguments are available when compiling:
 - Use these on the first `cmake -B build` step like so: `cmake -B build -DRETRO_DISABLE_PLUS=on`
 
 ### RSDKv4 flags
+## Those aren't really important to Scarlet
 - `RETRO_REVISION`: What revision to compile for. Takes an integer, defaults to `3` (Origins).
 - `RETRO_DISABLE_PLUS`: Whether or not to disable the Plus DLC. Takes a boolean (on/off): build with `on` when compiling for distribution. Defaults to `off`.
 - `RETRO_FORCE_CASE_INSENSITIVE`: Forces case insensivity when loading files. Takes a boolean, defaults to `off`.
