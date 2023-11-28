@@ -453,8 +453,6 @@ void LoadMusic(void *userdata)
         StreamFile *musFile = &streamFile[currentStreamIndex];
         musFile->filePos    = 0;
         musFile->fileSize   = info.vfileSize;
-        if (info.vfileSize > MUSBUFFER_SIZE)
-            musFile->fileSize = MUSBUFFER_SIZE;
 
         FileRead(streamFile[currentStreamIndex].buffer, musFile->fileSize);
         CloseFile();
@@ -684,8 +682,6 @@ void LoadSfx(char *filePath, byte sfxID)
             StreamFile *sfxFile = &streamFile[currentStreamIndex];
             sfxFile->filePos    = 0;
             sfxFile->fileSize   = info.vfileSize;
-            if (info.vfileSize > MUSBUFFER_SIZE)
-                sfxFile->fileSize = MUSBUFFER_SIZE;
 
             FileRead(streamFile[currentStreamIndex].buffer, sfxFile->fileSize);
             CloseFile();
