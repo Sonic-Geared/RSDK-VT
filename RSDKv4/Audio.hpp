@@ -9,7 +9,6 @@
 #define CHANNEL_COUNT (0x4)
 #endif
 
-#define MUSBUFFER_SIZE   (0x2000000)
 #define MAX_VOLUME (100)
 
 #define STREAMFILE_COUNT (2)
@@ -63,7 +62,7 @@ struct ChannelInfo {
 };
 
 struct StreamFile {
-    byte buffer[MUSBUFFER_SIZE];
+    byte buffer;
     int fileSize;
     int filePos;
 };
