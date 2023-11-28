@@ -1,9 +1,9 @@
 ![](header.png?raw=true)
 
-A modded version of RSDKv4 with Fangames development in mind.
+A modded version of RSDKv4 with fan game development in mind.
 
 # **SUPPORT THE OFFICIAL RELEASE OF SONIC 1 & 2**
-+ Without the offical releases, this 0roject wouldn't be possible
++ Without the offical releases of Sonic 1 & Sonic 2, this project wouldn't be possible!
 
 + You can get official releases of Sonic 1 & Sonic 2 from:
   * Windows
@@ -22,30 +22,18 @@ A modded version of RSDKv4 with Fangames development in mind.
 
    * However, if you want a project that was made with Scarlet in mind, check out its companion project: [RSDK-GDT 2.0](https://github.com/youngerelk1/RSDK-GDT/tree/main), the first (and only) framework for the Retro Engine!
 
-Even if your platform isn't supported by the official releases, you **must** buy or officially download it for the assets (you don't need to run the official release, you just need the game assets). (if Running the Original games)
+Even if your platform isn't supported by the official releases, you **must** buy or officially download it for the assets (you don't need to run the official release, you just need the game assets). (if rinning the original games (Sonic 1 & Sonic 2 in this case))
 
-# Additional Tweaks
-* Added the built in script compiler from RSDKv5U.
-* Added a built in mod loader and API, allowing to easily create and play mods with features such as save file redirection, custom achievements and XML GameConfig data.
-* Custom menu and networking system for Sonic 2 multiplayer, allowing anyone to host and join servers and play 2P VS.
-  * Servers may be unreliable; this feature is more or less a proof of concept.
-* Egg Gauntlet Zone is playable in the Time Attack menu in Sonic 2, if you're using a version of the game that includes it.
-* There is now a `settings.ini` file that the game uses to load all settings, similar to Sonic Mania.
-* The dev menu can now be accessed from anywhere by pressing the `ESC` key if enabled in the config.
-* The `F12` pause, `F11` step over & fast forward debug features from Sonic Mania have all been ported and are enabled if `devMenu` is enabled in the config.
-* A number of additional dev menu debug features have been added:
-  * `F1` will load the first scene in the Presentation stage list (usually the title screen).
-  * `F2` and `F3` will load the previous and next scene in the current stage list.
-  * `F5` will reload the current scene, as well as all assets and scripts.
-  * `F8` and `F9` will visualize touch screen and object hitboxes.
-  * `F10` will activate a palette overlay that shows the game's 8 internal palettes in real time.
-* Added the idle screen dimming feature from Sonic Mania Plus, as well as allowing the user to disable it or set how long it takes for the screen to dim.
-* The Disable Focus Pause option was reimplemented in the android port
+# Additional Tweaks over RSDKv4
+* Added all the features from every revision of RSDKv4 (REV00, REV01, REV02 & REV03)
+* Removed the 2MBs Audio limit
+* Re-adds the Disable Focus Pause that was missing from the Mobile versions of RSDKv4
 
-# Planned Features
-* Video Playback from RSDKv3
+# Planned features of the Scarlet Engine:
+* The video playback from RSDKv3
+* Add the tweaks from RSDKv5(U) on it
 
-# How to Build
+# How to Build?
 
 This project uses [CMake](https://cmake.org/), a versatile building system that supports many different compilers and platforms. You can download CMake [here](https://cmake.org/download/). **(Make sure to enable the feature to add CMake to the system PATH during the installation!)**
 
@@ -95,10 +83,9 @@ The resulting build will be located somewhere in `build/` depending on your syst
 The following cmake arguments are available when compiling:
 - Use these on the first `cmake -B build` step like so: `cmake -B build -DRETRO_DISABLE_PLUS=on`
 
-### RSDKv4 flags
-## Those aren't really important to Scarlet
-- `RETRO_REVISION`: What revision to compile for. Takes an integer, defaults to `3` (Origins).
-- `RETRO_DISABLE_PLUS`: Whether or not to disable the Plus DLC. Takes a boolean (on/off): build with `on` when compiling for distribution. Defaults to `off`.
+### Scarlet Engine flags
+- `RETRO_REVISION`: What revision to compile for. Takes an integer, defaults to `3` (Origins), even though doesn't really makes any difference in Scarlet so don't worry.
+- `RETRO_DISABLE_PLUS`: Whether or not to disable the Plus DLC. Takes a boolean (on/off): build with `on` when compiling for distribution. Defaults to `off`. This one will be useful for when Virtua Scarlet gets a Plus DLC!
 - `RETRO_FORCE_CASE_INSENSITIVE`: Forces case insensivity when loading files. Takes a boolean, defaults to `off`.
 - `RETRO_MOD_LOADER`: Enables or disables the mod loader. Takes a boolean, defaults to `on`.
 - `RETRO_NETWORKING`: Enables or disables networking features used for Sonic 2's 2P VS mode. Takes a boolean, defaults to `on`.
@@ -115,7 +102,7 @@ Note that the C++ server found in the `Server` folder has been deprecated and no
 # FAQ
 You can find the FAQ [here](./FAQ.md).
 
-# **Reminder this branch is unofficial, REMS and the OG Decomp Team can't provide support for this and it may not be up-to-date.**
+# **Reminder this branch is unofficial, neither REMS nor the original decomp team can't provide support for this and it may not be up-to-date all the time.**
 
 
 # Special Thanks
