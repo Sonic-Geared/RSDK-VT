@@ -503,8 +503,8 @@ void SetTextMenu(int sm)
     SetupTextMenu(&gameMenu[1], 0);
     switch (sm) {
         case DEVMENU_MAIN: {
-            AddTextMenuEntry(&gameMenu[0], "RETRO ENGINE DEV MENU");
-            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], "SCARLET ENGINE DEV MENU");
+            AddTextMenuEntry(&gameMenu[0], "(Based On RSDK V4)");
             char version[0x80];
             StrCopy(version, Engine.gameWindowText);
             StrAdd(version, " Version");
