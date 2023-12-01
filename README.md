@@ -33,6 +33,13 @@ Even if your platform isn't supported by the official releases, you **must** buy
 * The video playback from RSDKv3
 * Add the tweaks from RSDKv5(U) on it
 
+# Scarlet Engine Required Games
+* Virtua Scarlet
+# Scarlet Engine Compatible Games
+Sonic 2
+Another Sonic Adventure
+RSDK-GDT (Framework) 
+
 # How to Build?
 
 This project uses [CMake](https://cmake.org/), a versatile building system that supports many different compilers and platforms. You can download CMake [here](https://cmake.org/download/). **(Make sure to enable the feature to add CMake to the system PATH during the installation!)**
