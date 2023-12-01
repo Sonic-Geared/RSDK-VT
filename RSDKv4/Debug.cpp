@@ -533,7 +533,7 @@ void SetTextMenu(int sm)
             AddTextMenuEntry(&gameMenu[0], " ");
             AddTextMenuEntry(&gameMenu[0], "EXIT GAME");
 #endif
-            gameMenu[0].alignment        = 2;
+            gameMenu[0].alignment        = 3;
             gameMenu[0].selectionCount   = 2;
             gameMenu[0].selection1       = 0;
             gameMenu[0].selection2       = 9;
