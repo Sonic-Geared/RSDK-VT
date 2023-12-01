@@ -499,7 +499,7 @@ void RetroEngine::Init()
         }
 
         char textBuf[0x100];
-        sprintf(textBuf, "RETRO ENGINE v4 USAGE:\n");
+        sprintf(textBuf, "SCARLET ENGINE USAGE:\n");
         fWrite(textBuf, 1, strlen(textBuf), f);
 
         sprintf(textBuf, "- Open the asset directory '%s' in a file browser\n", !rootDir[0] ? "./" : rootDir);
@@ -1121,7 +1121,7 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
             SetPaletteEntry(-1, c, buf[0], buf[1], buf[2]);
         }
 
-        // Read Obect Names
+        // Read Object Names
         byte objectCount = 0;
         FileRead(&objectCount, 1);
         for (byte o = 0; o < objectCount; ++o) {
@@ -1234,7 +1234,6 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
 
     SetGlobalVariableByName("game.hasPlusDLC", !RSDK_AUTOBUILD);
 
-    SetGlobalVariableByName("engine.isScarletEngine", 1);
 
     // These need to be set every time its reloaded
     nativeFunctionCount = 0;
