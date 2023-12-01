@@ -36,9 +36,9 @@ Even if your platform isn't supported by the official releases, you **must** buy
 # Scarlet Engine Required Games
 * Virtua Scarlet
 # Scarlet Engine Compatible Games
-Sonic 2
-Another Sonic Adventure
-RSDK-GDT (Framework) 
+* Sonic 2
+* Another Sonic Adventure
+* RSDK-GDT (Framework) 
 
 # How to Build?
 
