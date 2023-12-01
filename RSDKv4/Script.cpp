@@ -2943,6 +2943,9 @@ void ParseScriptFile(char *scriptName, int scriptID)
 #if RETRO_USE_MOD_LOADER
                                 && FindStringToken(scriptText, "USE_MOD_LOADER", 1) == -1
 #endif
+#if !RETRO_USE_ORIGINAL_CODE
+                                && FindStringToken(scriptText, "USE_SCARLET", 1) == -1 // general flag for scarlet-only stuff
+#endif
                             ) {
                                 parseMode = PARSEMODE_PLATFORMSKIP;
                             }
