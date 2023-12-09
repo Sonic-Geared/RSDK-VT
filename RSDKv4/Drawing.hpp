@@ -35,6 +35,14 @@ struct DisplaySettings {
     byte unknown2;
 };
 
+struct VideoSettings {
+    int screenCount;
+};
+
+enum VideoSettingsValues {
+    VIDEOSETTING_SCREENCOUNT,
+};
+
 extern ushort blendLookupTable[0x20 * 0x100];
 extern ushort subtractLookupTable[0x20 * 0x100];
 extern ushort tintLookupTable[0x10000];
@@ -59,6 +67,8 @@ extern DrawListEntry drawListEntries[DRAWLAYER_COUNT];
 extern int gfxDataPosition;
 extern GFXSurface gfxSurface[SURFACE_COUNT];
 extern byte graphicData[GFXDATA_SIZE];
+
+extern VideoSettings videoSettings;
 
 extern DisplaySettings displaySettings;
 extern bool convertTo32Bit;

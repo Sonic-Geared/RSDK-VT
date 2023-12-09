@@ -5461,6 +5461,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 // FUNCTION PARAMS:
                 // scriptEng.operands[0] = screenCount
 
+                SetVideoSetting(VIDEOSETTING_SCREENCOUNT, scriptEng.operands[0]);
                 break;
 
             case FUNC_SETSCREENVERTICES:

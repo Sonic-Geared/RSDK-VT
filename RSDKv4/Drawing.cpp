@@ -31,6 +31,8 @@ int gfxDataPosition = 0;
 GFXSurface gfxSurface[SURFACE_COUNT];
 byte graphicData[GFXDATA_SIZE];
 
+VideoSettings videoSettings;
+
 DisplaySettings displaySettings;
 bool convertTo32Bit     = false;
 bool mixFiltersOnJekyll = false;
@@ -990,6 +992,15 @@ void SetFullScreen(bool fs)
 #endif
     }
     Engine.isFullScreen = fs;
+}
+
+void SetVideoSetting(int id, int value)
+{
+    switch (id) {
+        case VIDEOSETTING_SCREENCOUNT: videoSettings.screenCount = value; break;
+
+        default: break;
+    }
 }
 
 void DrawObjectList(int Layer)
