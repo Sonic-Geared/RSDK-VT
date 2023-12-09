@@ -92,6 +92,8 @@ void CopyFrameOverlay2x();
 void SetupViewport();
 void SetFullScreen(bool fs);
 
+void SetVideoSetting(int id, int value);
+
 // Layer Drawing
 void DrawObjectList(int layer);
 void DrawStageGFX();
