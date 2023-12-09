@@ -467,6 +467,16 @@ void ProcessInput()
 }
 #endif //! !RETRO_USE_ORIGINAL_CODE
 
+int GetInputDeviceType(uint deviceID)
+{
+    for (int i = 0; i < inputDeviceCount; ++i) {
+        if (inputDeviceList[i] && inputDeviceList[i]->id == deviceID)
+            return inputDeviceList[i]->gamepadType;
+    }
+
+    return (DEVICE_API_NONE << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (DEVICE_SWITCH_HANDHELD << 0);
+}
+
 // Pretty much is this code in the original, just formatted differently
 void CheckKeyPress(InputData *input)
 {

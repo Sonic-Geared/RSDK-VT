@@ -1,6 +1,24 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+#define PLAYER_COUNT      (4)
+#define INPUTDEVICE_COUNT (0x10)
+
+enum InputIDs {
+    INPUT_UNASSIGNED = -2,
+    INPUT_AUTOASSIGN = -1,
+    INPUT_NONE       = 0,
+};
+
+enum InputDeviceTypes {
+    DEVICE_TYPE_NONE,
+    DEVICE_TYPE_CONTROLLER,
+};
+
+enum InputDeviceIDs {
+    DEVICE_SWITCH_HANDHELD,
+};
+
 enum InputButtons {
     INPUT_UP,
     INPUT_DOWN,
@@ -55,6 +73,25 @@ struct InputButton {
     inline bool down() { return (press || hold); }
 };
 
+struct InputDevice {
+    virtual void UpdateInput() {}
+    virtual void ProcessInput(int controllerID) {}
+    virtual void CloseDevice() {}
+    virtual int Unknown1(int unknown1, int unknown2) { return 0; }
+    virtual int Unknown2(int unknown1, int unknown2) { return 0; }
+
+    virtual ~InputDevice() = default;
+
+    int gamepadType;
+    uint id;
+    byte active;
+    byte isAssigned;
+    byte unused;
+    byte disabled;
+    byte anyPress;
+    int inactiveTimer[2];
+};
+
 enum DefaultHapticIDs {
     HAPTIC_NONE = -2,
     HAPTIC_STOP = -1,
@@ -76,6 +113,12 @@ extern int hapticEffectNum;
 #if !RETRO_USE_ORIGINAL_CODE
 extern InputButton inputDevice[INPUT_BUTTONCOUNT];
 extern int inputType;
+
+extern InputDevice *inputDeviceList[INPUTDEVICE_COUNT];
+extern int inputDeviceCount;
+
+extern int inputSlots[PLAYER_COUNT];
+extern InputDevice *inputSlotDevices[PLAYER_COUNT];
 
 extern float LSTICK_DEADZONE;
 extern float RSTICK_DEADZONE;
@@ -119,6 +162,127 @@ void ReleaseInputDevices();
 
 void ProcessInput();
 #endif
+
+inline InputDevice *InputDeviceFromID(uint deviceID)
+{
+    for (int i = 0; i < inputDeviceCount; ++i) {
+        if (inputDeviceList[i] && inputDeviceList[i]->id == deviceID)
+            return inputDeviceList[i];
+    }
+
+    return NULL;
+}
+
+inline uint GetInputDeviceID(byte inputSlot)
+{
+    byte slotID = inputSlot - 1;
+    if (slotID < PLAYER_COUNT)
+        return inputSlots[slotID];
+
+    return INPUT_NONE;
+}
+
+inline uint GetFilteredInputDeviceID(bool confirmOnly, bool unassignedOnly, uint maxInactiveTimer)
+{
+    uint mostRecentTime    = -1;
+    int mostRecentValidID = 0;
+    int mostRecentID      = 0;
+    uint maxTime           = maxInactiveTimer ? maxInactiveTimer : -1;
+
+    if (inputDeviceCount) {
+        for (int i = 0; i < inputDeviceCount; ++i) {
+            if (inputDeviceList[i] && inputDeviceList[i]->active && !inputDeviceList[i]->disabled
+                && (!inputDeviceList[i]->isAssigned || !unassignedOnly)) {
+                if (inputDeviceList[i]->inactiveTimer[confirmOnly] < mostRecentTime) {
+                    mostRecentTime = inputDeviceList[i]->inactiveTimer[confirmOnly];
+                    if (inputDeviceList[i]->inactiveTimer[confirmOnly] <= maxTime)
+                        mostRecentValidID = inputDeviceList[i]->id;
+                    mostRecentID = inputDeviceList[i]->id;
+                }
+            }
+        }
+
+        if (mostRecentValidID)
+            return mostRecentValidID;
+    }
+
+    if (mostRecentID)
+        return mostRecentID;
+
+    for (int i = 0; i < inputDeviceCount; ++i) {
+        if (inputDeviceList[i] && inputDeviceList[i]->active && !inputDeviceList[i]->disabled
+            && (!inputDeviceList[i]->isAssigned || !unassignedOnly)) {
+            return inputDeviceList[i]->id;
+        }
+    }
+
+    return mostRecentID;
+}
+
+int GetInputDeviceType(uint deviceID);
+
+inline bool IsInputDeviceAssigned(uint deviceID)
+{
+    for (int i = 0; i < inputDeviceCount; ++i) {
+        if (inputDeviceList[i] && inputDeviceList[i]->id == deviceID) {
+            return inputDeviceList[i]->isAssigned;
+        }
+    }
+
+    return false;
+}
+
+inline void AssignInputSlotToDevice(byte inputSlot, uint deviceID)
+{
+    byte slotID = inputSlot - 1;
+
+    if (slotID < PLAYER_COUNT) {
+        if (deviceID && deviceID != INPUT_AUTOASSIGN) {
+            if (deviceID == INPUT_UNASSIGNED) {
+                inputSlots[slotID] = INPUT_UNASSIGNED;
+            }
+            else {
+                for (int i = 0; i < inputDeviceCount; ++i) {
+                    if (inputDeviceList[i] && inputDeviceList[i]->id == deviceID) {
+                        inputDeviceList[i]->isAssigned = true;
+                        inputSlots[slotID]             = deviceID;
+                        inputSlotDevices[slotID]       = inputDeviceList[i];
+                        break;
+                    }
+                }
+            }
+        }
+        else {
+            InputDevice *device = InputDeviceFromID(inputSlots[slotID]);
+            if (device)
+                device->isAssigned = false;
+            inputSlots[slotID] = deviceID;
+        }
+    }
+}
+
+inline bool IsInputSlotAssigned(byte inputSlot)
+{
+    byte slotID = inputSlot - 1;
+
+    if (slotID < PLAYER_COUNT)
+        return inputSlots[slotID] != INPUT_NONE;
+
+    return false;
+}
+
+inline void ResetInputSlotAssignments()
+{
+    for (int i = 0; i < PLAYER_COUNT; ++i) {
+        inputSlots[i]       = INPUT_NONE;
+        inputSlotDevices[i] = NULL;
+    }
+
+    for (int i = 0; i < inputDeviceCount; ++i) {
+        if (inputDeviceList[i])
+            inputDeviceList[i]->isAssigned = false;
+    }
+}
 
 void CheckKeyPress(InputData *input);
 void CheckKeyDown(InputData *input);
