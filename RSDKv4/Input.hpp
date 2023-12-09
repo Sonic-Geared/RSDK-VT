@@ -1,7 +1,6 @@
 #ifndef INPUT_H
 #define INPUT_H
 
-#define PLAYER_COUNT      (4)
 #define INPUTDEVICE_COUNT (0x10)
 
 enum InputIDs {
