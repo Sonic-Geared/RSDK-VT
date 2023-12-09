@@ -5481,7 +5481,6 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 // FUNCTION NOTES:
                 // - Assigns the device's id to scriptEng.operands[0]
 
-                scriptEng.operands[0] = GetInputDeviceID(scriptEng.operands[1]);
                 break;
 
             case FUNC_GETFILTEREDINPUTDEVICEID:
@@ -5494,7 +5493,6 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 // FUNCTION NOTES:
                 // - Assigns the filtered device's id to scriptEng.operands[0]
 
-                scriptEng.operands[0] = GetFilteredInputDeviceID(scriptEng.operands[1], scriptEng.operands[2] > 0, scriptEng.operands[3]);
                 break;
 
             case FUNC_GETINPUTDEVICETYPE:
@@ -5505,14 +5503,12 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 // FUNCTION NOTES:
                 // - Assigns the device's type to scriptEng.operands[0]
 
-                scriptEng.operands[0] = GetInputDeviceType(scriptEng.operands[1]);
                 break;
 
             case FUNC_ISINPUTDEVICEASSIGNED:
                 // FUNCTION PARAMS:
                 // scriptEng.operands[0] = deviceID
 
-                scriptEng.checkResult = IsInputDeviceAssigned(scriptEng.operands[0]);
                 break;
 
             case FUNC_ASSIGNINPUTSLOTTODEVICE:
@@ -5520,7 +5516,6 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 // scriptEng.operands[0] = inputSlot
                 // scriptEng.operands[1] = deviceID
 
-                AssignInputSlotToDevice(scriptEng.operands[0], scriptEng.operands[1]);
                 break;
 
             case FUNC_ISSLOTASSIGNED:
@@ -5530,14 +5525,12 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 // FUNCTION NOTES:
                 // - Sets scriptEng.checkResult
 
-                scriptEng.checkResult = IsInputSlotAssigned(scriptEng.operands[0]);
                 break;
 
             case FUNC_RESETINPUTSLOTASSIGNMENTS:
                 // FUNCTION PARAMS:
                 // None
 
-                ResetInputSlotAssignments();
                 break;
         }
 
