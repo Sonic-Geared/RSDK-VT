@@ -248,19 +248,19 @@ void InitUserdata()
         Engine.startStage_Game = Engine.startStage;
 
         ini.SetBool("Dev", "UseHQModes", Engine.useHQModes = true);
-        ini.SetString("Dev", "DataFile", (char *)"Data.rsdk");
-        StrCopy(Engine.dataFile[0], "Data.rsdk");
+        ini.SetString("Dev", "DataFile", (char *)"Data.sex");
+        StrCopy(Engine.dataFile[0], "Data.sex");
         if (!StrComp(Engine.dataFile[1], "")) {
-            ini.SetString("Dev", "DataFile2", (char *)"Data2.rsdk");
-            StrCopy(Engine.dataFile[1], "Data2.rsdk");
+            ini.SetString("Dev", "DataFile2", (char *)"Data2.sex");
+            StrCopy(Engine.dataFile[1], "Data2.sex");
         }
         if (!StrComp(Engine.dataFile[2], "")) {
-            ini.SetString("Dev", "DataFile3", (char *)"Data3.rsdk");
-            StrCopy(Engine.dataFile[2], "Data3.rsdk");
+            ini.SetString("Dev", "DataFile3", (char *)"Data3.sex");
+            StrCopy(Engine.dataFile[2], "Data3.sex");
         }
         if (!StrComp(Engine.dataFile[3], "")) {
-            ini.SetString("Dev", "DataFile4", (char *)"Data4.rsdk");
-            StrCopy(Engine.dataFile[3], "Data4.rsdk");
+            ini.SetString("Dev", "DataFile4", (char *)"Data4.sex");
+            StrCopy(Engine.dataFile[3], "Data4.sex");
         }
 
         ini.SetInteger("Game", "Language", Engine.language = RETRO_EN);
@@ -394,7 +394,7 @@ void InitUserdata()
         Engine.startStage_Game = Engine.startStage;
 
         if (!ini.GetString("Dev", "DataFile", Engine.dataFile[0]))
-            StrCopy(Engine.dataFile[0], "Data.rsdk");
+            StrCopy(Engine.dataFile[0], "Data.sex");
         if (!StrComp(Engine.dataFile[1], "")) {
             if (!ini.GetString("Dev", "DataFile2", Engine.dataFile[1]))
                 StrCopy(Engine.dataFile[1], "");
