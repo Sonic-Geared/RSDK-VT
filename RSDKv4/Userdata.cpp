@@ -248,19 +248,19 @@ void InitUserdata()
         Engine.startStage_Game = Engine.startStage;
 
         ini.SetBool("Dev", "UseHQModes", Engine.useHQModes = true);
-        ini.SetString("Dev", "DataFile", (char *)"Data.sex");
-        StrCopy(Engine.dataFile[0], "Data.sex");
+        ini.SetString("Dev", "DataFile", (char *)"Data.scarex");
+        StrCopy(Engine.dataFile[0], "Data.scarex");
         if (!StrComp(Engine.dataFile[1], "")) {
-            ini.SetString("Dev", "DataFile2", (char *)"Data2.sex");
-            StrCopy(Engine.dataFile[1], "Data2.sex");
+            ini.SetString("Dev", "DataFile2", (char *)"Data2.scarex");
+            StrCopy(Engine.dataFile[1], "Data2.scarex");
         }
         if (!StrComp(Engine.dataFile[2], "")) {
-            ini.SetString("Dev", "DataFile3", (char *)"Data3.sex");
-            StrCopy(Engine.dataFile[2], "Data3.sex");
+            ini.SetString("Dev", "DataFile3", (char *)"Data3.scarex");
+            StrCopy(Engine.dataFile[2], "Data3.scarex");
         }
         if (!StrComp(Engine.dataFile[3], "")) {
-            ini.SetString("Dev", "DataFile4", (char *)"Data4.sex");
-            StrCopy(Engine.dataFile[3], "Data4.sex");
+            ini.SetString("Dev", "DataFile4", (char *)"Data4.scarex");
+            StrCopy(Engine.dataFile[3], "Data4.scarex");
         }
 
         ini.SetInteger("Game", "Language", Engine.language = RETRO_EN);
@@ -394,7 +394,7 @@ void InitUserdata()
         Engine.startStage_Game = Engine.startStage;
 
         if (!ini.GetString("Dev", "DataFile", Engine.dataFile[0]))
-            StrCopy(Engine.dataFile[0], "Data.sex");
+            StrCopy(Engine.dataFile[0], "Data.scarex");
         if (!StrComp(Engine.dataFile[1], "")) {
             if (!ini.GetString("Dev", "DataFile2", Engine.dataFile[1]))
                 StrCopy(Engine.dataFile[1], "");
@@ -674,18 +674,18 @@ void WriteSettings()
         "Determines if applicable rendering modes (such as 3D floor from special stages) will render in \"High Quality\" mode or standard mode");
     ini.SetBool("Dev", "UseHQModes", Engine.useHQModes);
 
-    ini.SetComment("Dev", "DataFileComment", "Determines where the first SEX file will be loaded from");
+    ini.SetComment("Dev", "DataFileComment", "Determines where the first SCAREX/RSDK file will be loaded from");
     ini.SetString("Dev", "DataFile", Engine.dataFile[0]);
     if (!StrComp(Engine.dataFile[1], "")) {
-        ini.SetComment("Dev", "DataFileComment2", "Determines where the second SEX file will be loaded from");
+        ini.SetComment("Dev", "DataFileComment2", "Determines where the second SCAREX file will be loaded from");
         ini.SetString("Dev", "DataFile2", Engine.dataFile[1]);
     }
     if (!StrComp(Engine.dataFile[2], "")) {
-        ini.SetComment("Dev", "DataFileComment3", "Determines where the third SEX file will be loaded from");
+        ini.SetComment("Dev", "DataFileComment3", "Determines where the third SCAREX file will be loaded from");
         ini.SetString("Dev", "DataFile3", Engine.dataFile[2]);
     }
     if (!StrComp(Engine.dataFile[3], "")) {
-        ini.SetComment("Dev", "DataFileComment4", "Determines where the fourth SEX file will be loaded from");
+        ini.SetComment("Dev", "DataFileComment4", "Determines where the fourth SCAREX file will be loaded from");
         ini.SetString("Dev", "DataFile4", Engine.dataFile[3]);
     }
 
