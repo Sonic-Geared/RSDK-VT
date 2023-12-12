@@ -7,6 +7,9 @@ int tan1024LookupTable[0x400];
 int asin1024LookupTable[0x400];
 int acos1024LookupTable[0x400];
 
+int sinM7LookupTable[0x200];
+int cosM7LookupTable[0x200];
+
 int sin512LookupTable[0x200];
 int cos512LookupTable[0x200];
 int tan512LookupTable[0x200];

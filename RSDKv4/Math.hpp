@@ -39,6 +39,9 @@ extern int tan1024LookupTable[0x400];
 extern int asin1024LookupTable[0x400];
 extern int acos1024LookupTable[0x400];
 
+extern int sinM7LookupTable[0x200];
+extern int cosM7LookupTable[0x200];
+
 extern int sin512LookupTable[0x200];
 extern int cos512LookupTable[0x200];
 extern int tan512LookupTable[0x200];
