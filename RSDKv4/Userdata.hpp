@@ -84,6 +84,8 @@ extern void *nativeFunction[NATIIVEFUNCTION_COUNT];
 extern int nativeFunctionCount;
 
 extern int globalVariablesCount;
+extern int globalVariables[GLOBALVAR_COUNT];
+extern char globalVariableNames[GLOBALVAR_COUNT][0x20];
 extern GlobalVariable globalVariables[GLOBALVAR_COUNT];
 
 extern char gamePath[0x100];

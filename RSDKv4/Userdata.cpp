@@ -4,6 +4,8 @@ void *nativeFunction[NATIIVEFUNCTION_COUNT];
 int nativeFunctionCount = 0;
 
 int globalVariablesCount = 0;
+int globalVariables[GLOBALVAR_COUNT];
+char globalVariableNames[GLOBALVAR_COUNT][0x20];
 GlobalVariable globalVariables[GLOBALVAR_COUNT];
 
 char gamePath[0x100];
