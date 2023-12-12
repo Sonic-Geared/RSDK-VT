@@ -6,7 +6,6 @@ int nativeFunctionCount = 0;
 int globalVariablesCount = 0;
 int globalVariables[GLOBALVAR_COUNT];
 char globalVariableNames[GLOBALVAR_COUNT][0x20];
-GlobalVariable globalVariables[GLOBALVAR_COUNT];
 
 char gamePath[0x100];
 int saveRAM[SAVEDATA_SIZE];
@@ -1111,7 +1110,7 @@ void Receive2PVSData(MultiplayerData *data)
             multiplayerDataIN.type = 1;
             memcpy(multiplayerDataIN.data, data->data, sizeof(Entity));
             break;
-        case 2: globalVariables[data->data[0]].value = data->data[1]; break;
+        case 2: globalVariables[data->data[0]] = data->data[1]; break;
     }
 }
 
