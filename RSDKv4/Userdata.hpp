@@ -68,6 +68,11 @@ struct LeaderboardEntry {
     int score;
 };
 
+struct GlobalVariable {
+    char name[0x20];
+    int value;
+};
+
 #ifndef NETWORKING_H
 struct MultiplayerData {
     int type;
@@ -79,8 +84,7 @@ extern void *nativeFunction[NATIIVEFUNCTION_COUNT];
 extern int nativeFunctionCount;
 
 extern int globalVariablesCount;
-extern int globalVariables[GLOBALVAR_COUNT];
-extern char globalVariableNames[GLOBALVAR_COUNT][0x20];
+extern GlobalVariable globalVariables[GLOBALVAR_COUNT];
 
 extern char gamePath[0x100];
 extern int saveRAM[SAVEDATA_SIZE];
@@ -114,8 +118,8 @@ extern int disableFocusPause_Config;
 inline int GetGlobalVariableByName(const char *name)
 {
     for (int v = 0; v < globalVariablesCount; ++v) {
-        if (StrComp(name, globalVariableNames[v]))
-            return globalVariables[v];
+        if (StrComp(name, globalVariable[v].name))
+            return globalVariables[v].value;
     }
     return 0;
 }
@@ -123,8 +127,8 @@ inline int GetGlobalVariableByName(const char *name)
 inline void SetGlobalVariableByName(const char *name, int value)
 {
     for (int v = 0; v < globalVariablesCount; ++v) {
-        if (StrComp(name, globalVariableNames[v])) {
-            globalVariables[v] = value;
+        if (StrComp(name, globalVariable[v].name)) {
+            globalVariables[v].value = value;
             break;
         }
     }
@@ -132,7 +136,7 @@ inline void SetGlobalVariableByName(const char *name, int value)
 inline int GetGlobalVariableID(const char *name)
 {
     for (int v = 0; v < globalVariablesCount; ++v) {
-        if (StrComp(name, globalVariableNames[v]))
+        if (StrComp(name, globalVariable[v].name))
             return v;
     }
     return 0xFF;
@@ -183,7 +187,7 @@ inline void LoadAchievementsMenu()
 
 void ShowAchievementsScreen();
 
-int SetLeaderboard(int *leaderboardID, int *result);
+void SetLeaderboard(int *leaderboardID, int *score);
 inline void LoadLeaderboardsMenu()
 {
 #if !RETRO_USE_ORIGINAL_CODE

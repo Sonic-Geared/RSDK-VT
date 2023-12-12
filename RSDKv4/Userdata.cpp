@@ -1,11 +1,10 @@
 #include "RetroEngine.hpp"
 
-int globalVariablesCount;
-int globalVariables[GLOBALVAR_COUNT];
-char globalVariableNames[GLOBALVAR_COUNT][0x20];
-
 void *nativeFunction[NATIIVEFUNCTION_COUNT];
 int nativeFunctionCount = 0;
+
+int globalVariablesCount = 0;
+GlobalVariable globalVariables[GLOBALVAR_COUNT];
 
 char gamePath[0x100];
 int saveRAM[SAVEDATA_SIZE];
@@ -922,9 +921,15 @@ void AwardAchievement(int id, int status)
 
 void SetAchievement(int *achievementID, int *status)
 {
-    if (!Engine.trialMode && !debugMode) {
-        AwardAchievement(*achievementID, *status);
-    }
+    if (!achievementID || !status)
+        return;
+
+    PrintLog("Achieved achievement: %d (%d)!", *achievementID, *status);
+
+    if ((uint)*achievementID >= ACHIEVEMENT_COUNT)
+        return;
+
+    achievements[*achievementID].status = *status ? true : false;
 }
 #if RETRO_USE_MOD_LOADER
 void AddGameAchievement(int *unused, const char *name) { StrCopy(achievements[achievementCount++].name, name); }
@@ -969,47 +974,12 @@ void ShowAchievementsScreen()
 #endif
 }
 
-int SetLeaderboard(int *leaderboardID, int *score)
+void SetLeaderboard(int *leaderboardID, int *score)
 {
-    if (!Engine.trialMode && !debugMode) {
-        // 0  = GHZ1/EHZ1
-        // 1  = GHZ2/EHZ1
-        // 2  = GHZ3/CPZ1
-        // 3  = MZ1/CPZ1
-        // 4  = MZ2/ARZ1
-        // 5  = MZ3/ARZ1
-        // 6  = SYZ1/CNZ1
-        // 7  = SYZ2/CNZ1
-        // 8  = SYZ3/HTZ1
-        // 9  = LZ1/HTZ1
-        // 10 = LZ2/MCZ1
-        // 11 = LZ3/MCZ1
-        // 12 = SLZ1/OOZ1
-        // 13 = SLZ2/OOZ1
-        // 14 = SLZ3/MPZ1
-        // 15 = SBZ1/MPZ2
-        // 15 = SBZ2/MPZ3
-        // 16 = SBZ3/SCZ
-        // 17 = ???/WFZ
-        // 18 = ???/DEZ
-        // 19 = TotalScore (S1)/???
-        // 20 = ???
-        // 21 = HPZ
-        // 22 = TotalScore (S2)
-#if !RETRO_USE_ORIGINAL_CODE
-        if (*score < leaderboards[*leaderboardID].score) {
-            PrintLog("Set leaderboard (%d) value to %d", *leaderboardID, score);
-            leaderboards[*leaderboardID].score = *score;
-            WriteUserdata();
-        }
-        else {
-            PrintLog("Attempted to set leaderboard (%d) value to %d... but score was already %d!", *leaderboardID, *score,
-                     leaderboards[*leaderboardID].score);
-        }
-#endif
-        return 1;
-    }
-    return 0;
+    if (!leaderboardID || !score)
+        return;
+
+    PrintLog("Setting Leaderboard %d score to %d...", *leaderboardID, *score);
 }
 void ShowLeaderboardsScreen()
 {
@@ -1139,7 +1109,7 @@ void Receive2PVSData(MultiplayerData *data)
             multiplayerDataIN.type = 1;
             memcpy(multiplayerDataIN.data, data->data, sizeof(Entity));
             break;
-        case 2: globalVariables[data->data[0]] = data->data[1]; break;
+        case 2: globalVariables[data->data[0]].value = data->data[1]; break;
     }
 }
 
