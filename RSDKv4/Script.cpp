@@ -385,11 +385,24 @@ const FunctionInfo functions[] = {
     FunctionInfo("endswitch", 0), // endswitch
 
     // Math Functions
-    FunctionInfo("Rand", 2),
+    FunctionInfo("SetRandSeed", 1),
+    FunctionInfo("Rand", 3),
+    FunctionInfo("RandSeeded", 4),
+    FunctionInfo("Sin1024", 2),
+    FunctionInfo("Cos1024", 2),
+    FunctionInfo("Tan1024", 2),
+    FunctionInfo("ASin1024", 2),
+    FunctionInfo("ACos1024", 2),
     FunctionInfo("Sin", 2),
     FunctionInfo("Cos", 2),
+    FunctionInfo("Tan", 2),
+    FunctionInfo("ASin", 2),
+    FunctionInfo("ACos", 2),
     FunctionInfo("Sin256", 2),
     FunctionInfo("Cos256", 2),
+    FunctionInfo("Tan256", 2),
+    FunctionInfo("ASin256", 2),
+    FunctionInfo("ACos256", 2),
     FunctionInfo("ATan2", 3),
     FunctionInfo("Interpolate", 4),
     FunctionInfo("InterpolateXY", 7),
@@ -888,11 +901,24 @@ enum ScrFunc {
     FUNC_SWITCH,
     FUNC_BREAK,
     FUNC_ENDSWITCH,
+    FUNC_SETRANDSEED,
     FUNC_RAND,
+    FUNC_RANDSEEDED,
+    FUNC_SIN1024,
+    FUNC_COS1024,
+    FUNC_TAN1024,
+    FUNC_ASIN1024,
+    FUNC_ACOS1024,
     FUNC_SIN,
     FUNC_COS,
+    FUNC_TAN,
+    FUNC_ASIN,
+    FUNC_ACOS,
     FUNC_SIN256,
     FUNC_COS256,
+    FUNC_TAN256,
+    FUNC_ASIN256,
+    FUNC_ACOS256,
     FUNC_ATAN2,
     FUNC_INTERPOLATE,
     FUNC_INTERPOLATEXY,
@@ -4328,7 +4354,29 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 opcodeSize = 0;
                 --jumpTableStackPos;
                 break;
-            case FUNC_RAND: scriptEng.operands[0] = rand() % scriptEng.operands[1]; break;
+            case FUNC_SETRANDSEED: SetRandSeed(scriptEng.operands[0]); break;
+            case FUNC_RAND: scriptEng.operands[0] = Rand(scriptEng.operands[1], scriptEng.operands[2]); break;
+            case FUNC_RANDSEEDED: scriptEng.operands[0] = RandSeeded(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+            case FUNC_SIN1024: {
+                scriptEng.operands[0] = Sin1024(scriptEng.operands[1]);
+                break;
+            }
+            case FUNC_COS1024: {
+                scriptEng.operands[0] = Cos1024(scriptEng.operands[1]);
+                break;
+            }
+            case FUNC_TAN1024: {
+                scriptEng.operands[0] = Tan1024(scriptEng.operands[1]);
+                break;
+            }
+            case FUNC_ASIN1024: {
+                scriptEng.operands[0] = ASin1024(scriptEng.operands[1]);
+                break;
+            }
+            case FUNC_ACOS1024: {
+                scriptEng.operands[0] = ACos1024(scriptEng.operands[1]);
+                break;
+            }
             case FUNC_SIN: {
                 scriptEng.operands[0] = Sin512(scriptEng.operands[1]);
                 break;
@@ -4337,12 +4385,36 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 scriptEng.operands[0] = Cos512(scriptEng.operands[1]);
                 break;
             }
+            case FUNC_TAN: {
+                scriptEng.operands[0] = Tan512(scriptEng.operands[1]);
+                break;
+            }
+            case FUNC_ASIN: {
+                scriptEng.operands[0] = ASin512(scriptEng.operands[1]);
+                break;
+            }
+            case FUNC_ACOS: {
+                scriptEng.operands[0] = ACos512(scriptEng.operands[1]);
+                break;
+            }
             case FUNC_SIN256: {
                 scriptEng.operands[0] = Sin256(scriptEng.operands[1]);
                 break;
             }
             case FUNC_COS256: {
                 scriptEng.operands[0] = Cos256(scriptEng.operands[1]);
+                break;
+            }
+            case FUNC_TAN256: {
+                scriptEng.operands[0] = Tan256(scriptEng.operands[1]);
+                break;
+            }
+            case FUNC_ASIN256: {
+                scriptEng.operands[0] = ASin256(scriptEng.operands[1]);
+                break;
+            }
+            case FUNC_ACOS256: {
+                scriptEng.operands[0] = ACos256(scriptEng.operands[1]);
                 break;
             }
             case FUNC_ATAN2: {
