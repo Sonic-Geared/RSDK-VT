@@ -2,8 +2,8 @@
 
 A modded version of RSDKv4 with fan game development in mind.
 
-# **SUPPORT THE OFFICIAL RELEASE OF SONIC 1 & 2**
-+ Without the offical releases of Sonic 1 & Sonic 2, this project wouldn't be possible!
+# **SUPPORT THE OFFICIAL RELEASES OF SONIC 1 & 2**
++ Without the offical releases of Sonic 1 & Sonic 2, neither this project or the original RSDKv4 decompilation wouldn't be possible!
 
 + You can get official releases of Sonic 1 & Sonic 2 from:
   * Windows
