@@ -385,10 +385,8 @@ const FunctionInfo functions[] = {
     FunctionInfo("endswitch", 0), // endswitch
 
     // Math Functions
-    FunctionInfo("SetRandSeed", 1),
     FunctionInfo("NewRand", 3),
     FunctionInfo("Rand", 2),
-    FunctionInfo("RandSeeded", 4),
     FunctionInfo("Sin1024", 2),
     FunctionInfo("Cos1024", 2),
     FunctionInfo("Tan1024", 2),
@@ -902,10 +900,8 @@ enum ScrFunc {
     FUNC_SWITCH,
     FUNC_BREAK,
     FUNC_ENDSWITCH,
-    FUNC_SETRANDSEED,
     FUNC_NEWRAND,
     FUNC_RAND,
-    FUNC_RANDSEEDED,
     FUNC_SIN1024,
     FUNC_COS1024,
     FUNC_TAN1024,
@@ -4356,10 +4352,8 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 opcodeSize = 0;
                 --jumpTableStackPos;
                 break;
-            case FUNC_SETRANDSEED: SetRandSeed(scriptEng.operands[0]); break;
             case FUNC_NEWRAND: scriptEng.operands[0] = Rand(scriptEng.operands[1], scriptEng.operands[2]); break;
             case FUNC_RAND: scriptEng.operands[0] = rand() % scriptEng.operands[1]; break;
-            case FUNC_RANDSEEDED: scriptEng.operands[0] = RandSeeded(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
             case FUNC_SIN1024: {
                 scriptEng.operands[0] = Sin1024(scriptEng.operands[1]);
                 break;
