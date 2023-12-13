@@ -28,17 +28,19 @@ Even if your platform isn't supported by the official releases, you **must** buy
 * Added all the features from every revision of RSDKv4 (REV00, REV01, REV02 & REV03)
 * Removed the 2MBs Audio limit
 * Re-adds the Disable Focus Pause that was missing from the Mobile versions of RSDKv4
+* Extra functions for the scripting language (such as RSDKv5(U) related functions, alongside with RSDKv3 & RSDKv2/Sonic Nexus functions)
 
 # Planned features of the Scarlet Engine:
 * The video playback from RSDKv3
-* Add the tweaks from RSDKv5(U) on it
 
 # Scarlet Engine Required Games
 * Virtua Scarlet
+
 # Scarlet Engine Compatible Games
+* Sonic 1
 * Sonic 2
 * Another Sonic Adventure
-* RSDK-GDT (Framework) 
+* RSDK-GDT (Framework)
 
 # How to Build?
 
