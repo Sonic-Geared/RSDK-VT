@@ -142,16 +142,16 @@ inline int Rand(int min, int max)
     else
         return max;
 }
-inline int RandSeeded(int min, int max, int randSeed)
+inline int RandSeeded(int min, int max, int *randSeed)
 {
     if (!randSeed)
         return 0;
 
-    int seed1 = 1103515245 * randSeed + 12345;
+    int seed1 = 1103515245 * *randSeed + 12345;
     int seed2 = 1103515245 * seed1 + 12345;
-    randSeed   = 1103515245 * seed2 + 12345;
+    *randSeed   = 1103515245 * seed2 + 12345;
 
-    int result = ((randSeed >> 16) & 0x7FF) ^ ((((seed1 >> 6) & 0x1FFC00) ^ ((seed2 >> 16) & 0x7FF)) << 10);
+    int result = ((*randSeed >> 16) & 0x7FF) ^ ((((seed1 >> 6) & 0x1FFC00) ^ ((seed2 >> 16) & 0x7FF)) << 10);
     int size   = abs(max - min);
 
     if (min > max)
