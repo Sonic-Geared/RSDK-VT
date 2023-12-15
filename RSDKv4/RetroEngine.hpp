@@ -252,6 +252,7 @@ enum RetroStates {
     ENGINE_EXITPAUSE   = 6,
     ENGINE_ENDGAME     = 7,
     ENGINE_RESETGAME   = 8,
+    ENGINE_VIDEOWAIT   = 9,
 
 #if !RETRO_USE_ORIGINAL_CODE && RETRO_USE_NETWORKING
     // Custom GameModes (required to make some features work)
@@ -320,6 +321,7 @@ extern bool engineDebugMode;
 #include "Text.hpp"
 #include "Networking.hpp"
 #include "Renderer.hpp"
+// #include "Video.hpp" - let it as a comment for now, we gotta make sure to get all the files necessary to make the video playback actually functional, sorry Klash but we need to do it like this at the moment
 #include "Userdata.hpp"
 #include "Debug.hpp"
 #include "ModAPI.hpp"
