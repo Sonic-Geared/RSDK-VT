@@ -355,6 +355,7 @@ public:
 #endif
     bool usingDataFile = false;
     bool usingBytecode = false;
+    bool forceFolder   = false;
 
     char dataFile[RETRO_PACKFILE_COUNT][0x80];
 

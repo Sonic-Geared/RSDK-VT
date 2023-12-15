@@ -3,6 +3,8 @@
 InputData keyPress = InputData();
 InputData keyDown  = InputData();
 
+bool anyPress = false;
+
 int touchDown[8];
 int touchX[8];
 int touchY[8];
@@ -487,8 +489,15 @@ void CheckKeyPress(InputData *input)
     input->select = inputDevice[INPUT_SELECT].press;
 #endif
 
-    SetGlobalVariableByName("input.pressButton", input->A || input->B || input->C || input->X || input->Y || input->Z || input->L || input->R
-                                                     || input->start || input->select);
+    anyPress = inputDevice[INPUT_ANY].press;
+    if (!anyPress) {
+        for (int t = 0; t < touches; ++t) {
+            if (touchDown[t])
+                anyPress = true;
+        }
+    }
+
+    SetGlobalVariableByName("input.pressButton", anyPress);
 }
 
 void CheckKeyDown(InputData *input)

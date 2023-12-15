@@ -203,7 +203,7 @@ void UpdateVideoFrame()
 int ProcessVideo()
 {
     if (videoPlaying == 1) {
-        CheckKeyPress(&keyPress, 0xFF);
+        CheckKeyPress(&keyPress);
 
         if (videoSkipped && fadeMode < 0xFF) {
             fadeMode += 8;
