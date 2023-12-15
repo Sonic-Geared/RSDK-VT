@@ -78,6 +78,7 @@ extern bool mixFiltersOnJekyll;
 extern GLint defaultFramebuffer;
 extern GLuint framebufferHiRes;
 extern GLuint renderbufferHiRes;
+extern GLuint videoBuffer;
 #endif
 
 int InitRenderDevice();
