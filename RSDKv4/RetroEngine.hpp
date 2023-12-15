@@ -220,27 +220,6 @@ typedef unsigned int uint;
 
 #endif
 
-// Timeline:
-// 0 = S1 release RSDKv4 version
-// 1 = S2 release RSDKv4 version
-// 2 = S3 POC RSDKv4 version (I have no idea how we have this but woohoo apparently)
-// 3 = Sonic Origins (Plus) version
-#ifndef RSDK_REVISION
-#define RSDK_REVISION (3)
-#endif
-
-// reverts opcode list back to how it was in earliest S1 builds, fixes bugs on some datafiles
-#define RETRO_REV00 (RSDK_REVISION == 0)
-
-// reverts opcode list back to how it was in earliest S2 builds, fixes bugs on some datafiles
-#define RETRO_REV01 (RSDK_REVISION == 1)
-
-// reverts opcode list back to how it was in the S3 POC, this is the most common opcode list
-#define RETRO_REV02 (RSDK_REVISION == 2)
-
-// the default, uses the Sonic Origins opcode list taken from RSDKv5U
-#define RETRO_REV03 (RSDK_REVISION == 3)
-
 enum RetroLanguages {
     RETRO_EN = 0,
     RETRO_FR = 1,
