@@ -2,9 +2,8 @@ cmake_minimum_required(VERSION 3.7)
 
 project(RetroEngine)
 
-set(DECOMP_VERSION 1.3.2)
+set(DECOMP_VERSION 1.0.0)
 
-set(RETRO_REVISION 3 CACHE STRING "What revision to compile for. Defaults to Origins = 3")
 option(RETRO_FORCE_CASE_INSENSITIVE "Forces case insensivity." OFF)
 option(RETRO_MOD_LOADER "Enables or disables the mod loader." ON)
 option(RETRO_NETWORKING "Enables or disables networking features used for Sonic 2's 2P VS mode." ON)
