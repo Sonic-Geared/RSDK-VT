@@ -25,6 +25,12 @@
     <Filter Include="Header Files\dependencies">
       <UniqueIdentifier>{bd58fec9-0e89-46a0-be0d-5263fe57597c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\theoraPlay">
+      <UniqueIdentifier>{bda859b2-1d03-47c3-acf5-677bf22c1541}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\theoraPlay">
+      <UniqueIdentifier>{53c7d13e-21a9-454c-8d5d-8576328532f8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
