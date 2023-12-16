@@ -38,7 +38,7 @@ jobs:
           Rename-Item ./dependencies/windows/SDL2-2.28.3 SDL2
       - name: Run vcpkg
         run: |
-          vcpkg install libogg:x86-windows-static-md libvorbis:x86-windows-static-md libtheora:x86-windows-static
+          vcpkg install libogg:x86-windows-static libvorbis:x86-windows-static libtheora:x86-windows-static
           vcpkg integrate install
       - name: Build Scarlet Engine
         run: |
@@ -85,7 +85,7 @@ jobs:
           Rename-Item ./dependencies/windows/SDL2-2.28.3 SDL2
       - name: Run vcpkg
         run: |
-          vcpkg install libogg:x64-windows-static-md libvorbis:x64-windows-static-md libtheora:x64-windows-static
+          vcpkg install libogg:x64-windows-static libvorbis:x64-windows-static libtheora:x64-windows-static
           vcpkg integrate install
       - name: Build Scarlet Engine
         run: |
