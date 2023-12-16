@@ -38,7 +38,7 @@ jobs:
           Rename-Item ./dependencies/windows/SDL2-2.28.3 SDL2
       - name: Run vcpkg
         run: |
-          vcpkg install libogg:x86-windows-static-md libvorbis:x86-windows-static-md
+          vcpkg install libogg:x86-windows-static-md libvorbis:x86-windows-static-md libtheora:x86-windows-static
           vcpkg integrate install
       - name: Build Scarlet Engine
         run: |
@@ -85,7 +85,7 @@ jobs:
           Rename-Item ./dependencies/windows/SDL2-2.28.3 SDL2
       - name: Run vcpkg
         run: |
-          vcpkg install libogg:x64-windows-static-md libvorbis:x64-windows-static-md
+          vcpkg install libogg:x64-windows-static-md libvorbis:x64-windows-static-md libtheora:x64-windows-static
           vcpkg integrate install
       - name: Build Scarlet Engine
         run: |
@@ -132,6 +132,7 @@ jobs:
           Rename-Item ./android/app/jni/SDL2-2.28.3 SDL
       - name: Move & Copy stuff
         run: |
+          Copy-Item -Path ./dependencies/all/theoraplay -Destination ./dependencies/android/app/jni/src/dependencies/android/
           Copy-Item -Path ./dependencies/android/app/jni/src/dependencies/android\* -Destination ./dependencies/
           Copy-Item -Path ./dependencies/android/app/jni/src/dependencies/android/libogg/ -Destination ./dependencies/android/ -recurse
           Copy-Item -Path ./dependencies/android/config_types.h -Destination ./dependencies/android/libogg/include/ogg/
