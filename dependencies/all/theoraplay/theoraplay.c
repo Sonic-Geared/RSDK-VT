@@ -33,8 +33,8 @@
 #endif
 
 #include "theoraplay.h"
-#include "theoradec.h"
-#include "codec.h"
+#include "theora/theoradec.h"
+#include "vorbis/codec.h"
 
 #define THEORAPLAY_INTERNAL 1
 
