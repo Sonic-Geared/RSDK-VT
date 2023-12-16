@@ -281,15 +281,21 @@ enum RetroGameType {
 #include <SDL.h>
 #endif
 #include <vorbis/vorbisfile.h>
+#include <theora/theora.h>
+#include <theoraplay.h>
 #elif RETRO_PLATFORM == RETRO_OSX
 #include <SDL2/SDL.h>
 #include <Vorbis/vorbisfile.h>
+#include <Theora/theora.h>
+#include "theoraplay.h"
 
 #include "cocoaHelpers.hpp"
 
 #elif RETRO_USING_SDL2
 #include <SDL2/SDL.h>
 #include <vorbis/vorbisfile.h>
+#include <theora/theora.h>
+#include "theoraplay.h"
 #else
 
 #endif
@@ -321,7 +327,7 @@ extern bool engineDebugMode;
 #include "Text.hpp"
 #include "Networking.hpp"
 #include "Renderer.hpp"
-// #include "Video.hpp" - let it as a comment for now, we gotta make sure to get all the files necessary to make the video playback actually functional, sorry Klash but we need to do it like this at the moment
+#include "Video.hpp"
 #include "Userdata.hpp"
 #include "Debug.hpp"
 #include "ModAPI.hpp"
@@ -349,6 +355,7 @@ public:
 #endif
     bool usingDataFile = false;
     bool usingBytecode = false;
+    bool forceFolder   = false;
 
     char dataFile[RETRO_PACKFILE_COUNT][0x80];
 
@@ -483,6 +490,7 @@ public:
     SDL_Texture *screenBuffer   = nullptr;
     SDL_Texture *screenBuffer2x = nullptr;
 #endif // RETRO_SOFTWARE_RENDERER
+    SDL_Texture *videoBuffer    = nullptr;
 #endif
 
     SDL_Event sdlEvents;
@@ -497,6 +505,7 @@ public:
 
     SDL_Surface *screenBuffer   = nullptr;
     SDL_Surface *screenBuffer2x = nullptr;
+    SDL_Surface *videoBuffer    = nullptr;
 
     SDL_Event sdlEvents;
 #endif // RETRO_USING_SDL1

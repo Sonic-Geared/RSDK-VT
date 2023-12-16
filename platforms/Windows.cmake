@@ -4,12 +4,6 @@ add_executable(RetroEngine ${RETRO_FILES})
 
 set(DEP_PATH windows)
 
-if(RETRO_FORCE_CASE_SENSITIVE)
-    add_executable(RetroEngine ${RETRO_FILES}
-        RSDKv3/fcaseopen.c
-    )
-endif()
-
 find_package(Ogg CONFIG)
 
 if(NOT ${Ogg_FOUND})
@@ -19,6 +13,27 @@ else()
     message("found libogg")
     add_library(libogg ALIAS Ogg::ogg)
     target_link_libraries(RetroEngine libogg)
+endif()
+
+# i don't like this but it's what's on vcpkg so
+find_package(unofficial-theora CONFIG)
+
+if(NOT unofficial-theora_FOUND)
+    message(NOTICE "could not find libtheora from unofficial-theora, attempting to find through Theora")
+    find_package(Theora CONFIG)
+
+    if(NOT Theora_FOUND)
+        message("could not find libtheora, attempting to build manually")
+        set(COMPILE_THEORA TRUE)
+    else()
+        message("found libtheora")
+        add_library(libtheora ALIAS Theora::theora) # my best guess
+        target_link_libraries(RetroEngine libtheora)
+    endif()
+else()
+    message("found libtheora")
+    add_library(libtheora ALIAS unofficial::theora::theora)
+    target_link_libraries(RetroEngine libtheora)
 endif()
 
 find_package(Vorbis CONFIG)

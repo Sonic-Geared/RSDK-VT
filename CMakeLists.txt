@@ -2,9 +2,8 @@ cmake_minimum_required(VERSION 3.7)
 
 project(RetroEngine)
 
-set(DECOMP_VERSION 1.3.2)
+set(DECOMP_VERSION 1.0.0)
 
-set(RETRO_REVISION 3 CACHE STRING "What revision to compile for. Defaults to Origins = 3")
 option(RETRO_FORCE_CASE_INSENSITIVE "Forces case insensivity." OFF)
 option(RETRO_MOD_LOADER "Enables or disables the mod loader." ON)
 option(RETRO_NETWORKING "Enables or disables networking features used for Sonic 2's 2P VS mode." ON)
@@ -25,6 +24,7 @@ set(RETRO_OUTPUT_NAME ${RETRO_NAME} CACHE STRING "The exported name of the execu
 
 set(RETRO_FILES
     dependencies/all/tinyxml2/tinyxml2.cpp
+    dependencies/all/theoraplay/theoraplay.c
     RSDKv4/Animation.cpp
     RSDKv4/Audio.cpp
     RSDKv4/Collision.cpp
@@ -49,6 +49,7 @@ set(RETRO_FILES
     RSDKv4/String.cpp
     RSDKv4/Text.cpp
     RSDKv4/Userdata.cpp
+    RSDKv4/Video.cpp
     RSDKv4/NativeObjects/AboutScreen.cpp
     RSDKv4/NativeObjects/AchievementDisplay.cpp
     RSDKv4/NativeObjects/AchievementsButton.cpp
@@ -163,12 +164,53 @@ if(COMPILE_VORBIS)
     target_link_libraries(RetroEngine libvorbis libogg)
 endif()
 
+if(COMPILE_THEORA)
+    set(THEORA_DIR dependencies/${DEP_PATH}/libtheora)
+
+    add_library(libtheora STATIC
+        ${THEORA_DIR}/lib/analyze.c
+        ${THEORA_DIR}/lib/apiwrapper.c
+        ${THEORA_DIR}/lib/bitpack.c
+        ${THEORA_DIR}/lib/cpu.c
+        ${THEORA_DIR}/lib/decapiwrapper.c
+        ${THEORA_DIR}/lib/decinfo.c
+        ${THEORA_DIR}/lib/decode.c
+        ${THEORA_DIR}/lib/dequant.c
+        ${THEORA_DIR}/lib/encapiwrapper.c
+        ${THEORA_DIR}/lib/encfrag.c
+        ${THEORA_DIR}/lib/encinfo.c
+        ${THEORA_DIR}/lib/encode.c
+        ${THEORA_DIR}/lib/encoder_disabled.c
+        ${THEORA_DIR}/lib/enquant.c
+        ${THEORA_DIR}/lib/fdct.c
+        ${THEORA_DIR}/lib/fragment.c
+        ${THEORA_DIR}/lib/huffdec.c
+        ${THEORA_DIR}/lib/huffenc.c
+        ${THEORA_DIR}/lib/idct.c
+        ${THEORA_DIR}/lib/info.c
+        ${THEORA_DIR}/lib/internal.c
+        ${THEORA_DIR}/lib/mathops.c
+        ${THEORA_DIR}/lib/mcenc.c
+        ${THEORA_DIR}/lib/quant.c
+        ${THEORA_DIR}/lib/rate.c
+        ${THEORA_DIR}/lib/state.c
+        ${THEORA_DIR}/lib/tokenize.c
+    )
+
+    target_compile_options(libtheora PRIVATE ${THEORA_FLAGS})
+
+    target_include_directories(libtheora PRIVATE ${THEORA_DIR}/include ${OGG_DIR}/include)
+    target_include_directories(RetroEngine PRIVATE ${THEORA_DIR}/include)
+    target_link_libraries(RetroEngine libtheora)
+endif()
+
 target_include_directories(RetroEngine PRIVATE
     RSDKv4/
     RSDKv4/NativeObjects/
     dependencies/all/asio/asio/include/
     dependencies/all/stb-image/
     dependencies/all/tinyxml2/
+    dependencies/all/theoraplay/
 )
 
 if(DEFINED DEP_PATH)

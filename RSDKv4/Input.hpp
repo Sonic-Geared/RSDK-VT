@@ -63,6 +63,8 @@ enum DefaultHapticIDs {
 extern InputData keyPress;
 extern InputData keyDown;
 
+extern bool anyPress;
+
 extern int touchDown[8];
 extern int touchX[8];
 extern int touchY[8];

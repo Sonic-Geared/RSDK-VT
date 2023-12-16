@@ -4,18 +4,20 @@ RETRO_NETWORKING             ?= 1
 RETRO_USE_HW_RENDER          ?= 1
 RETRO_DISABLE_PLUS           ?= 0
 
-CXXFLAGS_ALL = $(shell pkg-config --cflags --static sdl2 vorbisfile vorbis glew) $(CXXFLAGS) \
+CXXFLAGS_ALL = $(shell pkg-config --cflags --static sdl2 vorbisfile vorbis theoradec glew) $(CXXFLAGS) \
         -DBASE_PATH='"$(BASE_PATH)"' \
         -IRSDKv4/               \
         -IRSDKv4/NativeObjects/ \
         -Idependencies/all/asio/asio/include/ \
         -Idependencies/all/stb-image/ \
+        -Idependencies/all/theoraplay \
         -Idependencies/all/tinyxml2/
 
 LDFLAGS_ALL = $(LDFLAGS)
-LIBS_ALL = $(shell pkg-config --libs --static sdl2 vorbisfile vorbis glew) -pthread $(LIBS)
+LIBS_ALL = $(shell pkg-config --libs --static sdl2 vorbisfile vorbis theoradec glew) -pthread $(LIBS)
 
 SOURCES = dependencies/all/tinyxml2/tinyxml2.cpp \
+        dependencies/all/theoraplay/theoraplay.c \
         RSDKv4/Animation.cpp     \
         RSDKv4/Audio.cpp         \
         RSDKv4/Collision.cpp     \
@@ -39,6 +41,7 @@ SOURCES = dependencies/all/tinyxml2/tinyxml2.cpp \
         RSDKv4/String.cpp        \
         RSDKv4/Text.cpp          \
         RSDKv4/Userdata.cpp      \
+        RSDKv4/Video.cpp         \
         RSDKv4/NativeObjects/AboutScreen.cpp        \
         RSDKv4/NativeObjects/AchievementDisplay.cpp \
         RSDKv4/NativeObjects/AchievementsButton.cpp \
