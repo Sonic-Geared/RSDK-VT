@@ -33,8 +33,8 @@
 #endif
 
 #include "theoraplay.h"
-#include "theora/theoradec.h"
-#include "vorbis/codec.h"
+#include "theoradec.h"
+#include "codec.h"
 
 #define THEORAPLAY_INTERNAL 1
 
@@ -254,6 +254,8 @@ static void WorkerThread(TheoraDecoder *ctx)
     ogg_sync_init(&sync);
     vorbis_info_init(&vinfo);
     vorbis_comment_init(&vcomment);
+    th_comment_init(&tcomment);
+    th_info_init(&tinfo);
 
     int bos = 1;
     while (!ctx->halt && bos)
@@ -277,7 +279,7 @@ static void WorkerThread(TheoraDecoder *ctx)
             ogg_stream_pagein(&test, &page);
             ogg_stream_packetout(&test, &packet);
 
-            if (!tpackets)
+            if (!tpackets && (th_decode_headerin(&tinfo, &tcomment, &tsetup, &packet) >= 0))
             {
                 memcpy(&tstream, &test, sizeof (test));
                 tpackets = 1;
@@ -317,6 +319,7 @@ static void WorkerThread(TheoraDecoder *ctx)
         {
             if (ogg_stream_packetout(&tstream, &packet) != 1)
                 break; // get more data?
+            if (!th_decode_headerin(&tinfo, &tcomment, &tsetup, &packet))
                 goto cleanup;
             tpackets++;
         } // while
@@ -358,16 +361,21 @@ static void WorkerThread(TheoraDecoder *ctx)
         if (tinfo.fps_denominator != 0)
             fps = ((double) tinfo.fps_numerator) / ((double) tinfo.fps_denominator);
 
+        tdec = th_decode_alloc(&tinfo, tsetup);
         if (!tdec) goto cleanup;
 
         // Set decoder to maximum post-processing level.
         //  Theoretically we could try dropping this level if we're not keeping up.
         int pp_level_max = 0;
+        // !!! FIXME: maybe an API to set this?
+        //th_decode_ctl(tdec, TH_DECCTL_GET_PPLEVEL_MAX, &pp_level_max, sizeof(pp_level_max));
+        th_decode_ctl(tdec, TH_DECCTL_SET_PPLEVEL, &pp_level_max, sizeof(pp_level_max));
     } // if
 
     // Done with this now.
     if (tsetup != NULL)
     {
+        th_setup_free(tsetup);
         tsetup = NULL;
     } // if
 
@@ -476,43 +484,50 @@ static void WorkerThread(TheoraDecoder *ctx)
             {
                 ogg_int64_t granulepos = 0;
 
-                th_ycbcr_buffer ycbcr;
-                if (th_decode_ycbcr_out(tdec, ycbcr) == 0)
+                // you have to guide the Theora decoder to get meaningful timestamps, apparently.  :/
+                if (packet.granulepos >= 0)
+                    th_decode_ctl(tdec, TH_DECCTL_SET_GRANPOS, &packet.granulepos, sizeof(packet.granulepos));
+
+                if (th_decode_packetin(tdec, &packet, &granulepos) == 0)  // new frame!
                 {
-                    const double videotime;
-                    VideoFrame *item = (VideoFrame *) malloc(sizeof (VideoFrame));
-                    if (item == NULL) goto cleanup;
-                    item->playms = (unsigned int) (videotime * 1000.0);
-                    item->fps = fps;
-                    item->width = tinfo.pic_width;
-                    item->height = tinfo.pic_height;
-                    item->format = ctx->vidfmt;
-                    item->pixels = ctx->vidcvt(&tinfo, ycbcr);
-                    item->next = NULL;
-
-                    if (item->pixels == NULL)
+                    th_ycbcr_buffer ycbcr;
+                    if (th_decode_ycbcr_out(tdec, ycbcr) == 0)
                     {
-                        free(item);
-                        goto cleanup;
+                        const double videotime = th_granule_time(tdec, granulepos);
+                        VideoFrame *item = (VideoFrame *) malloc(sizeof (VideoFrame));
+                        if (item == NULL) goto cleanup;
+                        item->playms = (unsigned int) (videotime * 1000.0);
+                        item->fps = fps;
+                        item->width = tinfo.pic_width;
+                        item->height = tinfo.pic_height;
+                        item->format = ctx->vidfmt;
+                        item->pixels = ctx->vidcvt(&tinfo, ycbcr);
+                        item->next = NULL;
+
+                        if (item->pixels == NULL)
+                        {
+                            free(item);
+                            goto cleanup;
+                        } // if
+
+                        //printf("Decoded another video frame.\n");
+                        Mutex_Lock(ctx->lock);
+                        if (ctx->videolisttail)
+                        {
+                            assert(ctx->videolist);
+                            ctx->videolisttail->next = item;
+                        } // if
+                        else
+                        {
+                            assert(!ctx->videolist);
+                            ctx->videolist = item;
+                        } // else
+                        ctx->videolisttail = item;
+                        ctx->videocount++;
+                        Mutex_Unlock(ctx->lock);
+
+                        saw_video_frame = 1;
                     } // if
-
-                    //printf("Decoded another video frame.\n");
-                    Mutex_Lock(ctx->lock);
-                    if (ctx->videolisttail)
-                    {
-                        assert(ctx->videolist);
-                        ctx->videolisttail->next = item;
-                    } // if
-                    else
-                    {
-                        assert(!ctx->videolist);
-                        ctx->videolist = item;
-                    } // else
-                    ctx->videolisttail = item;
-                    ctx->videocount++;
-                    Mutex_Unlock(ctx->lock);
-
-                    saw_video_frame = 1;
                 } // if
             } // else
         } // if
@@ -553,10 +568,14 @@ static void WorkerThread(TheoraDecoder *ctx)
 
 cleanup:
     ctx->decode_error = (!ctx->halt && was_error);
+    if (tdec != NULL) th_decode_free(tdec);
+    if (tsetup != NULL) th_setup_free(tsetup);
     if (vblock_init) vorbis_block_clear(&vblock);
     if (vdsp_init) vorbis_dsp_clear(&vdsp);
     if (tpackets) ogg_stream_clear(&tstream);
     if (vpackets) ogg_stream_clear(&vstream);
+    th_info_clear(&tinfo);
+    th_comment_clear(&tcomment);
     vorbis_comment_clear(&vcomment);
     vorbis_info_clear(&vinfo);
     ogg_sync_clear(&sync);
