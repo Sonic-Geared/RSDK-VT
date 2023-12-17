@@ -317,15 +317,8 @@ void FlipScreen()
         dimAmount = Engine.dimMax * Engine.dimPercent;
     }
 
-#if RETRO_SOFTWARE_RENDER
-#if RETRO_USING_OPENGL
-    if (Engine.gameMode == ENGINE_VIDEOWAIT) {
-        FlipScreenVideo();
-    }
-#endif
-
+#if RETRO_SOFTWARE_RENDER && !RETRO_USING_OPENGL
 #if RETRO_USING_SDL2
-    SDL_Rect *destScreenPos = NULL;
     SDL_Rect destScreenPos_scaled;
     SDL_Texture *texTarget = NULL;
 
@@ -357,7 +350,7 @@ void FlipScreen()
         screenysize *= 2;
     }
 
-    if (Engine.scalingMode != 0 && !disableEnhancedScaling  && Engine.gameMode != ENGINE_VIDEOWAIT) {
+    if (Engine.scalingMode != 0 && !disableEnhancedScaling) {
         // set up integer scaled texture, which is scaled to the largest integer scale of the screen buffer
         // before you make a texture that's larger than the window itself. This texture will then be scaled
         // up to the actual screen size using linear interpolation. This makes even window/screen scales
@@ -388,26 +381,6 @@ void FlipScreen()
         // fill the screen with the texture, making lerp work.
         SDL_RenderSetLogicalSize(Engine.renderer, Engine.windowXSize, Engine.windowYSize);
     }
-    else if (Engine.gameMode == ENGINE_VIDEOWAIT) {
-        float screenAR = float(SCREEN_XSIZE) / float(SCREEN_YSIZE);
-        if (screenAR > videoAR) {                               // If the screen is wider than the video. (Pillarboxed)
-            uint videoW         = uint(SCREEN_YSIZE * videoAR); // This is to force Pillarboxed mode if the screen is wider than the video.
-            destScreenPosRect.x = (SCREEN_XSIZE - videoW) / 2;  // Centers the video horizontally.
-            destScreenPosRect.w = videoW;
-
-            destScreenPosRect.y = 0;
-            destScreenPosRect.h = SCREEN_YSIZE;
-        }
-        else {
-            uint videoH         = uint(float(SCREEN_XSIZE) / videoAR); // This is to force letterbox mode if the video is wider than the screen.
-            destScreenPosRect.y = (SCREEN_YSIZE - videoH) / 2;         // Centers the video vertically.
-            destScreenPosRect.h = videoH;
-
-            destScreenPosRect.x = 0;
-            destScreenPosRect.w = SCREEN_XSIZE;
-        }
-        destScreenPos = &destScreenPosRect;
-    }
 
     int pitch = 0;
     SDL_SetRenderTarget(Engine.renderer, texTarget);
@@ -417,62 +390,61 @@ void FlipScreen()
     SDL_RenderClear(Engine.renderer);
 
     ushort *pixels = NULL;
-    if (Engine.gameMode != ENGINE_VIDEOWAIT) {
-	    if (!drawStageGFXHQ) {
-	        SDL_LockTexture(Engine.screenBuffer, NULL, (void **)&pixels, &pitch);
-	        ushort *frameBufferPtr = Engine.frameBuffer;
-	        for (int y = 0; y < SCREEN_YSIZE; ++y) {
-	            memcpy(pixels, frameBufferPtr, SCREEN_XSIZE * sizeof(ushort));
-	            frameBufferPtr += GFX_LINESIZE;
-	            pixels += pitch / sizeof(ushort);
-	        }
-	        // memcpy(pixels, Engine.frameBuffer, pitch * SCREEN_YSIZE); //faster but produces issues with odd numbered screen sizes
-	        SDL_UnlockTexture(Engine.screenBuffer);
-	
-	        SDL_RenderCopy(Engine.renderer, Engine.screenBuffer, NULL, NULL);
-	    }
-	    else {
-	        int w = 0, h = 0;
-	        SDL_QueryTexture(Engine.screenBuffer2x, NULL, NULL, &w, &h);
-	        SDL_LockTexture(Engine.screenBuffer2x, NULL, (void **)&pixels, &pitch);
-	
-	        ushort *framebufferPtr = Engine.frameBuffer;
-	        for (int y = 0; y < (SCREEN_YSIZE / 2) + 12; ++y) {
-	            for (int x = 0; x < GFX_LINESIZE; ++x) {
-	                *pixels = *framebufferPtr;
-	                pixels++;
-	                *pixels = *framebufferPtr;
-	                pixels++;
-	                framebufferPtr++;
-	            }
-	
-	            framebufferPtr -= GFX_LINESIZE;
-	            for (int x = 0; x < GFX_LINESIZE; ++x) {
-	                *pixels = *framebufferPtr;
-	                pixels++;
-	                *pixels = *framebufferPtr;
-	                pixels++;
-	                framebufferPtr++;
-	            }
-	        }
-	
-	        framebufferPtr = Engine.frameBuffer2x;
-	        for (int y = 0; y < ((SCREEN_YSIZE / 2) - 12) * 2; ++y) {
-	            for (int x = 0; x < GFX_LINESIZE; ++x) {
-	                *pixels = *framebufferPtr;
-	                framebufferPtr++;
-	                pixels++;
-	
-	                *pixels = *framebufferPtr;
-	                framebufferPtr++;
-	                pixels++;
-	            }
-	        }
-	        SDL_UnlockTexture(Engine.screenBuffer2x);
-	        SDL_RenderCopy(Engine.renderer, Engine.screenBuffer2x, NULL, NULL);
-	    }
+    if (!drawStageGFXHQ) {
+        SDL_LockTexture(Engine.screenBuffer, NULL, (void **)&pixels, &pitch);
+        ushort *frameBufferPtr = Engine.frameBuffer;
+        for (int y = 0; y < SCREEN_YSIZE; ++y) {
+            memcpy(pixels, frameBufferPtr, SCREEN_XSIZE * sizeof(ushort));
+            frameBufferPtr += GFX_LINESIZE;
+            pixels += pitch / sizeof(ushort);
+        }
+        // memcpy(pixels, Engine.frameBuffer, pitch * SCREEN_YSIZE); //faster but produces issues with odd numbered screen sizes
+        SDL_UnlockTexture(Engine.screenBuffer);
 
-    if (Engine.scalingMode != 0 && !disableEnhancedScaling && Engine.gameMode != ENGINE_VIDEOWAIT) {
+        SDL_RenderCopy(Engine.renderer, Engine.screenBuffer, NULL, NULL);
+    }
+    else {
+        int w = 0, h = 0;
+        SDL_QueryTexture(Engine.screenBuffer2x, NULL, NULL, &w, &h);
+        SDL_LockTexture(Engine.screenBuffer2x, NULL, (void **)&pixels, &pitch);
+
+        ushort *framebufferPtr = Engine.frameBuffer;
+        for (int y = 0; y < (SCREEN_YSIZE / 2) + 12; ++y) {
+            for (int x = 0; x < GFX_LINESIZE; ++x) {
+                *pixels = *framebufferPtr;
+                pixels++;
+                *pixels = *framebufferPtr;
+                pixels++;
+                framebufferPtr++;
+            }
+
+            framebufferPtr -= GFX_LINESIZE;
+            for (int x = 0; x < GFX_LINESIZE; ++x) {
+                *pixels = *framebufferPtr;
+                pixels++;
+                *pixels = *framebufferPtr;
+                pixels++;
+                framebufferPtr++;
+            }
+        }
+
+        framebufferPtr = Engine.frameBuffer2x;
+        for (int y = 0; y < ((SCREEN_YSIZE / 2) - 12) * 2; ++y) {
+            for (int x = 0; x < GFX_LINESIZE; ++x) {
+                *pixels = *framebufferPtr;
+                framebufferPtr++;
+                pixels++;
+
+                *pixels = *framebufferPtr;
+                framebufferPtr++;
+                pixels++;
+            }
+        }
+        SDL_UnlockTexture(Engine.screenBuffer2x);
+        SDL_RenderCopy(Engine.renderer, Engine.screenBuffer2x, NULL, NULL);
+    }
+
+    if (Engine.scalingMode != 0 && !disableEnhancedScaling) {
         // set render target back to the screen.
         SDL_SetRenderTarget(Engine.renderer, NULL);
         // clear the screen itself now, for same reason as above
@@ -507,42 +479,36 @@ void FlipScreen()
     int w      = SCREEN_XSIZE * Engine.windowScale;
     int h      = SCREEN_YSIZE * Engine.windowScale;
 
-    if (Engine.gameMode != ENGINE_VIDEOWAIT) {
-	    if (Engine.windowScale == 1) {
-	        ushort *frameBufferPtr = Engine.frameBuffer;
-	        for (int y = 0; y < SCREEN_YSIZE; ++y) {
-	            for (int x = 0; x < SCREEN_XSIZE; ++x) {
-	                pixels[x] = frameBufferPtr[x];
-	            }
-	            frameBufferPtr += GFX_LINESIZE;
-	            px += Engine.screenBuffer->pitch / sizeof(ushort);
-	        }
-	        // memcpy(Engine.screenBuffer->pixels, Engine.frameBuffer, Engine.screenBuffer->pitch * SCREEN_YSIZE);
-	    }
-	    else {
-	        // TODO: this better, I really dont know how to use SDL1.2 well lol
-	        int dx = 0, dy = 0;
-	        do {
-	            do {
-	                int x = (int)(dx * (1.0f / Engine.windowScale));
-	                int y = (int)(dy * (1.0f / Engine.windowScale));
-	
-	                px[dx + (dy * w)] = Engine.frameBuffer[x + (y * GFX_LINESIZE)];
-	
-	                dx++;
-	            } while (dx < w);
-	            dy++;
-	            dx = 0;
-	        } while (dy < h);
-	    }
-	
-	    // Apply image to screen
-	    SDL_BlitSurface(Engine.screenBuffer, NULL, Engine.windowSurface, NULL);
+    if (Engine.windowScale == 1) {
+        ushort *frameBufferPtr = Engine.frameBuffer;
+        for (int y = 0; y < SCREEN_YSIZE; ++y) {
+            for (int x = 0; x < SCREEN_XSIZE; ++x) {
+                pixels[x] = frameBufferPtr[x];
+            }
+            frameBufferPtr += GFX_LINESIZE;
+            px += Engine.screenBuffer->pitch / sizeof(ushort);
+        }
+        // memcpy(Engine.screenBuffer->pixels, Engine.frameBuffer, Engine.screenBuffer->pitch * SCREEN_YSIZE);
     }
     else {
-        // Apply image to screen
-        SDL_BlitSurface(Engine.videoBuffer, NULL, Engine.windowSurface, NULL);
+        // TODO: this better, I really dont know how to use SDL1.2 well lol
+        int dx = 0, dy = 0;
+        do {
+            do {
+                int x = (int)(dx * (1.0f / Engine.windowScale));
+                int y = (int)(dy * (1.0f / Engine.windowScale));
+
+                px[dx + (dy * w)] = Engine.frameBuffer[x + (y * GFX_LINESIZE)];
+
+                dx++;
+            } while (dx < w);
+            dy++;
+            dx = 0;
+        } while (dy < h);
     }
+
+    // Apply image to screen
+    SDL_BlitSurface(Engine.screenBuffer, NULL, Engine.windowSurface, NULL);
 
     // Update Screen
     SDL_Flip(Engine.windowSurface);
@@ -552,56 +518,6 @@ void FlipScreen()
 
 #endif
 }
-
-#define normalize(val, minVal, maxVal) ((float)(val) - (float)(minVal)) / ((float)(maxVal) - (float)(minVal))
-void FlipScreenVideo()
-{
-#if RETRO_USING_OPENGL
-    DrawVertex3D screenVerts[4];
-    for (int i = 0; i < 4; ++i) {
-        screenVerts[i].u = retroScreenRect[i].u;
-        screenVerts[i].v = retroScreenRect[i].v;
-    }
-
-    float best = minVal(viewWidth / (float)videoWidth, viewHeight / (float)videoHeight);
-
-    float w = videoWidth * best;
-    float h = videoHeight * best;
-
-    float x = normalize((viewWidth - w) / 2, 0, viewWidth) * 2 - 1.0f;
-    float y = -(normalize((viewHeight - h) / 2, 0, viewHeight) * 2 - 1.0f);
-
-    w = normalize(w, 0, viewWidth) * 2;
-    h = -(normalize(h, 0, viewHeight) * 2);
-
-    screenVerts[0].x = x;
-    screenVerts[0].y = y;
-
-    screenVerts[1].x = w + x;
-    screenVerts[1].y = y;
-
-    screenVerts[2].x = x;
-    screenVerts[2].y = h + y;
-
-    screenVerts[3].x = w + x;
-    screenVerts[3].y = h + y;
-
-    glLoadIdentity();
-    glBindTexture(GL_TEXTURE_2D, videoBuffer);
-    if (viewAngle >= 180.0) {
-        if (viewAnglePos < 180.0) {
-            viewAnglePos += 7.5;
-        }
-    }
-    else if (viewAnglePos > 0.0) {
-        viewAnglePos -= 7.5;
-    }
-#endif
-    glViewport(viewOffsetX, 0, viewWidth, viewHeight);
-    glDisable(GL_BLEND);
-#endif
-}
-
 void ReleaseRenderDevice(bool refresh)
 {
     if (!refresh) {
