@@ -5084,10 +5084,17 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 break;
             case FUNC_LOADVIDEO:
                 opcodeSize = 0;
-                StrAdd(scriptText, ".ogv");
-                LoadVideo(scriptText, 0.0, VideoSkipCB);
+                PauseSound();
+                if (FindStringToken(scriptText, ".rsv", 1) <= -1)
+                    PlayVideoFile(scriptText); // not an rsv
+                else
+                    scriptInfo->spriteSheetID = AddGraphicsFile(scriptText);
+                ResumeSound();
                 break;
-            case FUNC_NEXTVIDEOFRAME: opcodeSize = 0; break;
+            case FUNC_NEXTVIDEOFRAME:
+                opcodeSize = 0;
+                UpdateVideoFrame();
+                break;
             case FUNC_NOT: scriptEng.operands[0] = ~scriptEng.operands[0]; break;
             case FUNC_DRAW3DSCENE:
                 opcodeSize = 0;
