@@ -1,6 +1,14 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
+#include <stdlib.h>
+
+#include <vorbis/vorbisfile.h>
+
+#if RETRO_PLATFORM != RETRO_OSX
+#include "SDL.h"
+#endif
+
 #define TRACK_COUNT (0x10)
 #define SFX_COUNT   (0x100)
 #if !RETRO_USE_ORIGINAL_CODE
