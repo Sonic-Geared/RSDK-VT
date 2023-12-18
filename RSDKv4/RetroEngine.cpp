@@ -561,6 +561,10 @@ void RetroEngine::Run()
                 if (!masterPaused || frameStep) {
 #endif
                     ProcessNativeObjects();
+                    if (gameMode == ENGINE_VIDEOWAIT) {
+                    	if (ProcessVideo() == 1)
+                            gameMode = ENGINE_MAINGAME;
+                    }
 #if !RETRO_USE_ORIGINAL_CODE
                 }
 #endif
@@ -594,6 +598,7 @@ void RetroEngine::Run()
     }
 
     ReleaseAudioDevice();
+    StopVideoPlayback();
     ReleaseRenderDevice();
 #if !RETRO_USE_ORIGINAL_CODE
     ReleaseInputDevices();

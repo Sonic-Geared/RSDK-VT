@@ -381,6 +381,51 @@ int LoadGIFFile(const char *filePath, byte sheetID)
     }
     return false;
 }
+// Left-over from Sonic Nexus (2008)
+// We still support .rsv's though, so let's put it here, shall we?
+int LoadRSVFile(const char *filePath, byte sheetID)
+{
+    FileInfo info;
+    if (LoadFile(filePath, &info)) {
+        GFXSurface *surface = &gfxSurface[sheetID];
+        StrCopy(surface->fileName, filePath);
+
+        videoSurface      = sheetID;
+        currentVideoFrame = 0;
+
+        byte fileBuffer = 0;
+
+        FileRead(&fileBuffer, 1);
+        videoFrameCount = fileBuffer;
+        FileRead(&fileBuffer, 1);
+        videoFrameCount += fileBuffer << 8;
+
+        FileRead(&fileBuffer, 1);
+        videoWidth = fileBuffer;
+        FileRead(&fileBuffer, 1);
+        videoWidth += fileBuffer << 8;
+
+        FileRead(&fileBuffer, 1);
+        videoHeight = fileBuffer;
+        FileRead(&fileBuffer, 1);
+        videoHeight += fileBuffer << 8;
+
+        videoFilePos          = (int)GetFilePosition();
+        videoPlaying          = 2; // playing rsv
+        surface->width        = videoWidth;
+        surface->height       = videoHeight;
+        surface->dataPosition = gfxDataPosition;
+        gfxDataPosition += surface->width * surface->height;
+
+        if (gfxDataPosition >= GFXDATA_SIZE) {
+            gfxDataPosition = 0;
+            PrintLog("WARNING: Exceeded max gfx size!");
+        }
+
+        return true;
+    }
+    return false;
+}
 int LoadPVRFile(const char *filePath, byte sheetID)
 {
     // ONLY READS "PVRTC 2bpp RGB" PVR FILES
