@@ -294,7 +294,7 @@ void ScanModFolder(ModInfo *info)
 
 
     // Check for Videos/ replacements
-    fs::path videosPath = ResolvePath(modDir + "/Videos");
+    fs::path videosPath = resolvePath(modDir + "/Videos");
 
     if (fs::exists(videosPath) && fs::is_directory(videosPath)) {
         try {
