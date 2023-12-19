@@ -33,6 +33,7 @@ int currentMusicTrack = -1;
 
 #if RETRO_USING_SDL2
 SDL_AudioDeviceID audioDevice;
+SDL_AudioStream *ogv_stream;
 #endif
 SDL_AudioSpec audioDeviceFormat;
 
