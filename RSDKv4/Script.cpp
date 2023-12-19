@@ -5570,6 +5570,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 // FUNCTION NOTES:
                 // - Assigns the device's id to scriptEng.operands[0]
 
+                scriptEng.operands[0] = GetInputDeviceID(scriptEng.operands[1]);
                 break;
 
             case FUNC_GETFILTEREDINPUTDEVICEID:

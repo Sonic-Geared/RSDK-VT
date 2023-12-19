@@ -1,6 +1,10 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+enum InputIDs {
+    INPUT_NONE       = 0,
+};
+
 enum InputButtons {
     INPUT_UP,
     INPUT_DOWN,
@@ -75,9 +79,10 @@ extern int touches;
 
 extern int hapticEffectNum;
 
-#if !RETRO_USE_ORIGINAL_CODE
 extern InputButton inputDevice[INPUT_BUTTONCOUNT];
 extern int inputType;
+
+extern int inputSlots[4];
 
 extern float LSTICK_DEADZONE;
 extern float RSTICK_DEADZONE;
@@ -87,9 +92,7 @@ extern float RTRIGGER_DEADZONE;
 extern int mouseHideTimer;
 extern int lastMouseX;
 extern int lastMouseY;
-#endif
 
-#if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_USING_SDL2
 // Easier this way
 enum ExtraSDLButtons {
@@ -120,7 +123,15 @@ void InitInputDevices();
 void ReleaseInputDevices();
 
 void ProcessInput();
-#endif
+
+inline uint GetInputDeviceID(byte inputSlot)
+{
+    byte slotID = inputSlot - 1;
+    if (slotID < 4)
+        return inputSlots[slotID];
+
+    return INPUT_NONE;
+}
 
 void CheckKeyPress(InputData *input);
 void CheckKeyDown(InputData *input);

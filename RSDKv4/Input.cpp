@@ -15,12 +15,13 @@ int touches = 0;
 
 int hapticEffectNum = -2;
 
-#if !RETRO_USE_ORIGINAL_CODE
 #include <algorithm>
 #include <vector>
 
 InputButton inputDevice[INPUT_BUTTONCOUNT];
 int inputType = 0;
+
+int inputSlots[4]              = { INPUT_NONE, INPUT_NONE, INPUT_NONE, INPUT_NONE };
 
 // mania deadzone vals lol
 float LSTICK_DEADZONE   = 0.3;
@@ -467,12 +468,10 @@ void ProcessInput()
     }
 #endif //! RETRO_USING_SDL2
 }
-#endif //! !RETRO_USE_ORIGINAL_CODE
 
 // Pretty much is this code in the original, just formatted differently
 void CheckKeyPress(InputData *input)
 {
-#if !RETRO_USE_ORIGINAL_CODE
     input->up     = inputDevice[INPUT_UP].press;
     input->down   = inputDevice[INPUT_DOWN].press;
     input->left   = inputDevice[INPUT_LEFT].press;
@@ -487,7 +486,6 @@ void CheckKeyPress(InputData *input)
     input->R      = inputDevice[INPUT_BUTTONR].press;
     input->start  = inputDevice[INPUT_START].press;
     input->select = inputDevice[INPUT_SELECT].press;
-#endif
 
     anyPress = inputDevice[INPUT_ANY].press;
     if (!anyPress) {
@@ -502,7 +500,6 @@ void CheckKeyPress(InputData *input)
 
 void CheckKeyDown(InputData *input)
 {
-#if !RETRO_USE_ORIGINAL_CODE
     input->up     = inputDevice[INPUT_UP].hold;
     input->down   = inputDevice[INPUT_DOWN].hold;
     input->left   = inputDevice[INPUT_LEFT].hold;
@@ -517,7 +514,6 @@ void CheckKeyDown(InputData *input)
     input->R      = inputDevice[INPUT_BUTTONR].hold;
     input->start  = inputDevice[INPUT_START].hold;
     input->select = inputDevice[INPUT_SELECT].hold;
-#endif
 }
 
 int CheckTouchRect(float x, float y, float w, float h)
