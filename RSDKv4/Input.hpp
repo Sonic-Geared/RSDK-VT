@@ -156,6 +156,7 @@ extern int inputType;
 extern InputDevice *inputDeviceList[INPUTDEVICE_COUNT];
 
 extern int inputSlots[4];
+extern InputDevice *inputSlotDevices[4];
 
 extern float LSTICK_DEADZONE;
 extern float RSTICK_DEADZONE;

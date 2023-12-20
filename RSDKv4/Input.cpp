@@ -24,6 +24,7 @@ int inputType = 0;
 InputDevice *inputDeviceList[INPUTDEVICE_COUNT];
 
 int inputSlots[4]              = { INPUT_NONE, INPUT_NONE, INPUT_NONE, INPUT_NONE };
+InputDevice *inputSlotDevices[4] = { NULL, NULL, NULL, NULL };
 
 // mania deadzone vals lol
 float LSTICK_DEADZONE   = 0.3;
