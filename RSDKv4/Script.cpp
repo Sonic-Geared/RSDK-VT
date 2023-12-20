@@ -5526,6 +5526,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 // FUNCTION PARAMS:
                 // scriptEng.operands[0] = deviceID
 
+                scriptEng.checkResult = IsInputDeviceAssigned(scriptEng.operands[0]);
                 break;
 
             case FUNC_ASSIGNINPUTSLOTTODEVICE:

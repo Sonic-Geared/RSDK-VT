@@ -8,15 +8,36 @@ enum InputIDs {
 };
 
 enum InputDeviceTypes {
+    DEVICE_TYPE_NONE,
+    DEVICE_TYPE_KEYBOARD,
     DEVICE_TYPE_CONTROLLER,
+    DEVICE_TYPE_UNKNOWN,
+    DEVICE_TYPE_STEAMOVERLAY,
 };
 
 enum InputDeviceIDs {
+    DEVICE_KEYBOARD,
+    DEVICE_XBOX,
+    DEVICE_PS4,
+    DEVICE_SATURN,
     DEVICE_SWITCH_HANDHELD,
+    DEVICE_SWITCH_JOY_GRIP,
+    DEVICE_SWITCH_JOY_L,
+    DEVICE_SWITCH_JOY_R,
+    DEVICE_SWITCH_PRO,
 };
 
 enum InputDeviceAPIs {
     DEVICE_API_NONE,
+    DEVICE_API_KEYBOARD,
+    DEVICE_API_XINPUT,
+    DEVICE_API_RAWINPUT,
+    DEVICE_API_STEAM,
+
+    // CUSTOM APIs
+    DEVICE_API_SDL2, // custom-made for SDL2 API, afaik it's not in original RSDKv5 (since it could be in a mac-version, but I do not have that so...)
+    DEVICE_API_GLFW, // custom-made for OGL, won't be in ANY real RSDKv5 version ever, it's just cool
+    DEVICE_API_PDBOAT // custom-made for android (paddleboat API)
 };
 
 enum InputButtons {
@@ -213,6 +234,17 @@ inline uint GetFilteredInputDeviceID(bool confirmOnly, bool unassignedOnly, uint
 }
 
 int GetInputDeviceType(uint deviceID);
+
+inline bool IsInputDeviceAssigned(uint deviceID)
+{
+    for (int i = 0; i < inputDeviceCount; ++i) {
+        if (inputDeviceList[i] && inputDeviceList[i]->id == deviceID) {
+            return inputDeviceList[i]->isAssigned;
+        }
+    }
+
+    return false;
+}
 
 void CheckKeyPress(InputData *input);
 void CheckKeyDown(InputData *input);
