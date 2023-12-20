@@ -261,6 +261,11 @@ void controllerClose(byte controllerID)
 
 void InitInputDevices()
 {
+	// default the input slot state to "auto assign" rather than "none"
+    // this fixes the "controller disconnected" popup since the engine handles the autoassign
+    // without this, the engine has to wait for the game to tell the engine to start autoassignments
+    for (int i = 0; i < 4; ++i) inputSlots[i] = INPUT_AUTOASSIGN;
+
 #if RETRO_USING_SDL2
     PrintLog("Initializing gamepads...");
 
@@ -458,6 +463,23 @@ void ProcessInput()
         inputDevice[INPUT_ANY].setReleased();
     }
 #endif //! RETRO_USING_SDL2
+
+    for (int i = 0; i < 4; ++i) {
+        int assign = inputSlots[i];
+        if (assign && assign != INPUT_UNASSIGNED) {
+            if (assign == INPUT_AUTOASSIGN) {
+                int id      = GetAvaliableInputDevice();
+                inputSlots[i] = id;
+                if (id != INPUT_AUTOASSIGN)
+                    AssignInputSlotToDevice(CONT_P1 + i, id);
+            }
+            else {
+                InputDevice *device = inputSlotDevices[i];
+                if (device && device->id == assign && device->active)
+                    device->ProcessInput(CONT_P1 + i);
+            }
+        }
+    }
 }
 
 int GetInputDeviceType(uint deviceID)

@@ -4,7 +4,17 @@
 #define INPUTDEVICE_COUNT (0x10)
 
 enum InputIDs {
+    INPUT_UNASSIGNED = -2,
+    INPUT_AUTOASSIGN = -1,
     INPUT_NONE       = 0,
+};
+
+enum InputSlotIDs {
+    CONT_ANY,
+    CONT_P1,
+    CONT_P2,
+    CONT_P3,
+    CONT_P4,
 };
 
 enum InputDeviceTypes {
@@ -187,6 +197,27 @@ void ReleaseInputDevices();
 
 void ProcessInput();
 
+inline InputDevice *InputDeviceFromID(uint deviceID)
+{
+    for (int i = 0; i < inputType; ++i) {
+        if (inputDeviceList[i] && inputDeviceList[i]->id == deviceID)
+            return inputDeviceList[i];
+    }
+
+    return NULL;
+}
+inline int GetAvaliableInputDevice()
+{
+    for (int i = 0; i < inputType; ++i) {
+        if (inputDeviceList[i] && inputDeviceList[i]->active && !inputDeviceList[i]->disabled && !inputDeviceList[i]->isAssigned
+            && inputDeviceList[i]->anyPress) {
+            return inputDeviceList[i]->id;
+        }
+    }
+
+    return INPUT_AUTOASSIGN;
+}
+
 inline uint GetInputDeviceID(byte inputSlot)
 {
     byte slotID = inputSlot - 1;
@@ -244,6 +275,58 @@ inline bool IsInputDeviceAssigned(uint deviceID)
     }
 
     return false;
+}
+
+inline void AssignInputSlotToDevice(byte inputSlot, uint deviceID)
+{
+    byte slotID = inputSlot - 1;
+
+    if (slotID < 4) {
+        if (deviceID && deviceID != INPUT_AUTOASSIGN) {
+            if (deviceID == INPUT_UNASSIGNED) {
+                inputSlots[slotID] = INPUT_UNASSIGNED;
+            }
+            else {
+                for (int i = 0; i < inputType; ++i) {
+                    if (inputDeviceList[i] && inputDeviceList[i]->id == deviceID) {
+                        inputDeviceList[i]->isAssigned = true;
+                        inputSlots[slotID]             = deviceID;
+                        inputSlotDevices[slotID]       = inputDeviceList[i];
+                        break;
+                    }
+                }
+            }
+        }
+        else {
+            InputDevice *device = InputDeviceFromID(inputSlots[slotID]);
+            if (device)
+                device->isAssigned = false;
+            inputSlots[slotID] = deviceID;
+        }
+    }
+}
+
+inline bool IsInputSlotAssigned(byte inputSlot)
+{
+    byte slotID = inputSlot - 1;
+
+    if (slotID < 4)
+        return inputSlots[slotID] != INPUT_NONE;
+
+    return false;
+}
+
+inline void ResetInputSlotAssignments()
+{
+    for (int i = 0; i < 4; ++i) {
+        inputSlots[i]       = INPUT_NONE;
+        inputSlotDevices[i] = NULL;
+    }
+
+    for (int i = 0; i < inputType; ++i) {
+        if (inputDeviceList[i])
+            inputDeviceList[i]->isAssigned = false;
+    }
 }
 
 void CheckKeyPress(InputData *input);

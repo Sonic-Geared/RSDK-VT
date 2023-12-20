@@ -5534,6 +5534,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 // scriptEng.operands[0] = inputSlot
                 // scriptEng.operands[1] = deviceID
 
+                AssignInputSlotToDevice(scriptEng.operands[0], scriptEng.operands[1]);
                 break;
 
             case FUNC_ISSLOTASSIGNED:
@@ -5543,12 +5544,14 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 // FUNCTION NOTES:
                 // - Sets scriptEng.checkResult
 
+                scriptEng.checkResult = IsInputSlotAssigned(scriptEng.operands[0]);
                 break;
 
             case FUNC_RESETINPUTSLOTASSIGNMENTS:
                 // FUNCTION PARAMS:
                 // None
 
+                ResetInputSlotAssignments();
                 break;
         }
 
