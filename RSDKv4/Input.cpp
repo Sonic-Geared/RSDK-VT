@@ -21,6 +21,9 @@ int hapticEffectNum = -2;
 InputButton inputDevice[INPUT_BUTTONCOUNT];
 int inputType = 0;
 
+InputDevice *inputDeviceList[INPUTDEVICE_COUNT];
+int inputDeviceCount = 0;
+
 int inputSlots[4]              = { INPUT_NONE, INPUT_NONE, INPUT_NONE, INPUT_NONE };
 
 // mania deadzone vals lol
@@ -32,17 +35,6 @@ float RTRIGGER_DEADZONE = 0.3;
 int mouseHideTimer = 0;
 int lastMouseX     = 0;
 int lastMouseY     = 0;
-
-struct InputDevice {
-#if RETRO_USING_SDL2
-    SDL_GameController *devicePtr;
-    SDL_Haptic *hapticPtr;
-#endif
-#if RETRO_USING_SDL1
-    SDL_Joystick *devicePtr;
-#endif
-    int id;
-};
 
 std::vector<InputDevice> controllers;
 

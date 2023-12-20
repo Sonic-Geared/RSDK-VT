@@ -1,6 +1,8 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+#define INPUTDEVICE_COUNT (0x10)
+
 enum InputIDs {
     INPUT_NONE       = 0,
 };
@@ -57,7 +59,9 @@ struct InputButton {
     }
 
     inline bool down() { return (press || hold); }
+};
 
+struct InputDevice {
     virtual void UpdateInput() {}
     virtual void ProcessInput(int controllerID) {}
     virtual void CloseDevice() {}
@@ -74,6 +78,13 @@ struct InputButton {
     byte disabled;
     byte anyPress;
     int inactiveTimer[2];
+#if RETRO_USING_SDL2
+    SDL_GameController *devicePtr;
+    SDL_Haptic *hapticPtr;
+#endif
+#if RETRO_USING_SDL1
+    SDL_Joystick *devicePtr;
+#endif
 };
 
 enum DefaultHapticIDs {
@@ -98,6 +109,9 @@ extern int hapticEffectNum;
 
 extern InputButton inputDevice[INPUT_BUTTONCOUNT];
 extern int inputType;
+
+extern InputDevice *inputDeviceList[INPUTDEVICE_COUNT];
+extern int inputDeviceCount;
 
 extern int inputSlots[4];
 
@@ -157,15 +171,15 @@ inline uint GetFilteredInputDeviceID(bool confirmOnly, bool unassignedOnly, uint
     int mostRecentID      = 0;
     uint maxTime           = maxInactiveTimer ? maxInactiveTimer : -1;
 
-    if (inputType) {
-        for (int i = 0; i < inputType; ++i) {
-            if (inputDevice[i] && inputDevice[i].active && !inputDevice[i].disabled
-                && (!inputDevice[i].isAssigned || !unassignedOnly)) {
-                if (inputDevice[i].inactiveTimer[confirmOnly] < mostRecentTime) {
-                    mostRecentTime = inputDevice[i].inactiveTimer[confirmOnly];
-                    if (inputDevice[i].inactiveTimer[confirmOnly] <= maxTime)
-                        mostRecentValidID = inputDevice[i].id;
-                    mostRecentID = inputDevice[i].id;
+    if (inputDeviceCount) {
+        for (int i = 0; i < inputDeviceCount; ++i) {
+            if (inputDeviceList[i] && inputDeviceList[i]->active && !inputDeviceList[i]->disabled
+                && (!inputDeviceList[i]->isAssigned || !unassignedOnly)) {
+                if (inputDeviceList[i]->inactiveTimer[confirmOnly] < mostRecentTime) {
+                    mostRecentTime = inputDeviceList[i]->inactiveTimer[confirmOnly];
+                    if (inputDeviceList[i]->inactiveTimer[confirmOnly] <= maxTime)
+                        mostRecentValidID = inputDeviceList[i]->id;
+                    mostRecentID = inputDeviceList[i]->id;
                 }
             }
         }
@@ -177,10 +191,10 @@ inline uint GetFilteredInputDeviceID(bool confirmOnly, bool unassignedOnly, uint
     if (mostRecentID)
         return mostRecentID;
 
-    for (int i = 0; i < inputType; ++i) {
-        if (inputDevice[i] && inputDevice[i].active && !inputDevice[i].disabled
-            && (!inputDevice[i].isAssigned || !unassignedOnly)) {
-            return inputDevice[i].id;
+    for (int i = 0; i < inputDeviceCount; ++i) {
+        if (inputDeviceList[i] && inputDeviceList[i]->active && !inputDeviceList[i]->disabled
+            && (!inputDeviceList[i]->isAssigned || !unassignedOnly)) {
+            return inputDeviceList[i]->id;
         }
     }
 
