@@ -237,7 +237,7 @@ int GetInputDeviceType(uint deviceID);
 
 inline bool IsInputDeviceAssigned(uint deviceID)
 {
-    for (int i = 0; i < inputDeviceCount; ++i) {
+    for (int i = 0; i < inputType; ++i) {
         if (inputDeviceList[i] && inputDeviceList[i]->id == deviceID) {
             return inputDeviceList[i]->isAssigned;
         }
