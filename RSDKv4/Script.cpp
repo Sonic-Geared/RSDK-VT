@@ -1061,7 +1061,6 @@ char scriptText[0x4000];
 void CheckAliasText(char *text)
 {
     if (FindStringToken(text, "publicalias", 1) == 0) {
-#if !RETRO_USE_ORIGINAL_CODE
         if (scriptValueListCount >= SCRIPT_VAR_COUNT) {
             SetupTextMenu(&gameMenu[0], 0);
             AddTextMenuEntry(&gameMenu[0], "SCRIPT PARSING FAILED");
@@ -1071,7 +1070,6 @@ void CheckAliasText(char *text)
             Engine.gameMode = ENGINE_SCRIPTERROR;
             return;
         }
-#endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
         MEM_ZEROP(variable);
@@ -1102,17 +1100,14 @@ void CheckAliasText(char *text)
 
         variable->access = ACCESS_PUBLIC;
 
-#if !RETRO_USE_ORIGINAL_CODE
         for (int v = 0; v < scriptValueListCount; ++v) {
             if (StrComp(scriptValueList[v].name, variable->name))
                 PrintLog("WARNING: Variable Name '%s' has already been used!", variable->name);
         }
-#endif
 
         ++scriptValueListCount;
     }
     else if (FindStringToken(text, "privatealias", 1) == 0) {
-#if !RETRO_USE_ORIGINAL_CODE
         if (scriptValueListCount >= SCRIPT_VAR_COUNT) {
             SetupTextMenu(&gameMenu[0], 0);
             AddTextMenuEntry(&gameMenu[0], "SCRIPT PARSING FAILED");
@@ -1122,7 +1117,6 @@ void CheckAliasText(char *text)
             Engine.gameMode = ENGINE_SCRIPTERROR;
             return;
         }
-#endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
         MEM_ZEROP(variable);
@@ -1153,12 +1147,10 @@ void CheckAliasText(char *text)
 
         variable->access = ACCESS_PRIVATE;
 
-#if !RETRO_USE_ORIGINAL_CODE
         for (int v = 0; v < scriptValueListCount; ++v) {
             if (StrComp(scriptValueList[v].name, variable->name))
                 PrintLog("WARNING: Variable Name '%s' has already been used!", variable->name);
         }
-#endif
 
         ++scriptValueListCount;
     }
@@ -1166,7 +1158,6 @@ void CheckAliasText(char *text)
 void CheckStaticText(char *text)
 {
     if (FindStringToken(text, "publicvalue", 1) == 0) {
-#if !RETRO_USE_ORIGINAL_CODE
         if (scriptValueListCount >= SCRIPT_VAR_COUNT) {
             SetupTextMenu(&gameMenu[0], 0);
             AddTextMenuEntry(&gameMenu[0], "SCRIPT PARSING FAILED");
@@ -1176,7 +1167,6 @@ void CheckStaticText(char *text)
             Engine.gameMode = ENGINE_SCRIPTERROR;
             return;
         }
-#endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
         MEM_ZEROP(variable);
@@ -1215,17 +1205,14 @@ void CheckStaticText(char *text)
         AppendIntegerToString(variable->value, scriptCodePos++);
         StrAdd(variable->value, "]");
 
-#if !RETRO_USE_ORIGINAL_CODE
         for (int v = 0; v < scriptValueListCount; ++v) {
             if (StrComp(scriptValueList[v].name, variable->name))
                 PrintLog("WARNING: Variable Name '%s' has already been used!", variable->name);
         }
-#endif
 
         ++scriptValueListCount;
     }
     else if (FindStringToken(text, "privatevalue", 1) == 0) {
-#if !RETRO_USE_ORIGINAL_CODE
         if (scriptValueListCount >= SCRIPT_VAR_COUNT) {
             SetupTextMenu(&gameMenu[0], 0);
             AddTextMenuEntry(&gameMenu[0], "SCRIPT PARSING FAILED");
@@ -1235,7 +1222,6 @@ void CheckStaticText(char *text)
             Engine.gameMode = ENGINE_SCRIPTERROR;
             return;
         }
-#endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
         MEM_ZEROP(variable);
@@ -1274,12 +1260,10 @@ void CheckStaticText(char *text)
         AppendIntegerToString(variable->value, scriptCodePos++);
         StrAdd(variable->value, "]");
 
-#if !RETRO_USE_ORIGINAL_CODE
         for (int v = 0; v < scriptValueListCount; ++v) {
             if (StrComp(scriptValueList[v].name, variable->name))
                 PrintLog("WARNING: Variable Name '%s' has already been used!", variable->name);
         }
-#endif
 
         ++scriptValueListCount;
     }
@@ -1289,7 +1273,6 @@ bool CheckTableText(char *text)
     bool hasValues = false;
 
     if (FindStringToken(text, "publictable", 1) == 0) {
-#if !RETRO_USE_ORIGINAL_CODE
         if (scriptValueListCount >= SCRIPT_VAR_COUNT) {
             SetupTextMenu(&gameMenu[0], 0);
             AddTextMenuEntry(&gameMenu[0], "SCRIPT PARSING FAILED");
@@ -1299,7 +1282,6 @@ bool CheckTableText(char *text)
             Engine.gameMode = ENGINE_SCRIPTERROR;
             return false;
         }
-#endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
         MEM_ZEROP(variable);
@@ -1349,9 +1331,7 @@ bool CheckTableText(char *text)
 
             if (!ConvertStringToInteger(variable->value, &scriptCode[scriptCodePos])) {
                 scriptCode[scriptCodePos] = 1;
-#if !RETRO_USE_ORIGINAL_CODE
                 PrintLog("WARNING: Unable to parse table size!");
-#endif
             }
 
             StrCopy(variable->value, "");
@@ -1365,7 +1345,6 @@ bool CheckTableText(char *text)
         scriptValueListCount++;
     }
     else if (FindStringToken(text, "privatetable", 1) == 0) {
-#if !RETRO_USE_ORIGINAL_CODE
         if (scriptValueListCount >= SCRIPT_VAR_COUNT) {
             SetupTextMenu(&gameMenu[0], 0);
             AddTextMenuEntry(&gameMenu[0], "SCRIPT PARSING FAILED");
@@ -1375,7 +1354,6 @@ bool CheckTableText(char *text)
             Engine.gameMode = ENGINE_SCRIPTERROR;
             return false;
         }
-#endif
 
         ScriptVariableInfo *variable = &scriptValueList[scriptValueListCount];
         MEM_ZEROP(variable);
@@ -1425,9 +1403,7 @@ bool CheckTableText(char *text)
 
             if (!ConvertStringToInteger(variable->value, &scriptCode[scriptCodePos])) {
                 scriptCode[scriptCodePos] = 1;
-#if !RETRO_USE_ORIGINAL_CODE
                 PrintLog("WARNING: Unable to parse table size!");
-#endif
             }
 
             StrCopy(variable->value, "");
@@ -1623,14 +1599,12 @@ void ConvertFunctionText(char *text)
         AddTextMenuEntry(&gameMenu[0], " ");
         AddTextMenuEntry(&gameMenu[0], "OPCODE NOT FOUND");
         AddTextMenuEntry(&gameMenu[0], funcName);
-#if !RETRO_USE_ORIGINAL_CODE
         AddTextMenuEntry(&gameMenu[0], " ");
         AddTextMenuEntry(&gameMenu[0], "LINE NUMBER");
         char buffer[0x10];
         buffer[0] = 0;
         AppendIntegerToString(buffer, lineID);
         AddTextMenuEntry(&gameMenu[0], buffer);
-#endif
         Engine.gameMode = ENGINE_SCRIPTERROR;
     }
     else {
@@ -1779,7 +1753,6 @@ void ConvertFunctionText(char *text)
                     PrintLog("WARNING: Unknown typename \"%s\", on line %d", arrayStr, lineID);
             }
 
-#if !RETRO_USE_ORIGINAL_CODE
             // Eg: temp0 = SfxName[Jump]
             if (StrComp(funcName, "SfxName")) {
                 funcName[0] = '0';
@@ -1900,7 +1873,6 @@ void ConvertFunctionText(char *text)
                 funcName[0] = 0;
                 AppendIntegerToString(funcName, s);
             }
-#endif
 
             // Storing Values
             int constant = 0;
@@ -2107,7 +2079,6 @@ void CheckCaseNumber(char *text)
                 PrintLog("WARNING: Unknown sfxName \"%s\", on line %d", arrayStr, lineID);
         }
 
-#if !RETRO_USE_ORIGINAL_CODE
         // Eg: temp0 = VarName[player.lives]
         if (StrComp(caseValue, "VarName")) {
             caseValue[0] = '0';
@@ -2211,7 +2182,6 @@ void CheckCaseNumber(char *text)
             caseValue[0] = 0;
             AppendIntegerToString(caseValue, s);
         }
-#endif
         StrCopy(caseString, caseValue);
         foundValue = true;
     }
@@ -2313,7 +2283,6 @@ bool ReadSwitchCase(char *text)
                     PrintLog("WARNING: Unknown sfxName \"%s\", on line %d", arrayStr, lineID);
             }
 
-#if !RETRO_USE_ORIGINAL_CODE
             // Eg: temp0 = VarName[player.lives]
             if (StrComp(caseValue, "VarName")) {
                 caseValue[0] = '0';
@@ -2414,7 +2383,6 @@ bool ReadSwitchCase(char *text)
                 caseValue[0] = 0;
                 AppendIntegerToString(caseValue, s);
             }
-#endif
             StrCopy(caseText, caseValue);
             foundValue = true;
         }
@@ -2468,9 +2436,7 @@ void ReadTableValues(char *text)
             ++scriptCode[scriptCodeOffset];
             if (!ConvertStringToInteger(valueBuffer, &scriptCode[scriptCodePos])) {
                 scriptCode[scriptCodePos] = 0;
-#if !RETRO_USE_ORIGINAL_CODE
                 PrintLog("WARNING: unable to parse table value \"%s\" as an int, on line %d", valueBuffer, lineID);
-#endif
             }
             scriptCodePos++;
             valueBufferPos = 0;
@@ -2483,9 +2449,7 @@ void ReadTableValues(char *text)
         ++scriptCode[scriptCodeOffset];
         if (!ConvertStringToInteger(valueBuffer, &scriptCode[scriptCodePos])) {
             scriptCode[scriptCodePos] = 0;
-#if !RETRO_USE_ORIGINAL_CODE
             PrintLog("WARNING: unable to parse table value \"%s\" as an int, on line %d", valueBuffer, lineID);
-#endif
         }
         scriptCodePos++;
     }
@@ -2577,12 +2541,10 @@ bool ConvertStringToInteger(const char *text, int *value)
     if (text[charID] == '0') {
         if (text[charID + 1] == 'x' || text[charID + 1] == 'X')
             base = 0x10;
-#if !RETRO_USE_ORIGINAL_CODE
         else if (text[charID + 1] == 'b' || text[charID + 1] == 'B')
             base = 0b10;
         else if (text[charID + 1] == 'o' || text[charID + 1] == 'O')
             base = 0010; // base 8
-#endif
 
         if (base != 10) {
             charID += 2;
@@ -2595,12 +2557,10 @@ bool ConvertStringToInteger(const char *text, int *value)
         if (!flag) {
             if (base == 0x10 && text[charID] > 'f')
                 flag = true;
-#if !RETRO_USE_ORIGINAL_CODE
             if (base == 0010 && text[charID] > '7')
                 flag = true;
             if (base == 0b10 && text[charID] > '1')
                 flag = true;
-#endif
         }
 
         if (flag) {
@@ -2961,21 +2921,15 @@ void ParseScriptFile(char *scriptName, int scriptID)
 #if RETRO_USE_HAPTICS
                                 && FindStringToken(scriptText, Engine.gameHapticSetting, 1) == -1
 #endif
-#if !RETRO_USE_ORIGINAL_CODE
                                 && FindStringToken(scriptText, Engine.releaseType, 1) == -1 // general flag for standalone/origins content switching
-#endif
-#if !RETRO_USE_ORIGINAL_CODE
                                 && FindStringToken(scriptText, "USE_DECOMP", 1) == -1 // general flag for decomp-only stuff
-#endif
 #if RETRO_USE_NETWORKING
                                 && FindStringToken(scriptText, "USE_NETWORKING", 1) == -1
 #endif
 #if RETRO_USE_MOD_LOADER
                                 && FindStringToken(scriptText, "USE_MOD_LOADER", 1) == -1
 #endif
-#if !RETRO_USE_ORIGINAL_CODE
                                 && FindStringToken(scriptText, "USE_SCARLET", 1) == -1 // general flag for scarlet-only stuff
-#endif
                             ) {
                                 parseMode = PARSEMODE_PLATFORMSKIP;
                             }
@@ -3362,12 +3316,10 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                     default: break;
                 }
 
-#if !RETRO_USE_ORIGINAL_CODE
                 bool inputCheck = true; // Default to true for mobile bytecode
                 // If we're using the scripts or an Origins datafile, check the array value
                 if (forceUseScripts || GetGlobalVariableID("game.playMode") != 0xFF)
                     inputCheck = arrayVal <= 1;
-#endif
 
                 // Variables
                 switch (scriptCode[scriptCodePtr++]) {
@@ -3952,7 +3904,6 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                     case VAR_MUSICVOLUME: scriptEng.operands[i] = masterVolume; break;
                     case VAR_MUSICCURRENTTRACK: scriptEng.operands[i] = trackID; break;
                     case VAR_MUSICPOSITION: scriptEng.operands[i] = musicPosition; break;
-#if !RETRO_USE_ORIGINAL_CODE
                     case VAR_KEYDOWNUP: scriptEng.operands[i] = keyDown.up && inputCheck; break;
                     case VAR_KEYDOWNDOWN: scriptEng.operands[i] = keyDown.down && inputCheck; break;
                     case VAR_KEYDOWNLEFT: scriptEng.operands[i] = keyDown.left && inputCheck; break;
@@ -3981,36 +3932,6 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                     case VAR_KEYPRESSBUTTONR: scriptEng.operands[i] = keyPress.R && inputCheck; break;
                     case VAR_KEYPRESSSTART: scriptEng.operands[i] = keyPress.start && inputCheck; break;
                     case VAR_KEYPRESSSELECT: scriptEng.operands[i] = keyPress.select && inputCheck; break;
-#else
-                    case VAR_KEYDOWNUP: scriptEng.operands[i] = keyDown.up; break;
-                    case VAR_KEYDOWNDOWN: scriptEng.operands[i] = keyDown.down; break;
-                    case VAR_KEYDOWNLEFT: scriptEng.operands[i] = keyDown.left; break;
-                    case VAR_KEYDOWNRIGHT: scriptEng.operands[i] = keyDown.right; break;
-                    case VAR_KEYDOWNBUTTONA: scriptEng.operands[i] = keyDown.A; break;
-                    case VAR_KEYDOWNBUTTONB: scriptEng.operands[i] = keyDown.B; break;
-                    case VAR_KEYDOWNBUTTONC: scriptEng.operands[i] = keyDown.C; break;
-                    case VAR_KEYDOWNBUTTONX: scriptEng.operands[i] = keyDown.X; break;
-                    case VAR_KEYDOWNBUTTONY: scriptEng.operands[i] = keyDown.Y; break;
-                    case VAR_KEYDOWNBUTTONZ: scriptEng.operands[i] = keyDown.Z; break;
-                    case VAR_KEYDOWNBUTTONL: scriptEng.operands[i] = keyDown.L; break;
-                    case VAR_KEYDOWNBUTTONR: scriptEng.operands[i] = keyDown.R; break;
-                    case VAR_KEYDOWNSTART: scriptEng.operands[i] = keyDown.start; break;
-                    case VAR_KEYDOWNSELECT: scriptEng.operands[i] = keyDown.select; break;
-                    case VAR_KEYPRESSUP: scriptEng.operands[i] = keyPress.up; break;
-                    case VAR_KEYPRESSDOWN: scriptEng.operands[i] = keyPress.down; break;
-                    case VAR_KEYPRESSLEFT: scriptEng.operands[i] = keyPress.left; break;
-                    case VAR_KEYPRESSRIGHT: scriptEng.operands[i] = keyPress.right; break;
-                    case VAR_KEYPRESSBUTTONA: scriptEng.operands[i] = keyPress.A; break;
-                    case VAR_KEYPRESSBUTTONB: scriptEng.operands[i] = keyPress.B; break;
-                    case VAR_KEYPRESSBUTTONC: scriptEng.operands[i] = keyPress.C; break;
-                    case VAR_KEYPRESSBUTTONX: scriptEng.operands[i] = keyPress.X; break;
-                    case VAR_KEYPRESSBUTTONY: scriptEng.operands[i] = keyPress.Y; break;
-                    case VAR_KEYPRESSBUTTONZ: scriptEng.operands[i] = keyPress.Z; break;
-                    case VAR_KEYPRESSBUTTONL: scriptEng.operands[i] = keyPress.L; break;
-                    case VAR_KEYPRESSBUTTONR: scriptEng.operands[i] = keyPress.R; break;
-                    case VAR_KEYPRESSSTART: scriptEng.operands[i] = keyPress.start; break;
-                    case VAR_KEYPRESSSELECT: scriptEng.operands[i] = keyPress.select; break;
-#endif
                     case VAR_MENU1SELECTION: scriptEng.operands[i] = gameMenu[0].selection1; break;
                     case VAR_MENU2SELECTION: scriptEng.operands[i] = gameMenu[1].selection1; break;
                     case VAR_TILELAYERXSIZE: scriptEng.operands[i] = stageLayouts[arrayVal].xsize; break;
@@ -5227,9 +5148,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                                     scriptEng.operands[5]);
                 break;
             case FUNC_CHECKTOUCHRECT: opcodeSize = 0; scriptEng.checkResult = -1;
-#if !RETRO_USE_ORIGINAL_CODE
                 AddDebugHitbox(H_TYPE_FINGER, NULL, scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]);
-#endif
                 for (int f = 0; f < touches; ++f) {
                     if (touchDown[f] && touchX[f] > scriptEng.operands[0] && touchX[f] < scriptEng.operands[2] && touchY[f] > scriptEng.operands[1]
                         && touchY[f] < scriptEng.operands[3]) {
@@ -5517,29 +5436,35 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 // - Sets scriptEng.checkResult
 
                 if (scriptEng.operands[2] > 0 && scriptEng.operands[3] > 0) {
-                    int sx = abs(scriptEng.operands[0] - cameraXPos);
-                    int sy = abs(scriptEng.operands[1] - cameraYPos);
-
-                    if (sx < scriptEng.operands[2] && sy < scriptEng.operands[3]) {
-                        scriptEng.checkResult = true;
-                        break;
-                    }
-                }
-                else {
-                    if (scriptEng.operands[2] > 0) {
+                    for (int s = 0; s < videoSettings.screenCount; ++s) {
                         int sx = abs(scriptEng.operands[0] - cameraXPos);
+                        int sy = abs(scriptEng.operands[1] - cameraYPos);
 
-                        if (sx < scriptEng.operands[2]) {
+                        if (sx < scriptEng.operands[2] && sy < scriptEng.operands[3]) {
                             scriptEng.checkResult = true;
                             break;
                         }
                     }
-                    else if (scriptEng.operands[3] > 0) {
-                        int sy = abs(scriptEng.operands[1] - cameraYPos);
+                }
+                else {
+                    if (scriptEng.operands[2] > 0) {
+                        for (int s = 0; s < videoSettings.screenCount; ++s) {
+                            int sx = abs(scriptEng.operands[0] - cameraXPos);
 
-                        if (sy < scriptEng.operands[3]) {
-                            scriptEng.checkResult = true;
-                            break;
+                            if (sx < scriptEng.operands[2]) {
+                                scriptEng.checkResult = true;
+                                break;
+                            }
+                        }
+                    }
+                    else if (scriptEng.operands[3] > 0) {
+                        for (int s = 0; s < videoSettings.screenCount; ++s) {
+                            int sy = abs(scriptEng.operands[1] - cameraYPos);
+
+                            if (sy < scriptEng.operands[3]) {
+                                scriptEng.checkResult = true;
+                                break;
+                            }
                         }
                     }
                 }
@@ -5594,6 +5519,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 // FUNCTION NOTES:
                 // - Assigns the device's type to scriptEng.operands[0]
 
+                scriptEng.operands[0] = GetInputDeviceType(scriptEng.operands[1]);
                 break;
 
             case FUNC_ISINPUTDEVICEASSIGNED:
@@ -5659,12 +5585,10 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                     default: break;
                 }
 
-#if !RETRO_USE_ORIGINAL_CODE
                 bool inputCheck = true; // Default to true for mobile bytecode
                 // If we're using the scripts or an Origins datafile, check the array value
                 if (forceUseScripts || GetGlobalVariableID("game.playMode") != 0xFF)
                     inputCheck = arrayVal <= 1;
-#endif
 
                 // Variables
                 switch (scriptCode[scriptCodePtr++]) {
@@ -6157,7 +6081,6 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                     case VAR_MUSICVOLUME: SetMusicVolume(scriptEng.operands[i]); break;
                     case VAR_MUSICCURRENTTRACK: break;
                     case VAR_MUSICPOSITION: break;
-#if !RETRO_USE_ORIGINAL_CODE
                     case VAR_KEYDOWNUP:
                         if (inputCheck)
                             keyDown.up = scriptEng.operands[i];
@@ -6270,36 +6193,6 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                         if (inputCheck)
                             keyPress.select = scriptEng.operands[i];
                         break;
-#else
-                    case VAR_KEYDOWNUP: keyDown.up = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNDOWN: keyDown.down = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNLEFT: keyDown.left = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNRIGHT: keyDown.right = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNBUTTONA: keyDown.A = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNBUTTONB: keyDown.B = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNBUTTONC: keyDown.C = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNBUTTONX: keyDown.X = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNBUTTONY: keyDown.Y = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNBUTTONZ: keyDown.Z = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNBUTTONL: keyDown.L = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNBUTTONR: keyDown.R = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNSTART: keyDown.start = scriptEng.operands[i]; break;
-                    case VAR_KEYDOWNSELECT: keyDown.select = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSUP: keyPress.up = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSDOWN: keyPress.down = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSLEFT: keyPress.left = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSRIGHT: keyPress.right = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSBUTTONA: keyPress.A = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSBUTTONB: keyPress.B = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSBUTTONC: keyPress.C = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSBUTTONX: keyPress.X = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSBUTTONY: keyPress.Y = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSBUTTONZ: keyPress.Z = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSBUTTONL: keyPress.L = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSBUTTONR: keyPress.R = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSSTART: keyPress.start = scriptEng.operands[i]; break;
-                    case VAR_KEYPRESSSELECT: keyPress.select = scriptEng.operands[i]; break;
-#endif
                     case VAR_MENU1SELECTION: gameMenu[0].selection1 = scriptEng.operands[i]; break;
                     case VAR_MENU2SELECTION: gameMenu[1].selection1 = scriptEng.operands[i]; break;
                     case VAR_TILELAYERXSIZE: stageLayouts[arrayVal].xsize = scriptEng.operands[i]; break;

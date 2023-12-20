@@ -22,7 +22,6 @@ InputButton inputDevice[INPUT_BUTTONCOUNT];
 int inputType = 0;
 
 InputDevice *inputDeviceList[INPUTDEVICE_COUNT];
-int inputDeviceCount = 0;
 
 int inputSlots[4]              = { INPUT_NONE, INPUT_NONE, INPUT_NONE, INPUT_NONE };
 
@@ -459,6 +458,16 @@ void ProcessInput()
         inputDevice[INPUT_ANY].setReleased();
     }
 #endif //! RETRO_USING_SDL2
+}
+
+int GetInputDeviceType(uint deviceID)
+{
+    for (int i = 0; i < inputType; ++i) {
+        if (inputDeviceList[i] && inputDeviceList[i]->id == deviceID)
+            return inputDeviceList[i]->gamepadType;
+    }
+
+    return (DEVICE_API_NONE << 16) | (DEVICE_TYPE_CONTROLLER << 8) | (DEVICE_SWITCH_HANDHELD << 0);
 }
 
 // Pretty much is this code in the original, just formatted differently

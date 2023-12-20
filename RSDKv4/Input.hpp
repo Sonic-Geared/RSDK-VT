@@ -7,6 +7,18 @@ enum InputIDs {
     INPUT_NONE       = 0,
 };
 
+enum InputDeviceTypes {
+    DEVICE_TYPE_CONTROLLER,
+};
+
+enum InputDeviceIDs {
+    DEVICE_SWITCH_HANDHELD,
+};
+
+enum InputDeviceAPIs {
+    DEVICE_API_NONE,
+};
+
 enum InputButtons {
     INPUT_UP,
     INPUT_DOWN,
@@ -111,7 +123,6 @@ extern InputButton inputDevice[INPUT_BUTTONCOUNT];
 extern int inputType;
 
 extern InputDevice *inputDeviceList[INPUTDEVICE_COUNT];
-extern int inputDeviceCount;
 
 extern int inputSlots[4];
 
@@ -171,8 +182,8 @@ inline uint GetFilteredInputDeviceID(bool confirmOnly, bool unassignedOnly, uint
     int mostRecentID      = 0;
     uint maxTime           = maxInactiveTimer ? maxInactiveTimer : -1;
 
-    if (inputDeviceCount) {
-        for (int i = 0; i < inputDeviceCount; ++i) {
+    if (inputType) {
+        for (int i = 0; i < inputType; ++i) {
             if (inputDeviceList[i] && inputDeviceList[i]->active && !inputDeviceList[i]->disabled
                 && (!inputDeviceList[i]->isAssigned || !unassignedOnly)) {
                 if (inputDeviceList[i]->inactiveTimer[confirmOnly] < mostRecentTime) {
@@ -191,7 +202,7 @@ inline uint GetFilteredInputDeviceID(bool confirmOnly, bool unassignedOnly, uint
     if (mostRecentID)
         return mostRecentID;
 
-    for (int i = 0; i < inputDeviceCount; ++i) {
+    for (int i = 0; i < inputType; ++i) {
         if (inputDeviceList[i] && inputDeviceList[i]->active && !inputDeviceList[i]->disabled
             && (!inputDeviceList[i]->isAssigned || !unassignedOnly)) {
             return inputDeviceList[i]->id;
@@ -200,6 +211,8 @@ inline uint GetFilteredInputDeviceID(bool confirmOnly, bool unassignedOnly, uint
 
     return mostRecentID;
 }
+
+int GetInputDeviceType(uint deviceID);
 
 void CheckKeyPress(InputData *input);
 void CheckKeyDown(InputData *input);
