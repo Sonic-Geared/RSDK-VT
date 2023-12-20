@@ -57,6 +57,23 @@ struct InputButton {
     }
 
     inline bool down() { return (press || hold); }
+
+    virtual void UpdateInput() {}
+    virtual void ProcessInput(int controllerID) {}
+    virtual void CloseDevice() {}
+    virtual int Unknown1(int unknown1, int unknown2) { return 0; }
+    virtual int Unknown2(int unknown1, int unknown2) { return 0; }
+
+    virtual ~InputDevice() = default;
+
+    int gamepadType;
+    uint id;
+    byte active;
+    byte isAssigned;
+    byte unused;
+    byte disabled;
+    byte anyPress;
+    int inactiveTimer[2];
 };
 
 enum DefaultHapticIDs {
@@ -131,6 +148,43 @@ inline uint GetInputDeviceID(byte inputSlot)
         return inputSlots[slotID];
 
     return INPUT_NONE;
+}
+
+inline uint GetFilteredInputDeviceID(bool confirmOnly, bool unassignedOnly, uint maxInactiveTimer)
+{
+    uint mostRecentTime    = -1;
+    int mostRecentValidID = 0;
+    int mostRecentID      = 0;
+    uint maxTime           = maxInactiveTimer ? maxInactiveTimer : -1;
+
+    if (inputType) {
+        for (int i = 0; i < inputType; ++i) {
+            if (inputDevice[i] && inputDevice[i]->active && !inputDevice[i]->disabled
+                && (!inputDevice[i]->isAssigned || !unassignedOnly)) {
+                if (inputDevice[i]->inactiveTimer[confirmOnly] < mostRecentTime) {
+                    mostRecentTime = inputDevice[i]->inactiveTimer[confirmOnly];
+                    if (inputDevice[i]->inactiveTimer[confirmOnly] <= maxTime)
+                        mostRecentValidID = inputDevice[i]->id;
+                    mostRecentID = inputDevice[i]->id;
+                }
+            }
+        }
+
+        if (mostRecentValidID)
+            return mostRecentValidID;
+    }
+
+    if (mostRecentID)
+        return mostRecentID;
+
+    for (int i = 0; i < inputType; ++i) {
+        if (inputDevice[i] && inputDevice[i]->active && !inputDevice[i]->disabled
+            && (!inputDevice[i]->isAssigned || !unassignedOnly)) {
+            return inputDevice[i]->id;
+        }
+    }
+
+    return mostRecentID;
 }
 
 void CheckKeyPress(InputData *input);
