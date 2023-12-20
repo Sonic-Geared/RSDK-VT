@@ -159,13 +159,13 @@ inline uint GetFilteredInputDeviceID(bool confirmOnly, bool unassignedOnly, uint
 
     if (inputType) {
         for (int i = 0; i < inputType; ++i) {
-            if (inputDevice[i] && inputDevice[i]->active && !inputDevice[i]->disabled
-                && (!inputDevice[i]->isAssigned || !unassignedOnly)) {
-                if (inputDevice[i]->inactiveTimer[confirmOnly] < mostRecentTime) {
-                    mostRecentTime = inputDevice[i]->inactiveTimer[confirmOnly];
-                    if (inputDevice[i]->inactiveTimer[confirmOnly] <= maxTime)
-                        mostRecentValidID = inputDevice[i]->id;
-                    mostRecentID = inputDevice[i]->id;
+            if (inputDevice[i] && inputDevice[i].active && !inputDevice[i].disabled
+                && (!inputDevice[i].isAssigned || !unassignedOnly)) {
+                if (inputDevice[i].inactiveTimer[confirmOnly] < mostRecentTime) {
+                    mostRecentTime = inputDevice[i].inactiveTimer[confirmOnly];
+                    if (inputDevice[i].inactiveTimer[confirmOnly] <= maxTime)
+                        mostRecentValidID = inputDevice[i].id;
+                    mostRecentID = inputDevice[i].id;
                 }
             }
         }
@@ -178,9 +178,9 @@ inline uint GetFilteredInputDeviceID(bool confirmOnly, bool unassignedOnly, uint
         return mostRecentID;
 
     for (int i = 0; i < inputType; ++i) {
-        if (inputDevice[i] && inputDevice[i]->active && !inputDevice[i]->disabled
-            && (!inputDevice[i]->isAssigned || !unassignedOnly)) {
-            return inputDevice[i]->id;
+        if (inputDevice[i] && inputDevice[i].active && !inputDevice[i].disabled
+            && (!inputDevice[i].isAssigned || !unassignedOnly)) {
+            return inputDevice[i].id;
         }
     }
 
