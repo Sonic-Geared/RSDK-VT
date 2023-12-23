@@ -511,15 +511,8 @@ void CheckKeyPress(InputData *input)
     input->start  = inputDevice[INPUT_START].press;
     input->select = inputDevice[INPUT_SELECT].press;
 
-    anyPress = inputDevice[INPUT_ANY].press;
-    if (!anyPress) {
-        for (int t = 0; t < touches; ++t) {
-            if (touchDown[t])
-                anyPress = true;
-        }
-    }
-
-    SetGlobalVariableByName("input.pressButton", anyPress);
+    SetGlobalVariableByName("input.pressButton", input->A || input->B || input->C || input->X || input->Y || input->Z || input->L || input->R
+                                                     || input->start || input->select);
 }
 
 void CheckKeyDown(InputData *input)

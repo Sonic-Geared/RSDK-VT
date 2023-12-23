@@ -147,7 +147,7 @@ typedef unsigned int uint;
 #endif
 
 #define RETRO_SOFTWARE_RENDER (RETRO_RENDERTYPE == RETRO_SW_RENDER)
-//#define RETRO_HARDWARE_RENDER (RETRO_RENDERTYPE == RETRO_HW_RENDER)
+#define RETRO_HARDWARE_RENDER (RETRO_RENDERTYPE == RETRO_HW_RENDER)
 
 #if RETRO_USING_OPENGL
 #if RETRO_PLATFORM == RETRO_ANDROID
@@ -252,8 +252,9 @@ enum RetroStates {
     ENGINE_EXITPAUSE   = 6,
     ENGINE_ENDGAME     = 7,
     ENGINE_RESETGAME   = 8,
+    ENGINE_VIDEOWAIT   = 9,
 
-#if !RETRO_USE_ORIGINAL_CODE && RETRO_USE_NETWORKING
+#if RETRO_USE_NETWORKING
     // Custom GameModes (required to make some features work)
     ENGINE_CONNECT2PVS = 0x80,
     ENGINE_WAIT2PVS    = 0x81,
@@ -299,15 +300,11 @@ enum RetroGameType {
 
 #endif
 
-#if !RETRO_USE_ORIGINAL_CODE
 extern bool usingCWD;
 extern bool engineDebugMode;
-#endif
 
 // Utils
-#if !RETRO_USE_ORIGINAL_CODE
 #include "Ini.hpp"
-#endif
 
 #include "Math.hpp"
 #include "Reader.hpp"
@@ -349,9 +346,7 @@ public:
         }
     }
 
-#if !RETRO_USE_ORIGINAL_CODE
     bool usingDataFile_Config = false;
-#endif
     bool usingDataFile = false;
     bool usingBytecode = false;
 
@@ -378,7 +373,6 @@ public:
     int frameSkipSetting = 0;
     int frameSkipTimer   = 0;
 
-#if !RETRO_USE_ORIGINAL_CODE
     // Ported from RSDKv5
     int startList_Game  = -1;
     int startStage_Game = -1;
@@ -406,7 +400,6 @@ public:
 
     bool hasFocus  = true;
     int focusState = 0;
-#endif
 
     void Init();
     void Run();
@@ -427,7 +420,7 @@ public:
 #ifdef DECOMP_VERSION
     const char *gameVersion = DECOMP_VERSION;
 #else
-    const char *gameVersion  = "1.0";
+    const char *gameVersion  = "1.0.0";
 #endif
     const char *gamePlatform = nullptr;
 
@@ -446,21 +439,16 @@ public:
     const char *gameHapticSetting = "NO_F_FEEDBACK";
 #endif
 
-#if !RETRO_USE_ORIGINAL_CODE
     byte gameType = GAME_UNKNOWN;
 #if RETRO_USE_MOD_LOADER
     bool modMenuCalled = false;
     bool forceSonic1   = false;
 #endif
-#endif
 
-#if RETRO_SOFTWARE_RENDER
     ushort *frameBuffer   = nullptr;
     ushort *frameBuffer2x = nullptr;
-#endif
     uint *texBuffer = nullptr;
 
-#if !RETRO_USE_ORIGINAL_CODE
     bool isFullScreen = false;
 
     bool startFullScreen  = false; // if should start as fullscreen
@@ -477,17 +465,13 @@ public:
 
     int windowXSize; // width of window/screen in the previous frame
     int windowYSize; // height of window/screen in the previous frame
-#endif
 
-#if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_USING_SDL2
     SDL_Window *window = nullptr;
 #if !RETRO_USING_OPENGL
     SDL_Renderer *renderer = nullptr;
-#if RETRO_SOFTWARE_RENDER
     SDL_Texture *screenBuffer   = nullptr;
     SDL_Texture *screenBuffer2x = nullptr;
-#endif // RETRO_SOFTWARE_RENDERER
     SDL_Texture *videoBuffer    = nullptr;
 #endif
 
@@ -507,7 +491,6 @@ public:
 
     SDL_Event sdlEvents;
 #endif // RETRO_USING_SDL1
-#endif //! RETRO_USE_ORIGINAL_CODE
 };
 
 extern RetroEngine Engine;

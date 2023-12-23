@@ -102,16 +102,16 @@ void PlayVideoFile(char *filePath)
         callbacks.close    = videoClose;
         callbacks.userdata = (void *)file;
 #if RETRO_USING_SDL2 && !RETRO_USING_OPENGL
-        videoDecoder = THEORAPLAY_startDecode(&callbacks, /*FPS*/ 30, THEORAPLAY_VIDFMT_IYUV, GetGlobalVariableByName("Options.Soundtrack") ? 1 : 0);
+        videoDecoder = THEORAPLAY_startDecode(&callbacks, /*FPS*/ 30, THEORAPLAY_VIDFMT_IYUV, GetGlobalVariableByName("options.soundtrack") ? 1 : 0);
 #endif
 
         // TODO: does SDL1.2 support YUV?
 #if RETRO_USING_SDL1 && !RETRO_USING_OPENGL
-        videoDecoder = THEORAPLAY_startDecode(&callbacks, /*FPS*/ 30, THEORAPLAY_VIDFMT_RGBA, GetGlobalVariableByName("Options.Soundtrack") ? 1 : 0);
+        videoDecoder = THEORAPLAY_startDecode(&callbacks, /*FPS*/ 30, THEORAPLAY_VIDFMT_RGBA, GetGlobalVariableByName("options.soundtrack") ? 1 : 0);
 #endif
 
 #if RETRO_USING_OPENGL
-        videoDecoder = THEORAPLAY_startDecode(&callbacks, /*FPS*/ 30, THEORAPLAY_VIDFMT_RGBA, GetGlobalVariableByName("Options.Soundtrack") ? 1 : 0);
+        videoDecoder = THEORAPLAY_startDecode(&callbacks, /*FPS*/ 30, THEORAPLAY_VIDFMT_RGBA, GetGlobalVariableByName("options.soundtrack") ? 1 : 0);
 #endif
 
         if (!videoDecoder) {
@@ -139,6 +139,7 @@ void PlayVideoFile(char *filePath)
         trackID      = TRACK_COUNT - 1;
 
         videoSkipped    = false;
+        Engine.gameMode = ENGINE_VIDEOWAIT;
     }
     else {
         PrintLog("Couldn't find file '%s'!", filepath);
@@ -209,7 +210,8 @@ int ProcessVideo()
             fadeMode += 8;
         }
 
-        if (anyPress || touches > 0) {
+        if (input->A || input->B || input->C || input->X || input->Y || input->Z || input->L || input->R
+            || input->start || input->select || touches > 0) {
             if (!videoSkipped)
                 fadeMode = 0;
 
