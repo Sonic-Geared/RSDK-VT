@@ -210,6 +210,7 @@ int ProcessVideo()
             fadeMode += 8;
         }
 
+        InputData *input
         if (input->A || input->B || input->C || input->X || input->Y || input->Z || input->L || input->R
             || input->start || input->select || touches > 0) {
             if (!videoSkipped)
