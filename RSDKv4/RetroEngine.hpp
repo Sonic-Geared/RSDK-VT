@@ -40,7 +40,6 @@ typedef unsigned char byte;
 typedef signed char sbyte;
 typedef unsigned short ushort;
 typedef unsigned int uint;
-typedef unsigned long long ulong;
 
 // Platforms (RSDKv4 only defines these 7 (I assume), but feel free to add your own custom platform define for easier platform code changes)
 #define RETRO_WIN      (0)
