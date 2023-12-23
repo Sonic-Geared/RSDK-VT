@@ -47,6 +47,7 @@ void PlayVideoFile(char *filePath)
     StrAdd(pathBuffer, filePath);
     StrAdd(pathBuffer, ".ogv");
 
+    bool forceFolder = false;
     bool addPath = true;
     // Fixes ".ani" ".Ani" bug and any other case differences
     char pathLower[0x100];
