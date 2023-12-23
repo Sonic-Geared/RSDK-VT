@@ -243,8 +243,6 @@ enum RetroEngineMessages {
 };
 
 enum RetroStates {
-    // There's a reason of why we're adding a 2nd version of it. Do not touch it.
-    ENGINE_VIDEOWAIT2  = -1,
     ENGINE_DEVMENU     = 0,
     ENGINE_MAINGAME    = 1,
     ENGINE_INITDEVMENU = 2,
@@ -254,7 +252,6 @@ enum RetroStates {
     ENGINE_EXITPAUSE   = 6,
     ENGINE_ENDGAME     = 7,
     ENGINE_RESETGAME   = 8,
-    ENGINE_VIDEOWAIT   = 9,
 
 #if !RETRO_USE_ORIGINAL_CODE && RETRO_USE_NETWORKING
     // Custom GameModes (required to make some features work)
