@@ -61,7 +61,7 @@ void PlayVideoFile(char *filePath)
             std::map<std::string, std::string>::const_iterator iter = modList[m].fileMap.find(pathLower);
             if (iter != modList[m].fileMap.cend()) {
                 StrCopy(pathBuffer, iter->second.c_str());
-                Engine.forceFolder   = true;
+                forceFolder   = true;
                 Engine.usingDataFile = false;
                 addPath              = false;
                 break;
