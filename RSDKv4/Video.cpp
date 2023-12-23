@@ -210,9 +210,8 @@ int ProcessVideo()
             fadeMode += 8;
         }
 
-        InputData *input
-        if (input->A || input->B || input->C || input->X || input->Y || input->Z || input->L || input->R
-            || input->start || input->select || touches > 0) {
+        if (inputDevice[INPUT_BUTTONA].press || inputDevice[INPUT_BUTTONB].press || inputDevice[INPUT_BUTTONC].press || inputDevice[INPUT_BUTTONX].press || inputDevice[INPUT_BUTTONY].press || inputDevice[INPUT_BUTTONZ].press || inputDevice[INPUT_BUTTONL].press || inputDevice[INPUT_BUTTONR].press
+            || inputDevice[INPUT_START].press || inputDevice[INPUT_SELECT].press || touches > 0) {
             if (!videoSkipped)
                 fadeMode = 0;
 
