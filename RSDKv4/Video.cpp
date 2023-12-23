@@ -139,7 +139,7 @@ void PlayVideoFile(char *filePath)
         trackID      = TRACK_COUNT - 1;
 
         videoSkipped    = false;
-        Engine.gameMode = ENGINE_VIDEOWAIT;
+        Engine.gameMode = ENGINE_VIDEOWAIT2;
     }
     else {
         PrintLog("Couldn't find file '%s'!", filepath);
