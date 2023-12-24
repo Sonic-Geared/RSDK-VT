@@ -71,6 +71,21 @@ void CalculateTrigAngles()
     sin1024LookupTable[0x300] = -0x400;
 
     for (int i = 0; i < 0x200; ++i) {
+        sinM7LookupTable[i] = (int)(sinf((i / 256.0) * RSDK_PI) * 4096.0);
+        cosM7LookupTable[i] = (int)(cosf((i / 256.0) * RSDK_PI) * 4096.0);
+    }
+
+    cosM7LookupTable[0x00]  = 0x1000;
+    cosM7LookupTable[0x80]  = 0;
+    cosM7LookupTable[0x100] = -0x1000;
+    cosM7LookupTable[0x180] = 0;
+
+    sinM7LookupTable[0x00]  = 0;
+    sinM7LookupTable[0x80]  = 0x1000;
+    sinM7LookupTable[0x100] = 0;
+    sinM7LookupTable[0x180] = -0x1000;
+
+    for (int i = 0; i < 0x200; ++i) {
         sin512LookupTable[i]  = (int)(sinf((i / 256.f) * RSDK_PI) * 512.f);
         cos512LookupTable[i]  = (int)(cosf((i / 256.f) * RSDK_PI) * 512.f);
         tan512LookupTable[i]  = (int)(tanf((i / 256.f) * RSDK_PI) * 512.f);
