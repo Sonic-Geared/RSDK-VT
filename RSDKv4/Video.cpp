@@ -63,7 +63,6 @@ void PlayVideoFile(char *filePath)
             if (iter != modList[m].fileMap.cend()) {
                 StrCopy(pathBuffer, iter->second.c_str());
                 forceFolder   = true;
-                Engine.usingDataFile = false;
                 addPath              = false;
                 break;
             }
