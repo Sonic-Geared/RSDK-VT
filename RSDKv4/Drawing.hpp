@@ -41,21 +41,6 @@ enum VideoSettingsValues {
     VIDEOSETTING_SCREENCOUNT,
 };
 
-struct DrawVertex2D {
-    short x;
-    short y;
-    short u;
-    short v;
-};
-
-struct DrawVertex3D {
-    float x;
-    float y;
-    float z;
-    short u;
-    short v;
-};
-
 extern ushort blendLookupTable[0x20 * 0x100];
 extern ushort subtractLookupTable[0x20 * 0x100];
 extern ushort tintLookupTable[0x10000];
@@ -81,10 +66,6 @@ extern int gfxDataPosition;
 extern GFXSurface gfxSurface[SURFACE_COUNT];
 extern byte graphicData[GFXDATA_SIZE];
 
-extern int viewOffsetX;
-extern int viewWidth;
-extern int viewHeight;
-
 extern VideoSettings videoSettings;
 
 extern DisplaySettings displaySettings;
@@ -95,18 +76,11 @@ extern bool mixFiltersOnJekyll;
 extern GLint defaultFramebuffer;
 extern GLuint framebufferHiRes;
 extern GLuint renderbufferHiRes;
-extern GLuint retroBuffer;
-extern GLuint retroBuffer2x;
 extern GLuint videoBuffer;
 #endif
-extern DrawVertex2D retroScreenRect[4];
 
 int InitRenderDevice();
 void FlipScreen();
-void RenderFromRetroBuffer();
-
-void FlipScreenVideo();
-
 void ReleaseRenderDevice(bool refresh = false);
 
 void GenerateBlendLookupTable();
