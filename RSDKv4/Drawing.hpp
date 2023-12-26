@@ -1,7 +1,7 @@
 #ifndef DRAWING_H
 #define DRAWING_H
 
-#define SURFACE_COUNT (24)
+#define SURFACE_COUNT (0x40)
 #define GFXDATA_SIZE  (0x800 * 0x800)
 
 #define DRAWLAYER_COUNT (8)
@@ -19,9 +19,7 @@ struct GFXSurface {
     char fileName[0x40];
     int height;
     int width;
-#if RETRO_SOFTWARE_RENDER
     int widthShift;
-#endif
     int depth;
     int dataPosition;
 };
@@ -41,6 +39,25 @@ struct VideoSettings {
 
 enum VideoSettingsValues {
     VIDEOSETTING_SCREENCOUNT,
+};
+
+struct DrawVertex {
+    short x;
+    short y;
+    short u;
+    short v;
+
+    Colour colour;
+};
+
+struct DrawVertex3D {
+    float x;
+    float y;
+    float z;
+    short u;
+    short v;
+
+    Colour colour;
 };
 
 extern ushort blendLookupTable[0x20 * 0x100];
@@ -80,6 +97,8 @@ extern GLuint framebufferHiRes;
 extern GLuint renderbufferHiRes;
 extern GLuint videoBuffer;
 #endif
+extern DrawVertex screenRect[4];
+extern DrawVertex retroScreenRect[4];
 
 int InitRenderDevice();
 void FlipScreen();
@@ -96,9 +115,7 @@ void ClearScreen(byte index);
 void SetScreenDimensions(int width, int height);
 void SetScreenSize(int width, int lineSize);
 
-#if RETRO_SOFTWARE_RENDER
 void CopyFrameOverlay2x();
-#endif
 
 void SetupViewport();
 void SetFullScreen(bool fs);
@@ -108,9 +125,7 @@ void SetVideoSetting(int id, int value);
 // Layer Drawing
 void DrawObjectList(int layer);
 void DrawStageGFX();
-#if !RETRO_USE_ORIGINAL_CODE
 void DrawDebugOverlays();
-#endif
 
 // TileLayer Drawing
 void DrawHLineScrollLayer(int layerID);
