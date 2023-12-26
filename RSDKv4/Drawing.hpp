@@ -46,8 +46,6 @@ struct DrawVertex {
     short y;
     short u;
     short v;
-
-    Colour colour;
 };
 
 struct DrawVertex3D {
@@ -56,8 +54,6 @@ struct DrawVertex3D {
     float z;
     short u;
     short v;
-
-    Colour colour;
 };
 
 extern ushort blendLookupTable[0x20 * 0x100];
