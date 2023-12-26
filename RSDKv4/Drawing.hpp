@@ -95,6 +95,8 @@ extern bool mixFiltersOnJekyll;
 extern GLint defaultFramebuffer;
 extern GLuint framebufferHiRes;
 extern GLuint renderbufferHiRes;
+extern GLuint retroBuffer;
+extern GLuint retroBuffer2x;
 extern GLuint videoBuffer;
 #endif
 extern DrawVertex2D retroScreenRect[4];

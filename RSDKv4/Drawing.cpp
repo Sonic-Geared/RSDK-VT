@@ -45,6 +45,8 @@ bool mixFiltersOnJekyll = false;
 GLint defaultFramebuffer = -1;
 GLuint framebufferHiRes  = -1;
 GLuint renderbufferHiRes = -1;
+GLuint retroBuffer    = 0;
+GLuint retroBuffer2x  = 0;
 GLuint videoBuffer       = -1;
 #endif
 DrawVertex2D retroScreenRect[4];
@@ -281,7 +283,9 @@ int InitRenderDevice()
     memset(Engine.frameBuffer, 0, (GFX_LINESIZE * SCREEN_YSIZE) * sizeof(ushort));
     memset(Engine.frameBuffer2x, 0, GFX_LINESIZE_DOUBLE * (SCREEN_YSIZE * 2) * sizeof(ushort));
     Engine.texBuffer = new uint[GFX_LINESIZE * SCREEN_YSIZE];
+    Engine.texBuffer2x = new uint[(SCREEN_XSIZE * 2) * (SCREEN_YSIZE * 2)];
     memset(Engine.texBuffer, 0, (GFX_LINESIZE * SCREEN_YSIZE) * sizeof(uint));
+    memset(Engine.texBuffer2x, 0, (SCREEN_XSIZE * 2) * (SCREEN_YSIZE * 2) * sizeof(uint));
 
     if (Engine.startFullScreen) {
         SetFullScreen(true);
@@ -597,7 +601,7 @@ void RenderFromRetroBuffer()
     glVertexPointer(2, GL_SHORT, sizeof(DrawVertex), &retroScreenRect[0].x);
     glTexCoordPointer(2, GL_SHORT, sizeof(DrawVertex), &retroScreenRect[0].u);
     glDisable(GL_BLEND);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, &gfxPolyListIndex);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, &drawIndexList);
 #endif
 }
 
