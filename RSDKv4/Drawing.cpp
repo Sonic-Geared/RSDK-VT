@@ -319,8 +319,6 @@ void FlipScreen()
     }
 
 #if RETRO_USING_OPENGL
-    if (dimAmount < 1.0 && stageMode != STAGEMODE_PAUSED)
-        DrawRectangle(0, 0, SCREEN_XSIZE, SCREEN_YSIZE, 0, 0, 0, 0xFF - (dimAmount * 0xFF));
     if (Engine.gameMode == ENGINE_VIDEOWAIT) {
         FlipScreenVideo();
     }
