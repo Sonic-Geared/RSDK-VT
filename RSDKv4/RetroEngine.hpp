@@ -95,7 +95,7 @@ typedef unsigned int uint;
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
 
-#define DEFAULT_SCREEN_XSIZE 424
+#define DEFAULT_SCREEN_XSIZE 426
 #define DEFAULT_FULLSCREEN   false
 #define RETRO_USING_MOUSE
 #define RETRO_USING_TOUCH
@@ -267,11 +267,12 @@ enum RetroGameType {
     GAME_UNKNOWN = 0,
     GAME_SONIC1  = 1,
     GAME_SONIC2  = 2,
+    GAME_SONIC3  = 3, // aka Virtua Scarlet but i'm letting it like this because we all like a little bit of trolling lmao :trollface:
 };
 
 // General Defines
 #define SCREEN_YSIZE   (240)
-#define SCREEN_CENTERY (SCREEN_YSIZE / 2)
+#define SCREEN_CENTERY (120)
 
 #if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_UWP || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_LINUX
 #if RETRO_USING_SDL2
