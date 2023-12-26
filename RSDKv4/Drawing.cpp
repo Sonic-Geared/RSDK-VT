@@ -31,6 +31,10 @@ int gfxDataPosition = 0;
 GFXSurface gfxSurface[SURFACE_COUNT];
 byte graphicData[GFXDATA_SIZE];
 
+int viewOffsetX = 0;
+int viewWidth     = 0;
+int viewHeight    = 0;
+
 VideoSettings videoSettings;
 
 DisplaySettings displaySettings;
@@ -316,7 +320,7 @@ void FlipScreen()
     }
 #endif
 
-#if RETRO_USING_SDL2
+#if RETRO_USING_SDL2 && !RETRO_USING_OPENGL
     SDL_Rect *destScreenPos = NULL;
     SDL_Rect destScreenPos_scaled, destScreenPosRect;
     SDL_Texture *texTarget = NULL;
@@ -571,7 +575,7 @@ void FlipScreenVideo()
     glVertexPointer(2, GL_FLOAT, sizeof(DrawVertex3D), &screenVerts[0].x);
     glTexCoordPointer(2, GL_SHORT, sizeof(DrawVertex3D), &screenVerts[0].u);
     glDisable(GL_BLEND);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, &gfxPolyListIndex);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, &drawIndexList);
 #endif
 }
 

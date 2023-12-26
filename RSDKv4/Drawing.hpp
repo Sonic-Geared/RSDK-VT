@@ -81,6 +81,10 @@ extern int gfxDataPosition;
 extern GFXSurface gfxSurface[SURFACE_COUNT];
 extern byte graphicData[GFXDATA_SIZE];
 
+extern int viewOffsetX;
+extern int viewWidth;
+extern int viewHeight;
+
 extern VideoSettings videoSettings;
 
 extern DisplaySettings displaySettings;
@@ -97,6 +101,9 @@ extern DrawVertex2D retroScreenRect[4];
 
 int InitRenderDevice();
 void FlipScreen();
+
+void FlipScreenVideo();
+
 void ReleaseRenderDevice(bool refresh = false);
 
 void GenerateBlendLookupTable();
