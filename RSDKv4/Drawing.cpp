@@ -322,7 +322,7 @@ void FlipScreen()
     }
     else {
         TransferRetroBuffer();
-        RenderFromRetroBuffer();
+        RenderRetroBuffer();
     }
 #endif
 
