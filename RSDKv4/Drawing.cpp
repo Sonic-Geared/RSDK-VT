@@ -43,7 +43,7 @@ GLuint framebufferHiRes  = -1;
 GLuint renderbufferHiRes = -1;
 GLuint videoBuffer       = -1;
 #endif
-DrawVertex retroScreenRect[4];
+DrawVertex2D retroScreenRect[4];
 
 // enable integer scaling, which is a modification of enhanced scaling
 bool integerScaling = false;
