@@ -7,8 +7,8 @@
 #define DRAWLAYER_COUNT (8)
 
 enum FlipFlags { FLIP_NONE, FLIP_X, FLIP_Y, FLIP_XY };
-enum InkFlags { INK_NONE, INK_BLEND, INK_ALPHA, INK_ADD, INK_SUB };
-enum DrawFXFlags { FX_SCALE, FX_ROTATE, FX_ROTOZOOM, FX_INK, FX_TINT, FX_FLIP };
+enum InkFlags { INK_NONE, INK_BLEND, INK_ALPHA, INK_ADD, INK_SUB, INK_TINT, INK_MASKED, INK_UNMASKED };
+enum DrawFXFlags { FX_NONE = 0, FX_FLIP = 1, FX_ROTATE = 2, FX_SCALE = 4 };
 
 struct DrawListEntry {
     int entityRefs[ENTITY_COUNT];

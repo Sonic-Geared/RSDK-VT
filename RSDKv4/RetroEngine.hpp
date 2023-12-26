@@ -447,6 +447,7 @@ public:
     ushort *frameBuffer   = nullptr;
     ushort *frameBuffer2x = nullptr;
     uint *texBuffer = nullptr;
+    uint *texBuffer2x = nullptr;
 
     bool isFullScreen = false;
 
