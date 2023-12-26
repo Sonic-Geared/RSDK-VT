@@ -31,10 +31,6 @@ int gfxDataPosition = 0;
 GFXSurface gfxSurface[SURFACE_COUNT];
 byte graphicData[GFXDATA_SIZE];
 
-int viewOffsetX = 0;
-int viewWidth     = 0;
-int viewHeight    = 0;
-
 VideoSettings videoSettings;
 
 DisplaySettings displaySettings;
@@ -45,11 +41,8 @@ bool mixFiltersOnJekyll = false;
 GLint defaultFramebuffer = -1;
 GLuint framebufferHiRes  = -1;
 GLuint renderbufferHiRes = -1;
-GLuint retroBuffer    = 0;
-GLuint retroBuffer2x  = 0;
 GLuint videoBuffer       = -1;
 #endif
-DrawVertex2D retroScreenRect[4];
 
 // enable integer scaling, which is a modification of enhanced scaling
 bool integerScaling = false;
@@ -62,7 +55,7 @@ int InitRenderDevice()
 {
     char gameTitle[0x40];
 
-    sprintf(gameTitle, "%s%s", Engine.gameWindowText, Engine.usingDataFile_Config ? "" : ""); // I personally don't want anyone playing Virtua Scarlet while having "(Using Data Folder)" shit in their screen, so remove it completely at this point =/
+    sprintf(gameTitle, "%s", Engine.gameWindowText); // I personally don't want anyone playing Virtua Scarlet while having "(Using Data Folder)" shit in their screen, so remove it completely at this point =/
 
 #if RETRO_USING_SDL2
     SDL_Init(SDL_INIT_EVERYTHING);
@@ -318,16 +311,6 @@ void FlipScreen()
         dimAmount = Engine.dimMax * Engine.dimPercent;
     }
 
-#if RETRO_USING_OPENGL
-    if (Engine.gameMode == ENGINE_VIDEOWAIT) {
-        FlipScreenVideo();
-    }
-    else {
-        TransferRetroBuffer();
-        RenderFromRetroBuffer();
-    }
-#endif
-
 #if RETRO_USING_SDL2 && !RETRO_USING_OPENGL
     SDL_Rect *destScreenPos = NULL;
     SDL_Rect destScreenPos_scaled, destScreenPosRect;
@@ -337,7 +320,7 @@ void FlipScreen()
         // reset to default if value is invalid.
         default: Engine.scalingMode = 0; break;
         case 0: // nearest
-			integerScaling = false;
+		        integerScaling = false;
 			bilinearScaling = false;
 			break;                         
         case 1: // integer scaling
@@ -568,114 +551,6 @@ void FlipScreen()
 #endif
 }
 
-void RenderFromRetroBuffer()
-{
-#if RETRO_USING_OPENGL
-    if (drawStageGFXHQ) {
-        glBindTexture(GL_TEXTURE_2D, retroBuffer2x);
-
-        uint *texBufferPtr     = Engine.texBuffer2x;
-        ushort *framebufferPtr = Engine.frameBuffer;
-        for (int y = 0; y < (SCREEN_YSIZE / 2) + 12; ++y) {
-            for (int x = 0; x < SCREEN_XSIZE; ++x) {
-                *texBufferPtr = gfxPalette16to32[*framebufferPtr];
-                texBufferPtr++;
-
-                *texBufferPtr = gfxPalette16to32[*framebufferPtr];
-                texBufferPtr++;
-
-                framebufferPtr++;
-            }
-            framebufferPtr += GFX_LINESIZE - SCREEN_XSIZE;
-
-            framebufferPtr -= GFX_LINESIZE;
-            for (int x = 0; x < SCREEN_XSIZE; ++x) {
-                *texBufferPtr = gfxPalette16to32[*framebufferPtr];
-                texBufferPtr++;
-
-                *texBufferPtr = gfxPalette16to32[*framebufferPtr];
-                texBufferPtr++;
-
-                framebufferPtr++;
-            }
-            framebufferPtr += GFX_LINESIZE - SCREEN_XSIZE;
-        }
-
-        framebufferPtr = Engine.frameBuffer2x;
-        for (int y = 0; y < ((SCREEN_YSIZE / 2) - 12) * 2; ++y) {
-            for (int x = 0; x < SCREEN_XSIZE; ++x) {
-                *texBufferPtr = gfxPalette16to32[*framebufferPtr];
-                framebufferPtr++;
-                texBufferPtr++;
-
-                *texBufferPtr = gfxPalette16to32[*framebufferPtr];
-                framebufferPtr++;
-                texBufferPtr++;
-            }
-            framebufferPtr += 2 * (GFX_LINESIZE - SCREEN_XSIZE);
-        }
-
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, SCREEN_XSIZE * 2, SCREEN_YSIZE * 2, GL_RGBA, GL_UNSIGNED_BYTE, Engine.texBuffer2x);
-    }
-
-    glLoadIdentity();
-    glBindTexture(GL_TEXTURE_2D, drawStageGFXHQ ? retroBuffer2x : retroBuffer);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glViewport(viewOffsetX, 0, viewWidth, viewHeight);
-
-    glVertexPointer(2, GL_SHORT, sizeof(DrawVertex), &retroScreenRect[0].x);
-    glTexCoordPointer(2, GL_SHORT, sizeof(DrawVertex), &retroScreenRect[0].u);
-    glDisable(GL_BLEND);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, &drawIndexList);
-#endif
-}
-
-#define normalize(val, minVal, maxVal) ((float)(val) - (float)(minVal)) / ((float)(maxVal) - (float)(minVal))
-void FlipScreenVideo()
-{
-#if RETRO_USING_OPENGL
-    DrawVertex3D screenVerts[4];
-    for (int i = 0; i < 4; ++i) {
-        screenVerts[i].u = retroScreenRect[i].u;
-        screenVerts[i].v = retroScreenRect[i].v;
-    }
-
-    float best = minVal(viewWidth / (float)videoWidth, viewHeight / (float)videoHeight);
-
-    float w = videoWidth * best;
-    float h = videoHeight * best;
-
-    float x = normalize((viewWidth - w) / 2, 0, viewWidth) * 2 - 1.0f;
-    float y = -(normalize((viewHeight - h) / 2, 0, viewHeight) * 2 - 1.0f);
-
-    w = normalize(w, 0, viewWidth) * 2;
-    h = -(normalize(h, 0, viewHeight) * 2);
-
-    screenVerts[0].x = x;
-    screenVerts[0].y = y;
-
-    screenVerts[1].x = w + x;
-    screenVerts[1].y = y;
-
-    screenVerts[2].x = x;
-    screenVerts[2].y = h + y;
-
-    screenVerts[3].x = w + x;
-    screenVerts[3].y = h + y;
-
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    glLoadIdentity();
-    glBindTexture(GL_TEXTURE_2D, videoBuffer);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glViewport(viewOffsetX, 0, viewWidth, viewHeight);
-    glVertexPointer(2, GL_FLOAT, sizeof(DrawVertex3D), &screenVerts[0].x);
-    glTexCoordPointer(2, GL_SHORT, sizeof(DrawVertex3D), &screenVerts[0].u);
-    glDisable(GL_BLEND);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, &drawIndexList);
-#endif
-}
-
 void ReleaseRenderDevice(bool refresh)
 {
     if (!refresh) {
@@ -834,28 +709,6 @@ void SetScreenDimensions(int width, int height)
     screenBufferVertexList[29] = 1.0;
     screenBufferVertexList[33] = w2;
     screenBufferVertexList[34] = 0.0;
-
-    // HW_TEXTURE_SIZE == 1.0 due to the scaling we did on the Texture Matrix earlier
-
-    retroScreenRect[0].x = -1;
-    retroScreenRect[0].y = 1;
-    retroScreenRect[0].u = 0;
-    retroScreenRect[0].v = 0;
-
-    retroScreenRect[1].x = 1;
-    retroScreenRect[1].y = 1;
-    retroScreenRect[1].u = 1.0; // Originally HW_TEXTURE_SIZE, became a hard 1.0 for a certain reason
-    retroScreenRect[1].v = 0;
-
-    retroScreenRect[2].x = -1;
-    retroScreenRect[2].y = -1;
-    retroScreenRect[2].u = 0;
-    retroScreenRect[2].v = 1.0; // Originally HW_TEXTURE_SIZE, became a hard 1.0 for a certain reason
-
-    retroScreenRect[3].x = 1;
-    retroScreenRect[3].y = -1;
-    retroScreenRect[3].u = 1.0; // Originally HW_TEXTURE_SIZE, became a hard 1.0 for a certain reason
-    retroScreenRect[3].v = 1.0; // Originally HW_TEXTURE_SIZE, became a hard 1.0 for a certain reason
 }
 
 void SetScreenSize(int width, int lineSize)
