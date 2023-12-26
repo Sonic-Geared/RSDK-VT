@@ -322,7 +322,7 @@ void FlipScreen()
     }
     else {
         TransferRetroBuffer();
-        RenderRetroBuffer();
+        RenderFromRetroBuffer();
     }
 #endif
 
@@ -536,6 +536,68 @@ void FlipScreen()
 
     // Update Screen
     SDL_Flip(Engine.windowSurface);
+#endif
+}
+
+void RenderFromRetroBuffer()
+{
+#if RETRO_USING_OPENGL
+    if (drawStageGFXHQ) {
+        glBindTexture(GL_TEXTURE_2D, retroBuffer2x);
+
+        uint *texBufferPtr     = Engine.texBuffer2x;
+        ushort *framebufferPtr = Engine.frameBuffer;
+        for (int y = 0; y < (SCREEN_YSIZE / 2) + 12; ++y) {
+            for (int x = 0; x < SCREEN_XSIZE; ++x) {
+                *texBufferPtr = gfxPalette16to32[*framebufferPtr];
+                texBufferPtr++;
+
+                *texBufferPtr = gfxPalette16to32[*framebufferPtr];
+                texBufferPtr++;
+
+                framebufferPtr++;
+            }
+            framebufferPtr += GFX_LINESIZE - SCREEN_XSIZE;
+
+            framebufferPtr -= GFX_LINESIZE;
+            for (int x = 0; x < SCREEN_XSIZE; ++x) {
+                *texBufferPtr = gfxPalette16to32[*framebufferPtr];
+                texBufferPtr++;
+
+                *texBufferPtr = gfxPalette16to32[*framebufferPtr];
+                texBufferPtr++;
+
+                framebufferPtr++;
+            }
+            framebufferPtr += GFX_LINESIZE - SCREEN_XSIZE;
+        }
+
+        framebufferPtr = Engine.frameBuffer2x;
+        for (int y = 0; y < ((SCREEN_YSIZE / 2) - 12) * 2; ++y) {
+            for (int x = 0; x < SCREEN_XSIZE; ++x) {
+                *texBufferPtr = gfxPalette16to32[*framebufferPtr];
+                framebufferPtr++;
+                texBufferPtr++;
+
+                *texBufferPtr = gfxPalette16to32[*framebufferPtr];
+                framebufferPtr++;
+                texBufferPtr++;
+            }
+            framebufferPtr += 2 * (GFX_LINESIZE - SCREEN_XSIZE);
+        }
+
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, SCREEN_XSIZE * 2, SCREEN_YSIZE * 2, GL_RGBA, GL_UNSIGNED_BYTE, Engine.texBuffer2x);
+    }
+
+    glLoadIdentity();
+    glBindTexture(GL_TEXTURE_2D, drawStageGFXHQ ? retroBuffer2x : retroBuffer);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glViewport(viewOffsetX, 0, viewWidth, viewHeight);
+
+    glVertexPointer(2, GL_SHORT, sizeof(DrawVertex), &retroScreenRect[0].x);
+    glTexCoordPointer(2, GL_SHORT, sizeof(DrawVertex), &retroScreenRect[0].u);
+    glDisable(GL_BLEND);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, &gfxPolyListIndex);
 #endif
 }
 

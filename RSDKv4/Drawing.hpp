@@ -101,6 +101,7 @@ extern DrawVertex2D retroScreenRect[4];
 
 int InitRenderDevice();
 void FlipScreen();
+void RenderFromRetroBuffer();
 
 void FlipScreenVideo();
 
