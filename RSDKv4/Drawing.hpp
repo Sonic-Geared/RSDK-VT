@@ -8,7 +8,7 @@
 
 enum FlipFlags { FLIP_NONE, FLIP_X, FLIP_Y, FLIP_XY };
 enum InkFlags { INK_NONE, INK_BLEND, INK_ALPHA, INK_ADD, INK_SUB, INK_TINT, INK_MASKED, INK_UNMASKED };
-enum DrawFXFlags { FX_NONE = 0, FX_FLIP = 1, FX_ROTATE = 2, FX_SCALE = 4 };
+enum DrawFXFlags { FX_NONE = 0, FX_FLIP = 1, FX_ROTATE = 2, FX_SCALE = 4, FX_ROTOZOOM = 6, FX_INK = 8, FX_TINT = 16 };
 
 struct DrawListEntry {
     int entityRefs[ENTITY_COUNT];
@@ -157,6 +157,8 @@ void DrawSpriteRotated(int direction, int XPos, int YPos, int pivotX, int pivotY
                        int sheetID);
 void DrawSpriteRotozoom(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY, int width, int height, int rotation, int scale,
                         int sheetID);
+void DrawSpriteAllEffect(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY, int width, int height, int rotation, int scale,
+                         int sheetID, int alpha, int ink, int flags);
 
 void DrawBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID);
 void DrawAlphaBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int alpha, int sheetID);
