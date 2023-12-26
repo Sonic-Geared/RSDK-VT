@@ -690,6 +690,8 @@ void ReleaseRenderDevice(bool refresh)
 #if RETRO_USING_SDL2 && !RETRO_USING_OPENGL
     SDL_DestroyTexture(Engine.screenBuffer);
     Engine.screenBuffer = NULL;
+    SDL_DestroyTexture(Engine.screenBuffer2x);
+    Engine.screenBuffer2x = NULL;
 #endif
     if (Engine.texBuffer)
         delete[] Engine.texBuffer;
@@ -832,6 +834,28 @@ void SetScreenDimensions(int width, int height)
     screenBufferVertexList[29] = 1.0;
     screenBufferVertexList[33] = w2;
     screenBufferVertexList[34] = 0.0;
+
+    // HW_TEXTURE_SIZE == 1.0 due to the scaling we did on the Texture Matrix earlier
+
+    retroScreenRect[0].x = -1;
+    retroScreenRect[0].y = 1;
+    retroScreenRect[0].u = 0;
+    retroScreenRect[0].v = 0;
+
+    retroScreenRect[1].x = 1;
+    retroScreenRect[1].y = 1;
+    retroScreenRect[1].u = 1.0; // Originally HW_TEXTURE_SIZE, became a hard 1.0 for a certain reason
+    retroScreenRect[1].v = 0;
+
+    retroScreenRect[2].x = -1;
+    retroScreenRect[2].y = -1;
+    retroScreenRect[2].u = 0;
+    retroScreenRect[2].v = 1.0; // Originally HW_TEXTURE_SIZE, became a hard 1.0 for a certain reason
+
+    retroScreenRect[3].x = 1;
+    retroScreenRect[3].y = -1;
+    retroScreenRect[3].u = 1.0; // Originally HW_TEXTURE_SIZE, became a hard 1.0 for a certain reason
+    retroScreenRect[3].v = 1.0; // Originally HW_TEXTURE_SIZE, became a hard 1.0 for a certain reason
 }
 
 void SetScreenSize(int width, int lineSize)
