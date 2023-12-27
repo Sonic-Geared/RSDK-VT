@@ -1439,16 +1439,6 @@ void ReleaseStorage()
         dataStorage[s].entryCount  = 0;
         dataStorage[s].clearCount  = 0;
     }
-
-    // this code isn't in steam executable, since it omits the "load datapack into memory" feature.
-    // I don't think it's in the console versions either, but this never seems to be freed in those versions.
-    // so, I figured doing it here would be the neatest.
-    for (int p = 0; p < 4; ++p) {
-        if (fileBuffer[p])
-            free(fileBuffer[p]);
-
-        fileBuffer[p] = NULL;
-    }
 }
 
 void AllocateStorage(void **dataPtr, uint size, StorageDataSets dataSet, bool clear)
