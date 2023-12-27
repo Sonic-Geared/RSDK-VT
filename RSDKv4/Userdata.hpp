@@ -135,7 +135,7 @@ public:
     void Remove(uint index)
     {
         // move every item back one
-        for (int32 i = index; i < count; i++) {
+        for (int i = index; i < count; i++) {
             if (i + 1 < count) {
                 entries[i] = entries[i + 1];
             }
