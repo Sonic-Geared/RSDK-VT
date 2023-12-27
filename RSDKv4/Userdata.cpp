@@ -32,7 +32,6 @@ int sendCounter = 0;
 #include <sys/types.h>
 #endif
 
-#if !RETRO_USE_ORIGINAL_CODE
 bool forceUseScripts         = false;
 bool forceUseScripts_Config  = false;
 bool skipStartMenu           = false;
@@ -41,6 +40,26 @@ int disableFocusPause        = 0;
 int disableFocusPause_Config = 0;
 
 bool useSGame = false;
+
+// Macro to access the header variables of a block of memory.
+// Note that this is pointless if the pointer is already pointing directly at the header rather than the memory after it.
+#define HEADER(memory, header_value) memory[-HEADER_SIZE + header_value]
+
+// Every block of allocated memory is prefixed with a header that consists of the following four longwords.
+enum {
+    // Whether the block of memory is actually allocated or not.
+    HEADER_ACTIVE,
+    // Which 'data set' this block of memory belongs to.
+    HEADER_SET_ID,
+    // The offset in the buffer which the block of memory begins at.
+    HEADER_DATA_OFFSET,
+    // How long the block of memory is (measured in 'uint's).
+    HEADER_DATA_LENGTH,
+    // This is not part of the header: it's just a bit of enum magic to calculate the size of the header.
+    HEADER_SIZE
+};
+
+DataStorage dataStorage[DATASET_MAX];
 
 bool ReadSaveRAMData()
 {
@@ -194,8 +213,8 @@ void InitUserdata()
 #endif
 
 #if RETRO_PLATFORM == RETRO_OSX
-    sprintf(gamePath, "%s/RSDKv4", getResourcesPath());
-    sprintf(modsPath, "%s/RSDKv4/", getResourcesPath());
+    sprintf(gamePath, "%s/Scarlet Engine", getResourcesPath());
+    sprintf(modsPath, "%s/Scarlet Engine/", getResourcesPath());
 
     mkdir(gamePath, 0777);
 #elif RETRO_PLATFORM == RETRO_ANDROID
@@ -677,15 +696,15 @@ void WriteSettings()
     ini.SetComment("Dev", "DataFileComment", "Determines where the first SCAREX/RSDK file will be loaded from");
     ini.SetString("Dev", "DataFile", Engine.dataFile[0]);
     if (!StrComp(Engine.dataFile[1], "")) {
-        ini.SetComment("Dev", "DataFileComment2", "Determines where the second SCAREX file will be loaded from");
+        ini.SetComment("Dev", "DataFileComment2", "Determines where the second SCAREX/RSDK file will be loaded from");
         ini.SetString("Dev", "DataFile2", Engine.dataFile[1]);
     }
     if (!StrComp(Engine.dataFile[2], "")) {
-        ini.SetComment("Dev", "DataFileComment3", "Determines where the third SCAREX file will be loaded from");
+        ini.SetComment("Dev", "DataFileComment3", "Determines where the third SCAREX/RSDK file will be loaded from");
         ini.SetString("Dev", "DataFile3", Engine.dataFile[2]);
     }
     if (!StrComp(Engine.dataFile[3], "")) {
-        ini.SetComment("Dev", "DataFileComment4", "Determines where the fourth SCAREX file will be loaded from");
+        ini.SetComment("Dev", "DataFileComment4", "Determines where the fourth SCAREX/RSDK file will be loaded from");
         ini.SetString("Dev", "DataFile4", Engine.dataFile[3]);
     }
 
@@ -900,7 +919,6 @@ void WriteUserdata()
         // Load from online
     }
 }
-#endif
 
 void AwardAchievement(int id, int status)
 {
@@ -915,9 +933,7 @@ void AwardAchievement(int id, int status)
     if (Engine.onlineActive) {
         // Set Achievement online
     }
-#if !RETRO_USE_ORIGINAL_CODE
     WriteUserdata();
-#endif
 }
 
 void SetAchievement(int *achievementID, int *status)
@@ -970,9 +986,7 @@ void GetAchievement(uint *id, void *unused)
 #endif
 void ShowAchievementsScreen()
 {
-#if !RETRO_USE_ORIGINAL_CODE
     CREATE_ENTITY(AchievementsMenu);
-#endif
 }
 
 void SetLeaderboard(int *leaderboardID, int *score)
@@ -1215,8 +1229,12 @@ void NotifyCallback(int *callback, int *param1, int *param2, int *param3)
         case NOTIFY_SPECIAL_END: PrintLog("NOTIFY: SpecialEnd() -> %d", *param1); break;
         case NOTIFY_DEBUGPRINT:
             // Although there are instances of this being called from both CallNativeFunction2 and CallNativeFunction4 in Origins' scripts, there's no way we can tell which one was used here to handle possible errors
-            // Due to this, we'll only print param1 regardless of the opcode used
-            PrintLog("NOTIFY: DebugPrint() -> %d", *param1);
+            // Due to this, the original RSDKv4 decomp would only print param1 regardless of the opcode used
+            // Though, here's this temporary fix provided by Geared, this will stay here 'till anyone finds a better fix for this issue
+            if (param2 && param3) // this code sucks imo :sob:
+                PrintLog("NOTIFY: DebugPrint() -> %d, %d, %d", *param1, *param2, *param3);
+            else
+                PrintLog("NOTIFY: DebugPrint() -> %d", *param1);
             break;
         case NOTIFY_KILL_BOSS: PrintLog("NOTIFY: KillBoss() -> %d", *param1); break;
         case NOTIFY_TOUCH_EMERALD: PrintLog("NOTIFY: TouchEmerald() -> %d", *param1); break;
@@ -1388,3 +1406,313 @@ void ApplyWindowChanges()
     }
 }
 #endif
+
+bool InitStorage()
+{
+    // Storage limits.
+    dataStorage[DATASET_STG].storageLimit = 24 * 1024 * 1024; // 24MB
+    dataStorage[DATASET_MUS].storageLimit = 8 * 1024 * 1024;  // 8MB
+    dataStorage[DATASET_SFX].storageLimit = 32 * 1024 * 1024; // 32MB
+    dataStorage[DATASET_STR].storageLimit = 2 * 1024 * 1024;  //  2MB
+    dataStorage[DATASET_TMP].storageLimit = 8 * 1024 * 1024;  //  8MB
+
+    for (int s = 0; s < DATASET_MAX; ++s) {
+        dataStorage[s].usedStorage = 0;
+        dataStorage[s].entryCount  = 0;
+        dataStorage[s].clearCount  = 0;
+        dataStorage[s].memoryTable = (uint *)malloc(dataStorage[s].storageLimit);
+
+        if (dataStorage[s].memoryTable == NULL)
+            return false;
+    }
+
+    return true;
+}
+
+void ReleaseStorage()
+{
+    for (int s = 0; s < DATASET_MAX; ++s) {
+        if (dataStorage[s].memoryTable != NULL)
+            free(dataStorage[s].memoryTable);
+
+        dataStorage[s].usedStorage = 0;
+        dataStorage[s].entryCount  = 0;
+        dataStorage[s].clearCount  = 0;
+    }
+
+    // this code isn't in steam executable, since it omits the "load datapack into memory" feature.
+    // I don't think it's in the console versions either, but this never seems to be freed in those versions.
+    // so, I figured doing it here would be the neatest.
+    for (int p = 0; p < 4; ++p) {
+        if (fileBuffer[p])
+            free(fileBuffer[p]);
+
+        fileBuffer[p] = NULL;
+    }
+}
+
+void AllocateStorage(void **dataPtr, uint size, StorageDataSets dataSet, bool clear)
+{
+    uint **data = (uint **)dataPtr;
+    *data         = NULL;
+
+    if ((uint)dataSet < DATASET_MAX) {
+        // Align allocation to prevent unaligned memory accesses later on.
+        const uint size_aligned = size & -(int)sizeof(void *);
+
+        if (size_aligned < size)
+            size = size_aligned + sizeof(void *);
+
+        if (dataStorage[dataSet].entryCount < STORAGE_ENTRY_COUNT) {
+            DataStorage *storage = &dataStorage[dataSet];
+
+            // Bug: The original release never takes into account the size of the header when checking if there's enough storage left.
+            // Omitting this will overflow the memory pool when (storageLimit - usedStorage + size) < header size (16 bytes here).
+            if (storage->usedStorage * sizeof(uint) + size + (HEADER_SIZE * sizeof(uint)) < storage->storageLimit) {
+                // HEADER_ACTIVE
+                storage->memoryTable[storage->usedStorage] = true;
+                ++storage->usedStorage;
+
+                // HEADER_SET_ID
+                storage->memoryTable[storage->usedStorage] = dataSet;
+                ++storage->usedStorage;
+
+                // HEADER_DATA_OFFSET
+                storage->memoryTable[storage->usedStorage] = storage->usedStorage + HEADER_SIZE - HEADER_DATA_OFFSET;
+                ++storage->usedStorage;
+
+                // HEADER_DATA_LENGTH
+                storage->memoryTable[storage->usedStorage] = size;
+                ++storage->usedStorage;
+
+                *data = &storage->memoryTable[storage->usedStorage];
+                storage->usedStorage += size / sizeof(uint);
+
+                dataStorage[dataSet].dataEntries[storage->entryCount]    = data;
+                dataStorage[dataSet].storageEntries[storage->entryCount] = *data;
+
+                ++storage->entryCount;
+            }
+            else {
+                // We've run out of room, so perform defragmentation and garbage-collection.
+                DefragmentAndGarbageCollectStorage(dataSet);
+
+                // If there is now room, then perform allocation.
+                // Yes, this really is a massive chunk of duplicate code.
+                if (storage->usedStorage * sizeof(uint) + size + (HEADER_SIZE * sizeof(uint)) < storage->storageLimit) {
+                    // HEADER_ACTIVE
+                    storage->memoryTable[storage->usedStorage] = true;
+                    ++storage->usedStorage;
+
+                    // HEADER_SET_ID
+                    storage->memoryTable[storage->usedStorage] = dataSet;
+                    ++storage->usedStorage;
+
+                    // HEADER_DATA_OFFSET
+                    storage->memoryTable[storage->usedStorage] = storage->usedStorage + HEADER_SIZE - HEADER_DATA_OFFSET;
+                    ++storage->usedStorage;
+
+                    // HEADER_DATA_LENGTH
+                    storage->memoryTable[storage->usedStorage] = size;
+                    ++storage->usedStorage;
+
+                    *data = &storage->memoryTable[storage->usedStorage];
+                    storage->usedStorage += size / sizeof(uint);
+
+                    dataStorage[dataSet].dataEntries[storage->entryCount]    = data;
+                    dataStorage[dataSet].storageEntries[storage->entryCount] = *data;
+
+                    ++storage->entryCount;
+                }
+            }
+
+            // If there are too many storage entries, then perform garbage collection.
+            if (storage->entryCount >= STORAGE_ENTRY_COUNT)
+                GarbageCollectStorage(dataSet);
+
+            // Clear the allocated memory if requested.
+            if (*data != NULL && clear == (bool)true)
+                memset(*data, 0, size);
+        }
+    }
+}
+
+void RemoveStorageEntry(void **dataPtr)
+{
+    if (dataPtr != NULL && *dataPtr != NULL) {
+        uint *data = *(uint **)dataPtr;
+
+        uint set = HEADER(data, HEADER_SET_ID);
+        for (int e = 0; e < dataStorage[set].entryCount; ++e) {
+            // make sure dataEntries[e] isn't null. If it is null by some ungodly chance then it was prolly already freed or something idk
+            if (dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[e] && *dataPtr == *dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[e]) {
+                *dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[e] = NULL;
+                dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[e]  = NULL;
+            }
+
+            set = HEADER(data, HEADER_SET_ID);
+        }
+
+        uint newEntryCount = 0;
+        set                  = HEADER(data, HEADER_SET_ID);
+        for (uint entryID = 0; entryID < dataStorage[set].entryCount; ++entryID) {
+            if (dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[entryID]) {
+                if (entryID != newEntryCount) {
+                    dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[newEntryCount] =
+                        dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[entryID];
+                    dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[entryID] = NULL;
+                    dataStorage[HEADER(data, HEADER_SET_ID)].storageEntries[newEntryCount] =
+                        dataStorage[HEADER(data, HEADER_SET_ID)].storageEntries[entryID];
+                    dataStorage[HEADER(data, HEADER_SET_ID)].storageEntries[entryID] = NULL;
+                }
+
+                ++newEntryCount;
+            }
+
+            set = HEADER(data, HEADER_SET_ID);
+        }
+
+        dataStorage[HEADER(data, HEADER_SET_ID)].entryCount = newEntryCount;
+
+        for (uint e = newEntryCount; e < STORAGE_ENTRY_COUNT; ++e) {
+            dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[e]    = NULL;
+            dataStorage[HEADER(data, HEADER_SET_ID)].storageEntries[e] = NULL;
+        }
+
+        HEADER(data, HEADER_ACTIVE) = false;
+    }
+}
+
+// This defragments the storage, leaving all empty space at the end.
+void DefragmentAndGarbageCollectStorage(StorageDataSets set)
+{
+    uint processedStorage = 0;
+    uint unusedStorage    = 0;
+
+    uint *defragmentDestination = dataStorage[set].memoryTable;
+    uint *currentHeader         = dataStorage[set].memoryTable;
+
+    ++dataStorage[set].clearCount;
+
+    // Perform garbage-collection. This deallocates all memory allocations that are no longer being used.
+    GarbageCollectStorage(set);
+
+    // This performs defragmentation. It works by removing 'gaps' between the various blocks of allocated memory,
+    // grouping them all together at the start of the buffer while all the empty space goes at the end.
+    // Avoiding fragmentation is important, as fragmentation can cause allocations to fail despite there being
+    // enough free memory because that free memory isn't contiguous.
+    while (processedStorage < dataStorage[set].usedStorage) {
+        uint *dataPtr = &dataStorage[set].memoryTable[currentHeader[HEADER_DATA_OFFSET]];
+        uint size     = (currentHeader[HEADER_DATA_LENGTH] / sizeof(uint)) + HEADER_SIZE;
+
+        // Check if this block of memory is currently allocated.
+        currentHeader[HEADER_ACTIVE] = false;
+
+        for (int e = 0; e < dataStorage[set].entryCount; ++e)
+            if (dataPtr == dataStorage[set].storageEntries[e])
+                currentHeader[HEADER_ACTIVE] = true;
+
+        if (currentHeader[HEADER_ACTIVE]) {
+            // This memory is being used.
+            processedStorage += size;
+
+            if (currentHeader > defragmentDestination) {
+                // This memory has a gap before it, so move it backwards into that free space.
+                for (uint i = 0; i < size; ++i) *defragmentDestination++ = *currentHeader++;
+            }
+            else {
+                // This memory doesn't have a gap before it, so we don't need to move it - just skip it instead.
+                defragmentDestination += size;
+                currentHeader += size;
+            }
+        }
+        else {
+            // This memory is not being used, so skip it.
+            currentHeader += size;
+            processedStorage += size;
+            unusedStorage += size;
+        }
+    }
+
+    // If defragmentation occurred, then we need to update every single
+    // pointer to allocated memory to point to their new locations in the buffer.
+    if (unusedStorage != 0) {
+        dataStorage[set].usedStorage -= unusedStorage;
+
+        uint *currentHeader = dataStorage[set].memoryTable;
+
+        uint dataOffset = 0;
+        while (dataOffset < dataStorage[set].usedStorage) {
+            uint *dataPtr = &dataStorage[set].memoryTable[currentHeader[HEADER_DATA_OFFSET]];
+            uint size     = (currentHeader[HEADER_DATA_LENGTH] / sizeof(uint)) + HEADER_SIZE; // size (in ints)
+
+            // Find every single pointer to this memory allocation and update them with its new address.
+            for (int c = 0; c < dataStorage[set].entryCount; ++c)
+
+                // make sure dataEntries[e] isn't null. If it is null by some ungodly chance then it was prolly already freed or something idk
+                if (dataPtr == dataStorage[set].storageEntries[c] && dataStorage[set].dataEntries[c])
+                    dataStorage[set].storageEntries[c] = *dataStorage[set].dataEntries[c] = currentHeader + HEADER_SIZE;
+                    
+
+            // Update the offset in the allocation's header too.
+            currentHeader[HEADER_DATA_OFFSET] = dataOffset + HEADER_SIZE;
+
+            // Advance to the next memory allocation.
+            currentHeader += size;
+            dataOffset += size;
+        }
+    }
+}
+
+void CopyStorage(uint **src, uint **dst)
+{
+    if (dst != NULL) {
+        uint *dstPtr = *dst;
+        *src           = *dst;
+
+        if (dataStorage[HEADER(dstPtr, HEADER_SET_ID)].entryCount < STORAGE_ENTRY_COUNT) {
+            dataStorage[HEADER(dstPtr, HEADER_SET_ID)].dataEntries[dataStorage[HEADER(dstPtr, HEADER_SET_ID)].entryCount]    = src;
+            dataStorage[HEADER(dstPtr, HEADER_SET_ID)].storageEntries[dataStorage[HEADER(dstPtr, HEADER_SET_ID)].entryCount] = *src;
+
+            ++dataStorage[HEADER(dstPtr, HEADER_SET_ID)].entryCount;
+
+            if (dataStorage[HEADER(dstPtr, HEADER_SET_ID)].entryCount >= STORAGE_ENTRY_COUNT)
+                GarbageCollectStorage((StorageDataSets)HEADER(dstPtr, HEADER_SET_ID));
+        }
+    }
+}
+
+void GarbageCollectStorage(StorageDataSets set)
+{
+    if ((uint)set < DATASET_MAX) {
+        for (uint e = 0; e < dataStorage[set].entryCount; ++e) {
+            // So what's happening here is the engine is checking to see if the storage entry
+            // (which is the pointer to the "memoryTable" offset that is allocated for this entry)
+            // matches what the actual variable that allocated the storage is currently pointing to.
+            // if they don't match, the storage entry is considered invalid and marked for removal.
+
+            if (dataStorage[set].dataEntries[e] != NULL && *dataStorage[set].dataEntries[e] != dataStorage[set].storageEntries[e])
+                dataStorage[set].dataEntries[e] = NULL;
+        }
+
+        uint newEntryCount = 0;
+        for (uint entryID = 0; entryID < dataStorage[set].entryCount; ++entryID) {
+            if (dataStorage[set].dataEntries[entryID]) {
+                if (entryID != newEntryCount) {
+                    dataStorage[set].dataEntries[newEntryCount]    = dataStorage[set].dataEntries[entryID];
+                    dataStorage[set].dataEntries[entryID]          = NULL;
+                    dataStorage[set].storageEntries[newEntryCount] = dataStorage[set].storageEntries[entryID];
+                    dataStorage[set].storageEntries[entryID]       = NULL;
+                }
+
+                ++newEntryCount;
+            }
+        }
+        dataStorage[set].entryCount = newEntryCount;
+
+        for (int e = dataStorage[set].entryCount; e < STORAGE_ENTRY_COUNT; ++e) {
+            dataStorage[set].dataEntries[e]    = NULL;
+            dataStorage[set].storageEntries[e] = NULL;
+        }
+    }
+}
