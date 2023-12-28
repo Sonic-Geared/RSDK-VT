@@ -309,7 +309,8 @@ void FlipScreen()
         dimAmount = Engine.dimMax * Engine.dimPercent;
     }
 
-#if RETRO_USING_SDL2 && !RETRO_USING_OPENGL
+#if !RETRO_USING_OPENGL
+#if RETRO_USING_SDL2
     SDL_Rect *destScreenPos = NULL;
     SDL_Rect destScreenPos_scaled, destScreenPosRect;
     SDL_Texture *texTarget = NULL;
@@ -317,22 +318,10 @@ void FlipScreen()
     switch (Engine.scalingMode) {
         // reset to default if value is invalid.
         default: Engine.scalingMode = 0; break;
-        case 0: // nearest
-		        integerScaling = false;
-			bilinearScaling = false;
-			break;                         
-        case 1: // integer scaling
-			integerScaling = true;
-			bilinearScaling = false;
-			break;  
-        case 2: // sharp bilinear
-			integerScaling = false;
-			bilinearScaling = false;
-			break;                         
-        case 3: // regular old bilinear
-			integerScaling = false;
-			bilinearScaling = true;
-			break; 
+        case 0: break;                         // nearest
+        case 1: integerScaling = true; break;  // integer scaling
+        case 2: break;                         // sharp bilinear
+        case 3: bilinearScaling = true; break; // regular old bilinear
     }
 
     SDL_GetWindowSize(Engine.window, &Engine.windowXSize, &Engine.windowYSize);
@@ -344,6 +333,8 @@ void FlipScreen()
     if (Engine.scalingMode == 2) {
         bool cond1 = std::round((Engine.windowXSize / screenxsize) * 24) / 24 == std::floor(Engine.windowXSize / screenxsize);
         bool cond2 = std::round((Engine.windowYSize / screenysize) * 24) / 24 == std::floor(Engine.windowYSize / screenysize);
+        if (cond1 || cond2)
+            disableEnhancedScaling = true;
     }
 
     // get 2x resolution if HQ is enabled.
@@ -415,57 +406,41 @@ void FlipScreen()
     ushort *pixels = NULL;
     if (Engine.gameMode != ENGINE_VIDEOWAIT) {
         if (!drawStageGFXHQ) {
-            SDL_LockTexture(Engine.screenBuffer, NULL, (void **)&pixels, &pitch);
-	        ushort *frameBufferPtr = Engine.frameBuffer;
-	        for (int y = 0; y < SCREEN_YSIZE; ++y) {
-	            memcpy(pixels, frameBufferPtr, SCREEN_XSIZE * sizeof(ushort));
-	            frameBufferPtr += GFX_LINESIZE;
-	            pixels += pitch / sizeof(ushort);
-	        }
-	        // memcpy(pixels, Engine.frameBuffer, pitch * SCREEN_YSIZE); //faster but produces issues with odd numbered screen sizes
-	        SDL_UnlockTexture(Engine.screenBuffer);
-	
-	        SDL_RenderCopy(Engine.renderer, Engine.screenBuffer, NULL, NULL);
+            SDL_UpdateTexture(Engine.screenBuffer, NULL, (void *)Engine.frameBuffer, GFX_LINESIZE * sizeof(ushort));
+            SDL_RenderCopy(Engine.renderer, Engine.screenBuffer, NULL, destScreenPos);
         }
         else {
             int w = 0, h = 0;
-	        SDL_QueryTexture(Engine.screenBuffer2x, NULL, NULL, &w, &h);
-	        SDL_LockTexture(Engine.screenBuffer2x, NULL, (void **)&pixels, &pitch);
-	
-	        ushort *framebufferPtr = Engine.frameBuffer;
-	        for (int y = 0; y < (SCREEN_YSIZE / 2) + 12; ++y) {
-	            for (int x = 0; x < GFX_LINESIZE; ++x) {
-	                *pixels = *framebufferPtr;
-	                pixels++;
-	                *pixels = *framebufferPtr;
-	                pixels++;
-	                framebufferPtr++;
-	            }
-	
-	            framebufferPtr -= GFX_LINESIZE;
-	            for (int x = 0; x < GFX_LINESIZE; ++x) {
-	                *pixels = *framebufferPtr;
-	                pixels++;
-	                *pixels = *framebufferPtr;
-	                pixels++;
-	                framebufferPtr++;
-	            }
-	        }
-	
-	        framebufferPtr = Engine.frameBuffer2x;
-	        for (int y = 0; y < ((SCREEN_YSIZE / 2) - 12) * 2; ++y) {
-	            for (int x = 0; x < GFX_LINESIZE; ++x) {
-	                *pixels = *framebufferPtr;
-	                framebufferPtr++;
-	                pixels++;
-	
-	                *pixels = *framebufferPtr;
-	                framebufferPtr++;
-	                pixels++;
-	            }
-	        }
-	        SDL_UnlockTexture(Engine.screenBuffer2x);
-	        SDL_RenderCopy(Engine.renderer, Engine.screenBuffer2x, NULL, NULL);
+            SDL_QueryTexture(Engine.screenBuffer2x, NULL, NULL, &w, &h);
+            SDL_LockTexture(Engine.screenBuffer2x, NULL, (void **)&pixels, &pitch);
+
+            // Width of the SDL texture in 16bit pixels
+            const int lineWidth = pitch / sizeof(ushort);
+
+            // 2x nearest neighbor scaling of the upper lines
+            ushort *framebufferPtr = Engine.frameBuffer;
+            for (int y = 0; y < (SCREEN_YSIZE / 2) + 12; ++y) {
+                for (int x = 0; x < SCREEN_XSIZE; ++x) {
+                    *pixels = *framebufferPtr;
+                    *(pixels + 1) = *framebufferPtr;
+                    *(pixels + lineWidth) = *framebufferPtr;
+                    *(pixels + lineWidth + 1) = *framebufferPtr;
+                    pixels += 2;
+                    framebufferPtr++;
+                }
+                framebufferPtr += GFX_LINESIZE - SCREEN_XSIZE;
+                pixels += lineWidth;
+            }
+
+            // Simple copy of the lower lines from the pre-scaled framebuffer
+            framebufferPtr = Engine.frameBuffer2x;
+            for (int y = 0; y < ((SCREEN_YSIZE / 2) - 12) * 2; ++y) {
+                memcpy(pixels, framebufferPtr, (SCREEN_XSIZE * 2) * sizeof(ushort));
+                framebufferPtr += GFX_LINESIZE_DOUBLE;
+                pixels += lineWidth;
+            }
+            SDL_UnlockTexture(Engine.screenBuffer2x);
+            SDL_RenderCopy(Engine.renderer, Engine.screenBuffer2x, NULL, destScreenPos);
         }
     }
     else {
@@ -499,7 +474,6 @@ void FlipScreen()
         // no change here
         SDL_RenderPresent(Engine.renderer);
     }
-    SDL_ShowWindow(Engine.window);
 #endif
 
 #if RETRO_USING_SDL1
@@ -547,6 +521,8 @@ void FlipScreen()
     // Update Screen
     SDL_Flip(Engine.windowSurface);
 #endif
+
+#endif // ! !RETRO_USING_OPENGL
 }
 
 void ReleaseRenderDevice(bool refresh)
