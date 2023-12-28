@@ -12,23 +12,6 @@ void TitleScreen_Create(void *objPtr)
     self->logoTextureID  = LoadTexture("Data/Game/Menu/SonicLogo.png", TEXFMT_RGBA8888);
 
     // code has been moved to SegaSplash_Create due to the possibility of opening the dev menu before this loads :(
-#if RETRO_USE_ORIGINAL_CODE
-    ResetBitmapFonts();
-    if (Engine.useHighResAssets)
-        heading = LoadTexture("Data/Game/Menu/Heading_EN.png", TEXFMT_RGBA4444);
-    else
-        heading = LoadTexture("Data/Game/Menu/Heading_EN@1x.png", TEXFMT_RGBA4444);
-    LoadBitmapFont("Data/Game/Menu/Heading_EN.fnt", FONT_HEADING, heading);
-
-    if (Engine.useHighResAssets)
-        labelTex = LoadTexture("Data/Game/Menu/Label_EN.png", TEXFMT_RGBA4444);
-    else
-        labelTex = LoadTexture("Data/Game/Menu/Label_EN@1x.png", TEXFMT_RGBA4444);
-    LoadBitmapFont("Data/Game/Menu/Label_EN.fnt", FONT_LABEL, labelTex);
-
-    textTex = LoadTexture("Data/Game/Menu/Text_EN.png", TEXFMT_RGBA4444);
-    LoadBitmapFont("Data/Game/Menu/Text_EN.fnt", FONT_TEXT, textTex);
-#endif
 
     self->labelPtr         = CREATE_ENTITY(TextLabel);
     self->labelPtr->fontID = FONT_HEADING;
@@ -38,69 +21,18 @@ void TitleScreen_Create(void *objPtr)
         case RETRO_ES: self->labelPtr->scale = 0.125; break;
 
         case RETRO_JP: self->labelPtr->scale = 0.1;
-#if RETRO_USE_ORIGINAL_CODE
-            heading = LoadTexture("Data/Game/Menu/Heading_JA@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Heading_JA.fnt", FONT_HEADING, heading);
-
-            labelTex = LoadTexture("Data/Game/Menu/Label_JA@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Label_JA.fnt", FONT_LABEL, labelTex);
-
-            textTex = LoadTexture("Data/Game/Menu/Text_JA@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Text_JA.fnt", FONT_TEXT, textTex);
-#endif
             break;
 
         case RETRO_RU: self->labelPtr->scale = 0.08;
-#if RETRO_USE_ORIGINAL_CODE
-            if (Engine.useHighResAssets)
-                heading = LoadTexture("Data/Game/Menu/Heading_RU.png", TEXFMT_RGBA4444);
-            else
-                heading = LoadTexture("Data/Game/Menu/Heading_RU@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Heading_RU.fnt", FONT_HEADING, heading);
-
-            if (Engine.useHighResAssets)
-                labelTex = LoadTexture("Data/Game/Menu/Label_RU.png", TEXFMT_RGBA4444);
-            else
-                labelTex = LoadTexture("Data/Game/Menu/Label_RU@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Label_RU.fnt", FONT_LABEL, labelTex);
-#endif
             break;
 
         case RETRO_KO:
-#if RETRO_USE_ORIGINAL_CODE
-            heading = LoadTexture("Data/Game/Menu/Heading_KO@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Heading_KO.fnt", FONT_HEADING, heading);
-
-            labelTex = LoadTexture("Data/Game/Menu/Label_KO@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Label_KO.fnt", FONT_LABEL, labelTex);
-
-            textTex = LoadTexture("Data/Game/Menu/Text_KO.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Text_KO.fnt", FONT_TEXT, textTex);
-#endif
             break;
 
         case RETRO_ZH:
-#if RETRO_USE_ORIGINAL_CODE
-            heading = LoadTexture("Data/Game/Menu/Heading_ZH@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Heading_ZH.fnt", FONT_HEADING, heading);
-
-            labelTex = LoadTexture("Data/Game/Menu/Label_ZH@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Label_ZH.fnt", FONT_LABEL, labelTex);
-
-            textTex = LoadTexture("Data/Game/Menu/Text_ZH@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Text_ZH.fnt", FONT_TEXT, textTex);
-#endif
             break;
 
         case RETRO_ZS:
-#if RETRO_USE_ORIGINAL_CODE
-            heading = LoadTexture("Data/Game/Menu/Heading_ZHS@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Heading_ZHS.fnt", FONT_HEADING, heading);
-            labelTex = LoadTexture("Data/Game/Menu/Label_ZHS@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Label_ZHS.fnt", FONT_LABEL, labelTex);
-            textTex = LoadTexture("Data/Game/Menu/Text_ZHS@1x.png", TEXFMT_RGBA4444);
-            LoadBitmapFont("Data/Game/Menu/Text_ZHS.fnt", FONT_TEXT, textTex);
-#endif
             break;
 
         default: break;
