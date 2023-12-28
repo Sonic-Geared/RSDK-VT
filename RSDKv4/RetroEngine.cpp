@@ -523,7 +523,7 @@ void RetroEngine::Run()
         running = ProcessEvents();
 
         // Focus Checks
-        if (!(disableFocusPause & 2)) {
+        if (!((disableFocusPause + 1) & 2)) {
             if (!Engine.hasFocus) {
                 if (!(Engine.focusState & 1))
                     Engine.focusState = PauseSound() ? 3 : 1;
@@ -549,28 +549,26 @@ void RetroEngine::Run()
                     }
                 }
             }
+        }
 
-            if (!masterPaused || frameStep) {
-                FlipScreen();
+        FlipScreen();
 
 #if RETRO_USING_OPENGL && RETRO_USING_SDL2
-                SDL_GL_SwapWindow(Engine.window);
+        SDL_GL_SwapWindow(Engine.window);
 #endif
-                frameStep = false;
-            }
+        frameStep = false;
 
-            Engine.message = MESSAGE_NONE;
+        Engine.message = MESSAGE_NONE;
 
 #if RETRO_USE_HAPTICS
-            int hapticID = GetHapticEffectNum();
-            if (hapticID >= 0) {
-                // playHaptics(hapticID);
-            }
-            else if (hapticID == HAPTIC_STOP) {
-                // stopHaptics();
-            }
-#endif
+        int hapticID = GetHapticEffectNum();
+        if (hapticID >= 0) {
+            // playHaptics(hapticID);
         }
+        else if (hapticID == HAPTIC_STOP) {
+            // stopHaptics();
+        }
+#endif
     }
 
     ReleaseAudioDevice();
