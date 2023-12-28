@@ -13,24 +13,12 @@ void RetroGameLoop_Main(void *objPtr)
 {
     switch (Engine.gameMode) {
         case ENGINE_DEVMENU:
-            gfxIndexSize        = 0;
-            gfxVertexSize       = 0;
-            gfxIndexSizeOpaque  = 0;
-            gfxVertexSizeOpaque = 0;
-
             ProcessStageSelect();
             TransferRetroBuffer();
             RenderRetroBuffer(64, 160.0);
             break;
 
         case ENGINE_MAINGAME:
-            gfxIndexSize        = 0;
-            gfxVertexSize       = 0;
-            gfxIndexSizeOpaque  = 0;
-            gfxVertexSizeOpaque = 0;
-            vertexSize3D        = 0;
-            indexSize3D         = 0;
-            render3DEnabled     = false;
             ProcessStage();
             TransferRetroBuffer();
             RenderRetroBuffer(64, 160.0);
