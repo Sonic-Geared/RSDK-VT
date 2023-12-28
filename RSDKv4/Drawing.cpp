@@ -309,18 +309,30 @@ void FlipScreen()
         dimAmount = Engine.dimMax * Engine.dimPercent;
     }
 
-#if !RETRO_USING_OPENGL
-#if RETRO_USING_SDL2
-    SDL_Rect destScreenPos_scaled;
+#if RETRO_USING_SDL2 && !RETRO_USING_OPENGL
+    SDL_Rect *destScreenPos = NULL;
+    SDL_Rect destScreenPos_scaled, destScreenPosRect;
     SDL_Texture *texTarget = NULL;
 
     switch (Engine.scalingMode) {
         // reset to default if value is invalid.
         default: Engine.scalingMode = 0; break;
-        case 0: break;                         // nearest
-        case 1: integerScaling = true; break;  // integer scaling
-        case 2: break;                         // sharp bilinear
-        case 3: bilinearScaling = true; break; // regular old bilinear
+        case 0: // nearest
+		        integerScaling = false;
+			bilinearScaling = false;
+			break;                         
+        case 1: // integer scaling
+			integerScaling = true;
+			bilinearScaling = false;
+			break;  
+        case 2: // sharp bilinear
+			integerScaling = false;
+			bilinearScaling = false;
+			break;                         
+        case 3: // regular old bilinear
+			integerScaling = false;
+			bilinearScaling = true;
+			break; 
     }
 
     SDL_GetWindowSize(Engine.window, &Engine.windowXSize, &Engine.windowYSize);
@@ -332,8 +344,6 @@ void FlipScreen()
     if (Engine.scalingMode == 2) {
         bool cond1 = std::round((Engine.windowXSize / screenxsize) * 24) / 24 == std::floor(Engine.windowXSize / screenxsize);
         bool cond2 = std::round((Engine.windowYSize / screenysize) * 24) / 24 == std::floor(Engine.windowYSize / screenysize);
-        if (cond1 || cond2)
-            disableEnhancedScaling = true;
     }
 
     // get 2x resolution if HQ is enabled.
@@ -342,7 +352,7 @@ void FlipScreen()
         screenysize *= 2;
     }
 
-    if (Engine.scalingMode != 0 && !disableEnhancedScaling) {
+    if ((Engine.scalingMode != 0 && !disableEnhancedScaling) && Engine.gameMode != ENGINE_VIDEOWAIT) {
         // set up integer scaled texture, which is scaled to the largest integer scale of the screen buffer
         // before you make a texture that's larger than the window itself. This texture will then be scaled
         // up to the actual screen size using linear interpolation. This makes even window/screen scales
@@ -352,12 +362,13 @@ void FlipScreen()
         // get integer scale
         float scale = 1;
         if (!bilinearScaling) {
-            scale =
-                std::fminf(std::floor((float)Engine.windowXSize / (float)SCREEN_XSIZE), std::floor((float)Engine.windowYSize / (float)SCREEN_YSIZE));
+            scale = std::fminf(std::floor((float)Engine.windowXSize / (float)SCREEN_XSIZE),
+                               std::floor((float)Engine.windowYSize / (float)SCREEN_YSIZE));
         }
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear"); // set interpolation to linear
         // create texture that's integer scaled.
-        texTarget = SDL_CreateTexture(Engine.renderer, SDL_PIXELFORMAT_RGB565, SDL_TEXTUREACCESS_TARGET, SCREEN_XSIZE * scale, SCREEN_YSIZE * scale);
+        texTarget =
+            SDL_CreateTexture(Engine.renderer, SDL_PIXELFORMAT_RGB565, SDL_TEXTUREACCESS_TARGET, SCREEN_XSIZE * scale, SCREEN_YSIZE * scale);
 
         // keep aspect
         float aspectScale = std::fminf(Engine.windowYSize / screenysize, Engine.windowXSize / screenxsize);
@@ -373,6 +384,26 @@ void FlipScreen()
         // fill the screen with the texture, making lerp work.
         SDL_RenderSetLogicalSize(Engine.renderer, Engine.windowXSize, Engine.windowYSize);
     }
+    else if (Engine.gameMode == ENGINE_VIDEOWAIT) {
+        float screenAR = float(SCREEN_XSIZE) / float(SCREEN_YSIZE);
+        if (screenAR > videoAR) {                               // If the screen is wider than the video. (Pillarboxed)
+            uint videoW         = uint(SCREEN_YSIZE * videoAR); // This is to force Pillarboxed mode if the screen is wider than the video.
+            destScreenPosRect.x = (SCREEN_XSIZE - videoW) / 2;  // Centers the video horizontally.
+            destScreenPosRect.w = videoW;
+
+            destScreenPosRect.y = 0;
+            destScreenPosRect.h = SCREEN_YSIZE;
+        }
+        else {
+            uint videoH         = uint(float(SCREEN_XSIZE) / videoAR); // This is to force letterbox mode if the video is wider than the screen.
+            destScreenPosRect.y = (SCREEN_YSIZE - videoH) / 2;         // Centers the video vertically.
+            destScreenPosRect.h = videoH;
+
+            destScreenPosRect.x = 0;
+            destScreenPosRect.w = SCREEN_XSIZE;
+        }
+        destScreenPos = &destScreenPosRect;
+    }
 
     int pitch = 0;
     SDL_SetRenderTarget(Engine.renderer, texTarget);
@@ -382,61 +413,66 @@ void FlipScreen()
     SDL_RenderClear(Engine.renderer);
 
     ushort *pixels = NULL;
-    if (!drawStageGFXHQ) {
-        SDL_LockTexture(Engine.screenBuffer, NULL, (void **)&pixels, &pitch);
-        ushort *frameBufferPtr = Engine.frameBuffer;
-        for (int y = 0; y < SCREEN_YSIZE; ++y) {
-            memcpy(pixels, frameBufferPtr, SCREEN_XSIZE * sizeof(ushort));
-            frameBufferPtr += GFX_LINESIZE;
-            pixels += pitch / sizeof(ushort);
+    if (Engine.gameMode != ENGINE_VIDEOWAIT) {
+        if (!drawStageGFXHQ) {
+            SDL_LockTexture(Engine.screenBuffer, NULL, (void **)&pixels, &pitch);
+	        ushort *frameBufferPtr = Engine.frameBuffer;
+	        for (int y = 0; y < SCREEN_YSIZE; ++y) {
+	            memcpy(pixels, frameBufferPtr, SCREEN_XSIZE * sizeof(ushort));
+	            frameBufferPtr += GFX_LINESIZE;
+	            pixels += pitch / sizeof(ushort);
+	        }
+	        // memcpy(pixels, Engine.frameBuffer, pitch * SCREEN_YSIZE); //faster but produces issues with odd numbered screen sizes
+	        SDL_UnlockTexture(Engine.screenBuffer);
+	
+	        SDL_RenderCopy(Engine.renderer, Engine.screenBuffer, NULL, NULL);
         }
-        // memcpy(pixels, Engine.frameBuffer, pitch * SCREEN_YSIZE); //faster but produces issues with odd numbered screen sizes
-        SDL_UnlockTexture(Engine.screenBuffer);
-
-        SDL_RenderCopy(Engine.renderer, Engine.screenBuffer, NULL, NULL);
+        else {
+            int w = 0, h = 0;
+	        SDL_QueryTexture(Engine.screenBuffer2x, NULL, NULL, &w, &h);
+	        SDL_LockTexture(Engine.screenBuffer2x, NULL, (void **)&pixels, &pitch);
+	
+	        ushort *framebufferPtr = Engine.frameBuffer;
+	        for (int y = 0; y < (SCREEN_YSIZE / 2) + 12; ++y) {
+	            for (int x = 0; x < GFX_LINESIZE; ++x) {
+	                *pixels = *framebufferPtr;
+	                pixels++;
+	                *pixels = *framebufferPtr;
+	                pixels++;
+	                framebufferPtr++;
+	            }
+	
+	            framebufferPtr -= GFX_LINESIZE;
+	            for (int x = 0; x < GFX_LINESIZE; ++x) {
+	                *pixels = *framebufferPtr;
+	                pixels++;
+	                *pixels = *framebufferPtr;
+	                pixels++;
+	                framebufferPtr++;
+	            }
+	        }
+	
+	        framebufferPtr = Engine.frameBuffer2x;
+	        for (int y = 0; y < ((SCREEN_YSIZE / 2) - 12) * 2; ++y) {
+	            for (int x = 0; x < GFX_LINESIZE; ++x) {
+	                *pixels = *framebufferPtr;
+	                framebufferPtr++;
+	                pixels++;
+	
+	                *pixels = *framebufferPtr;
+	                framebufferPtr++;
+	                pixels++;
+	            }
+	        }
+	        SDL_UnlockTexture(Engine.screenBuffer2x);
+	        SDL_RenderCopy(Engine.renderer, Engine.screenBuffer2x, NULL, NULL);
+        }
     }
     else {
-        int w = 0, h = 0;
-        SDL_QueryTexture(Engine.screenBuffer2x, NULL, NULL, &w, &h);
-        SDL_LockTexture(Engine.screenBuffer2x, NULL, (void **)&pixels, &pitch);
-
-        ushort *framebufferPtr = Engine.frameBuffer;
-        for (int y = 0; y < (SCREEN_YSIZE / 2) + 12; ++y) {
-            for (int x = 0; x < GFX_LINESIZE; ++x) {
-                *pixels = *framebufferPtr;
-                pixels++;
-                *pixels = *framebufferPtr;
-                pixels++;
-                framebufferPtr++;
-            }
-
-            framebufferPtr -= GFX_LINESIZE;
-            for (int x = 0; x < GFX_LINESIZE; ++x) {
-                *pixels = *framebufferPtr;
-                pixels++;
-                *pixels = *framebufferPtr;
-                pixels++;
-                framebufferPtr++;
-            }
-        }
-
-        framebufferPtr = Engine.frameBuffer2x;
-        for (int y = 0; y < ((SCREEN_YSIZE / 2) - 12) * 2; ++y) {
-            for (int x = 0; x < GFX_LINESIZE; ++x) {
-                *pixels = *framebufferPtr;
-                framebufferPtr++;
-                pixels++;
-
-                *pixels = *framebufferPtr;
-                framebufferPtr++;
-                pixels++;
-            }
-        }
-        SDL_UnlockTexture(Engine.screenBuffer2x);
-        SDL_RenderCopy(Engine.renderer, Engine.screenBuffer2x, NULL, NULL);
+        SDL_RenderCopy(Engine.renderer, Engine.videoBuffer, NULL, destScreenPos);
     }
 
-    if (Engine.scalingMode != 0 && !disableEnhancedScaling) {
+    if ((Engine.scalingMode != 0 && !disableEnhancedScaling) && Engine.gameMode != ENGINE_VIDEOWAIT) {
         // set render target back to the screen.
         SDL_SetRenderTarget(Engine.renderer, NULL);
         // clear the screen itself now, for same reason as above
@@ -471,42 +507,46 @@ void FlipScreen()
     int w      = SCREEN_XSIZE * Engine.windowScale;
     int h      = SCREEN_YSIZE * Engine.windowScale;
 
-    if (Engine.windowScale == 1) {
-        ushort *frameBufferPtr = Engine.frameBuffer;
-        for (int y = 0; y < SCREEN_YSIZE; ++y) {
-            for (int x = 0; x < SCREEN_XSIZE; ++x) {
-                pixels[x] = frameBufferPtr[x];
+    // TODO: there's gotta be a way to have SDL1.2 fill the window with the surface... right?
+    if (Engine.gameMode != ENGINE_VIDEOWAIT) {
+        if (Engine.windowScale == 1) {
+            ushort *frameBufferPtr = Engine.frameBuffer;
+            for (int y = 0; y < SCREEN_YSIZE; ++y) {
+                for (int x = 0; x < SCREEN_XSIZE; ++x) {
+                    pixels[x] = frameBufferPtr[x];
+                }
+                frameBufferPtr += GFX_LINESIZE;
+                px += Engine.screenBuffer->pitch / sizeof(ushort);
             }
-            frameBufferPtr += GFX_LINESIZE;
-            px += Engine.screenBuffer->pitch / sizeof(ushort);
+            // memcpy(Engine.screenBuffer->pixels, Engine.frameBuffer, Engine.screenBuffer->pitch * SCREEN_YSIZE);
         }
-        // memcpy(Engine.screenBuffer->pixels, Engine.frameBuffer, Engine.screenBuffer->pitch * SCREEN_YSIZE);
+        else {
+            // TODO: this better, I really dont know how to use SDL1.2 well lol
+            int dx = 0, dy = 0;
+            do {
+                do {
+                    int x = (int)(dx * (1.0f / Engine.windowScale));
+                    int y = (int)(dy * (1.0f / Engine.windowScale));
+
+                    px[dx + (dy * w)] = Engine.frameBuffer[x + (y * GFX_LINESIZE)];
+
+                    dx++;
+                } while (dx < w);
+                dy++;
+                dx = 0;
+            } while (dy < h);
+        }
+        // Apply image to screen
+        SDL_BlitSurface(Engine.screenBuffer, NULL, Engine.windowSurface, NULL);
     }
     else {
-        // TODO: this better, I really dont know how to use SDL1.2 well lol
-        int dx = 0, dy = 0;
-        do {
-            do {
-                int x = (int)(dx * (1.0f / Engine.windowScale));
-                int y = (int)(dy * (1.0f / Engine.windowScale));
-
-                px[dx + (dy * w)] = Engine.frameBuffer[x + (y * GFX_LINESIZE)];
-
-                dx++;
-            } while (dx < w);
-            dy++;
-            dx = 0;
-        } while (dy < h);
+        // Apply image to screen
+        SDL_BlitSurface(Engine.videoBuffer, NULL, Engine.windowSurface, NULL);
     }
-
-    // Apply image to screen
-    SDL_BlitSurface(Engine.screenBuffer, NULL, Engine.windowSurface, NULL);
 
     // Update Screen
     SDL_Flip(Engine.windowSurface);
 #endif
-
-#endif // ! !RETRO_USING_OPENGL
 }
 
 void ReleaseRenderDevice(bool refresh)
