@@ -1,6 +1,6 @@
 #include "RetroEngine.hpp"
 
-#if RETRO_USE_MOD_LOADER || !RETRO_USE_ORIGINAL_CODE
+#if RETRO_USE_MOD_LOADER
 char savePath[0x100];
 #endif
 
@@ -64,6 +64,7 @@ void InitMods()
     disableFocusPause  = disableFocusPause_Config;
     redirectSave       = false;
     Engine.forceSonic1 = false;
+    Engine.forceSonic2 = false;
     sprintf(savePath, "");
 
     char modBuf[0x100];
@@ -124,6 +125,7 @@ void InitMods()
     disableFocusPause  = disableFocusPause_Config;
     redirectSave       = false;
     Engine.forceSonic1 = false;
+    Engine.forceSonic2 = false;
     sprintf(savePath, "");
     for (int m = 0; m < modList.size(); ++m) {
         if (!modList[m].active)
@@ -140,6 +142,8 @@ void InitMods()
         }
         if (modList[m].forceSonic1)
             Engine.forceSonic1 = true;
+        if (modList[m].forceSonic2)
+            Engine.forceSonic2 = true;
     }
 
     ReadSaveRAMData();
@@ -224,6 +228,11 @@ bool LoadMod(ModInfo *info, std::string modsPath, std::string folder, bool activ
         modSettings.GetBool("", "ForceSonic1", &info->forceSonic1);
         if (info->forceSonic1 && info->active)
             Engine.forceSonic1 = true;
+
+        info->forceSonic2 = false;
+        modSettings.GetBool("", "ForceSonic2", &info->forceSonic1);
+        if (info->forceSonic2 && info->active)
+            Engine.forceSonic2 = true;
 
         return true;
     }
@@ -412,17 +421,17 @@ void SaveMods()
 
 void RefreshEngine()
 {
-    // Reload entire engine
+    // Reload the entire engine
     Engine.LoadGameConfig("Data/Game/GameConfig.bin");
 #if RETRO_USING_SDL2
     if (Engine.window) {
         char gameTitle[0x40];
-        sprintf(gameTitle, "%s%s", Engine.gameWindowText, Engine.usingDataFile_Config ? "" : " (Using Data Folder)");
+        sprintf(gameTitle, "%s%s", Engine.gameWindowText, "");
         SDL_SetWindowTitle(Engine.window, gameTitle);
     }
 #elif RETRO_USING_SDL1
     char gameTitle[0x40];
-    sprintf(gameTitle, "%s%s", Engine.gameWindowText, Engine.usingDataFile_Config ? "" : " (Using Data Folder)");
+    sprintf(gameTitle, "%s%s", Engine.gameWindowText, "");
     SDL_WM_SetCaption(gameTitle, NULL);
 #endif
 
@@ -456,6 +465,7 @@ void RefreshEngine()
     disableFocusPause  = disableFocusPause_Config;
     redirectSave       = false;
     Engine.forceSonic1 = false;
+    Engine.forceSonic2 = false;
     sprintf(savePath, "");
     for (int m = 0; m < modList.size(); ++m) {
         if (!modList[m].active)
@@ -472,11 +482,17 @@ void RefreshEngine()
         }
         if (modList[m].forceSonic1)
             Engine.forceSonic1 = true;
+        if (modList[m].forceSonic2)
+            Engine.forceSonic2 = true;
     }
 
-    Engine.gameType = GAME_SONIC2;
+    Engine.gameType = GAME_SONIC3;
     if (strstr(Engine.gameWindowText, "Sonic 1") || Engine.forceSonic1) {
         Engine.gameType = GAME_SONIC1;
+    }
+
+    if (strstr(Engine.gameWindowText, "Sonic 2") || Engine.forceSonic2) {
+        Engine.gameType = GAME_SONIC2;
     }
 
     achievementCount = 0;
@@ -508,6 +524,9 @@ void RefreshEngine()
         AddAchievement("Metropolis Master", "Complete Any Metropolis\rZone Act without getting\rhurt");
         AddAchievement("Scrambled Egg", "Defeat Dr. Eggman's Boss\rAttack mode in under 7\rminutes");
         AddAchievement("Beat the Clock", "Complete the Time Attack\rmode in less than 45\rminutes");
+    }
+    else if (Engine.gameType == GAME_SONIC3) {
+        // Here would be the achievements, but none were confirmed yet, so...
     }
 
     SaveMods();
@@ -594,7 +613,7 @@ void MoveMod(uint *id, int *up)
 
 #endif
 
-#if RETRO_USE_MOD_LOADER || !RETRO_USE_ORIGINAL_CODE
+#if RETRO_USE_MOD_LOADER
 int GetSceneID(byte listID, const char *sceneName)
 {
     if (listID >= 3)
