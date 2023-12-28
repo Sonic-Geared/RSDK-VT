@@ -67,6 +67,8 @@ void RetroGameLoop_Main(void *objPtr)
         case ENGINE_VIDEOWAIT:
             ProcessInput();
             ProcessVideo();
+            TransferRetroBuffer();
+            RenderRetroBuffer(64, 160.0);
             break;
 
 #if RETRO_USE_NETWORKING
