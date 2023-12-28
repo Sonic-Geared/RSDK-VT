@@ -406,7 +406,7 @@ void RetroEngine::Init()
     }
     else
 #if RETRO_USE_MOD_LOADER
-    if (strstr(gameWindowText, "Sonic 2")) { // yup, no "forceSonic2 flag for now, sorry :(
+    if (strstr(gameWindowText, "Sonic 2") || forceSonic2) {
 #else
     if (strstr(gameWindowText, "Sonic 2")) {
 #endif
