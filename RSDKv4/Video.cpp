@@ -39,10 +39,6 @@ void PlayVideoFile(char *filePath)
     char pathBuffer[0x100];
     int len = StrLength(filePath);
 
-    if (StrComp(filePath + ((size_t)len - 2), "us")) {
-        filePath[len - 2] = 0;
-    }
-
     StrCopy(pathBuffer, "videos/");
     StrAdd(pathBuffer, filePath);
     StrAdd(pathBuffer, ".ogv");
@@ -63,7 +59,7 @@ void PlayVideoFile(char *filePath)
             if (iter != modList[m].fileMap.cend()) {
                 StrCopy(pathBuffer, iter->second.c_str());
                 forceFolder   = true;
-                addPath              = false;
+                addPath       = false;
                 break;
             }
         }
@@ -101,16 +97,16 @@ void PlayVideoFile(char *filePath)
         callbacks.close    = videoClose;
         callbacks.userdata = (void *)file;
 #if RETRO_USING_SDL2 && !RETRO_USING_OPENGL
-        videoDecoder = THEORAPLAY_startDecode(&callbacks, /*FPS*/ 30, THEORAPLAY_VIDFMT_IYUV, GetGlobalVariableByName("options.soundtrack") ? 1 : 0);
+        videoDecoder = THEORAPLAY_startDecode(&callbacks, /*FPS*/ 60, THEORAPLAY_VIDFMT_IYUV, 0);
 #endif
 
         // TODO: does SDL1.2 support YUV?
 #if RETRO_USING_SDL1 && !RETRO_USING_OPENGL
-        videoDecoder = THEORAPLAY_startDecode(&callbacks, /*FPS*/ 30, THEORAPLAY_VIDFMT_RGBA, GetGlobalVariableByName("options.soundtrack") ? 1 : 0);
+        videoDecoder = THEORAPLAY_startDecode(&callbacks, /*FPS*/ 60, THEORAPLAY_VIDFMT_RGBA, 0);
 #endif
 
 #if RETRO_USING_OPENGL
-        videoDecoder = THEORAPLAY_startDecode(&callbacks, /*FPS*/ 30, THEORAPLAY_VIDFMT_RGBA, GetGlobalVariableByName("options.soundtrack") ? 1 : 0);
+        videoDecoder = THEORAPLAY_startDecode(&callbacks, /*FPS*/ 60, THEORAPLAY_VIDFMT_RGBA, 0);
 #endif
 
         if (!videoDecoder) {
