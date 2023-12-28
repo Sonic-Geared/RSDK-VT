@@ -98,7 +98,7 @@ void TimeAttack_Create(void *objPtr)
             for (int a = 0; a < timeAttack_ActCount; ++a) self->totalTime += saveGame->records[3 * (pos + a)];
             pos += timeAttack_ActCount;
         }
-        else if ((Engine.gameType == GAME_SONIC2) {
+        else if (Engine.gameType == GAME_SONIC2) {
             if (z == 7) { // metropolis
                 for (int a = 0; a < 3; ++a) self->totalTime += saveGame->records[3 * (pos + a)];
                 pos += 3;
