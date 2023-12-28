@@ -13,12 +13,10 @@ void RetroGameLoop_Main(void *objPtr)
 {
     switch (Engine.gameMode) {
         case ENGINE_DEVMENU:
-#if RETRO_HARDWARE_RENDER
             gfxIndexSize        = 0;
             gfxVertexSize       = 0;
             gfxIndexSizeOpaque  = 0;
             gfxVertexSizeOpaque = 0;
-#endif
 
             ProcessStageSelect();
             TransferRetroBuffer();
@@ -26,7 +24,6 @@ void RetroGameLoop_Main(void *objPtr)
             break;
 
         case ENGINE_MAINGAME:
-#if RETRO_HARDWARE_RENDER
             gfxIndexSize        = 0;
             gfxVertexSize       = 0;
             gfxIndexSizeOpaque  = 0;
@@ -34,7 +31,6 @@ void RetroGameLoop_Main(void *objPtr)
             vertexSize3D        = 0;
             indexSize3D         = 0;
             render3DEnabled     = false;
-#endif
             ProcessStage();
             TransferRetroBuffer();
             RenderRetroBuffer(64, 160.0);
@@ -80,7 +76,12 @@ void RetroGameLoop_Main(void *objPtr)
             RestoreNativeObjects();
             break;
 
-#if !RETRO_USE_ORIGINAL_CODE && RETRO_USE_NETWORKING
+        case ENGINE_VIDEOWAIT:
+            ProcessInput();
+            ProcessVideo();
+            break;
+
+#if RETRO_USE_NETWORKING
         case ENGINE_CONNECT2PVS: {
             CREATE_ENTITY(MultiplayerScreen)->bg = CREATE_ENTITY(MenuBG);
             NativeEntity_FadeScreen *fade        = CREATE_ENTITY(FadeScreen);
