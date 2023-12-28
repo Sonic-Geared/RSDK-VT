@@ -20,25 +20,22 @@ A modded version of RSDKv4 with fan game development in mind.
     * [Sonic 2, Via Amazon](https://www.amazon.com.au/Sega-of-America-Sonic-Hedgehog/dp/B00HAPRVWS)
     * A tutorial for finding the game assets from the Android versions can be found [here](https://gamebanana.com/tuts/14492).
 
-   * However, if you want a project that was made with Scarlet in mind, check out its companion project: [RSDK-GDT 2.0](https://github.com/youngerelk1/RSDK-GDT/tree/main), the first (and only) framework for the Retro Engine!
+   * However, if you want a project that was made with Scarlet in mind, check out it's companion project: [RSDK-GDT 2.0](https://github.com/youngerelk1/RSDK-GDT/tree/main), the first (and only) framework for the Retro Engine!
 
-Even if your platform isn't supported by the official releases, you **must** buy or officially download it for the assets (you don't need to run the official release, you just need the game assets). (if running the original games (Sonic 1 & Sonic 2 in this case))
+Even if your platform isn't supported by the official releases, you **must** buy or officially download it for the assets (you don't need to run the official release, you just need the game assets (if running the original games (Sonic 1 & Sonic 2 in this case))
+).
 
 # Additional Tweaks over RSDKv4
+* Adds the video playback from RSDKv3 (still more of a POC than something functional at the moment lol)
 * Added all the features from every revision of RSDKv4 (REV00, REV01, REV02 & REV03)
 * Removed the 2MBs Audio limit
 * Re-adds the Disable Focus Pause that was missing from the Mobile versions of RSDKv4
 * Extra functions for the scripting language (such as RSDKv5(U) related functions, alongside with RSDKv3 & RSDKv2/Sonic Nexus functions)
 
-# Planned features of the Scarlet Engine:
-* The video playback from RSDKv3
-
-# Scarlet Engine Required Games
-* Virtua Scarlet
-
-# Scarlet Engine Compatible Games
+# Scarlet Engine's Compatible Games
 * Sonic 1
 * Sonic 2
+* Virtua Scarlet
 * Another Sonic Adventure
 * RSDK-GDT (Framework)
 
@@ -93,15 +90,11 @@ The following cmake arguments are available when compiling:
 - Use these on the first `cmake -B build` step like so: `cmake -B build -DRETRO_DISABLE_PLUS=on`
 
 ### Scarlet Engine flags
-- `RETRO_REVISION`: What revision to compile for. Takes an integer, defaults to `3` (Origins), even though doesn't really makes any difference in Scarlet so don't worry.
-- `RETRO_DISABLE_PLUS`: Whether or not to disable the Plus DLC. Takes a boolean (on/off): build with `on` when compiling for distribution. Defaults to `off`. This one will be useful for when Virtua Scarlet gets a Plus DLC!
+- `RETRO_DISABLE_PLUS`: Whether or not to disable the Plus DLC. Takes a boolean (on/off): build with `on` when compiling for distribution. Defaults to `off`.
 - `RETRO_FORCE_CASE_INSENSITIVE`: Forces case insensivity when loading files. Takes a boolean, defaults to `off`.
 - `RETRO_MOD_LOADER`: Enables or disables the mod loader. Takes a boolean, defaults to `on`.
 - `RETRO_NETWORKING`: Enables or disables networking features used for Sonic 2's 2P VS mode. Takes a boolean, defaults to `on`.
-- `RETRO_USE_HW_RENDER`: Enables the Hardware Renderer used by the main menu and touch controls UI. Takes a boolean, defaults to `on`.
-- `RETRO_ORIGINAL_CODE`: Removes any custom code. *A playable game will not be built with this enabled.* Takes a boolean, defaults to `off`.
 - `RETRO_SDL_VERSION`: *Only change this if you know what you're doing.* Switches between using SDL1 or SDL2. Takes an integer of either `1` or `2`, defaults to `2`.
-
 
 # Server
 The multiplayer server requires Python 3.8 or later. You can download Python [here](https://www.python.org/downloads/).
@@ -112,7 +105,6 @@ Note that the C++ server found in the `Server` folder has been deprecated and no
 You can find the FAQ [here](./FAQ.md).
 
 # **Reminder this branch is unofficial, neither REMS nor the original decomp team can't provide support for this and it may not be up-to-date all the time.**
-
 
 # Special Thanks
 * [st×tic](https://github.com/stxticOVFL) for helping me fix bugs, tweaking up my sometimes sloppy code and generally being really helpful and fun to work with on this project.
