@@ -21,15 +21,13 @@ void TimeAttack_Create(void *objPtr)
         // GHZ-SBZ + FZ
         actCount = (timeAttack_ZoneCount * timeAttack_ActCount) + 1;
     }
-    else {
+    else if (Engine.gameType == GAME_SONIC2) {
         timeAttack_ZoneCount = 11;
-#if !RETRO_USE_ORIGINAL_CODE
         FileInfo info;
         if (LoadFile("Data/Stages/ZoneM/StageConfig.bin", &info)) {
             timeAttack_ZoneCount++;
             CloseFile();
         }
-#endif
         timeAttack_ActCount    = 2;
         timeAttack_ExZoneCount = 0;
         actCount               = timeAttack_ZoneCount * timeAttack_ActCount;
@@ -100,7 +98,7 @@ void TimeAttack_Create(void *objPtr)
             for (int a = 0; a < timeAttack_ActCount; ++a) self->totalTime += saveGame->records[3 * (pos + a)];
             pos += timeAttack_ActCount;
         }
-        else {
+        else if ((Engine.gameType == GAME_SONIC2) {
             if (z == 7) { // metropolis
                 for (int a = 0; a < 3; ++a) self->totalTime += saveGame->records[3 * (pos + a)];
                 pos += 3;
@@ -167,7 +165,7 @@ void TimeAttack_Create(void *objPtr)
             for (int a = 0; a < timeAttack_ActCount; ++a) self->totalTime += saveGame->records[3 * (pos + a)];
             pos += timeAttack_ActCount;
         }
-        else {
+        else if (Engine.gameType == GAME_SONIC2) {
             if (z == 7) { // metropolis
                 for (int a = 0; a < 3; ++a) self->totalTime += saveGame->records[3 * (pos + a)];
                 pos += 3;
@@ -231,7 +229,7 @@ void TimeAttack_Create(void *objPtr)
                 ty += 240.0f;
             }
         }
-        else {
+        else if (Engine.gameType == GAME_SONIC2) {
             if (i < 9) { // hack this to only show the ??? icon
                 tx += 320.0f;
                 if (tx >= 960.0f) {
