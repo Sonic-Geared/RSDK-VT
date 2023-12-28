@@ -267,7 +267,7 @@ enum RetroGameType {
     GAME_UNKNOWN = 0,
     GAME_SONIC1  = 1,
     GAME_SONIC2  = 2,
-    GAME_SONIC3  = 3, // aka Virtua Scarlet but i'm letting it like this because we all like a little bit of trolling lmao :trollface:
+    GAME_SONIC3  = 3,
 };
 
 // General Defines
@@ -443,6 +443,7 @@ public:
 #if RETRO_USE_MOD_LOADER
     bool modMenuCalled = false;
     bool forceSonic1   = false;
+    bool forceSonic2   = false;
 #endif
 
     ushort *frameBuffer   = nullptr;
