@@ -1,9 +1,7 @@
 #include "RetroEngine.hpp"
 
-#if !RETRO_USE_ORIGINAL_CODE
 bool usingCWD        = false;
 bool engineDebugMode = false;
-#endif
 
 #if RETRO_PLATFORM == RETRO_ANDROID
 #include <unistd.h>
@@ -11,7 +9,6 @@ bool engineDebugMode = false;
 
 RetroEngine Engine = RetroEngine();
 
-#if !RETRO_USE_ORIGINAL_CODE
 inline int GetLowerRate(int intendRate, int targetRate)
 {
     int result   = 0;
@@ -27,11 +24,9 @@ inline int GetLowerRate(int intendRate, int targetRate)
     }
     return result;
 }
-#endif
 
 bool ProcessEvents()
 {
-#if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2
     while (SDL_PollEvent(&Engine.sdlEvents)) {
         // Main Events
@@ -266,7 +261,6 @@ bool ProcessEvents()
         }
     }
 #endif
-#endif
     return true;
 }
 
@@ -280,7 +274,6 @@ void RetroEngine::Init()
     Engine.usingDataFile = false;
     Engine.usingBytecode = false;
 
-#if !RETRO_USE_ORIGINAL_CODE
     InitUserdata();
 #if RETRO_USE_MOD_LOADER
     InitMods();
@@ -312,11 +305,7 @@ void RetroEngine::Init()
     StrAdd(dest, Engine.dataFile[0]);
 #endif
     CheckRSDKFile(dest);
-#else
-    CheckRSDKFile("Data.rsdk");
-#endif
 
-#if !RETRO_USE_ORIGINAL_CODE
     for (int i = 1; i < RETRO_PACK_COUNT; ++i) {
         if (!StrComp(Engine.dataFile[i], "")) {
             StrCopy(dest, BASE_PATH);
@@ -324,13 +313,10 @@ void RetroEngine::Init()
             CheckRSDKFile(dest);
         }
     }
-#endif
 
     gameMode = ENGINE_MAINGAME;
     running  = false;
-#if !RETRO_USE_ORIGINAL_CODE
     bool skipStart = skipStartMenu;
-#endif
     SaveGame *saveGame = (SaveGame *)saveRAM;
 
     if (LoadGameConfig("Data/Game/GameConfig.bin")) {
@@ -341,7 +327,6 @@ void RetroEngine::Init()
                 initialised = true;
                 running     = true;
 
-#if !RETRO_USE_ORIGINAL_CODE
                 if ((startList_Game != 0xFF && startList_Game) || (startStage_Game != 0xFF && startStage_Game) || startPlayer != 0xFF) {
                     skipStart = true;
                     InitStartingStage(startList_Game == 0xFF ? STAGELIST_PRESENTATION : startList_Game, startStage_Game == 0xFF ? 0 : startStage_Game,
@@ -407,13 +392,11 @@ void RetroEngine::Init()
                     }
                     skipStart = true;
                 }
-#endif
             }
         }
     }
 
-#if !RETRO_USE_ORIGINAL_CODE
-    gameType = GAME_SONIC2;
+    gameType = GAME_SONIC3;
 #if RETRO_USE_MOD_LOADER
     if (strstr(gameWindowText, "Sonic 1") || forceSonic1) {
 #else
@@ -421,18 +404,20 @@ void RetroEngine::Init()
 #endif
         gameType = GAME_SONIC1;
     }
+    else
+#if RETRO_USE_MOD_LOADER
+    if (strstr(gameWindowText, "Sonic 2")) { // yup, no "forceSonic2 flag for now, sorry :(
+#else
+    if (strstr(gameWindowText, "Sonic 2")) {
 #endif
+        gameType = GAME_SONIC2;
+    }
 
-#if !RETRO_USE_ORIGINAL_CODE
     bool skipStore = skipStartMenu;
     skipStartMenu  = skipStart;
     InitNativeObjectSystem();
     skipStartMenu = skipStore;
-#else
-    InitNativeObjectSystem();
-#endif
 
-#if !RETRO_USE_ORIGINAL_CODE
     // Calculate Skip frame
     int lower        = GetLowerRate(targetRefreshRate, refreshRate);
     renderFrameIndex = targetRefreshRate / lower;
@@ -468,6 +453,9 @@ void RetroEngine::Init()
         AddAchievement("Metropolis Master", "Complete Any Metropolis\rZone Act without getting\rhurt");
         AddAchievement("Scrambled Egg", "Defeat Dr. Eggman's Boss\rAttack mode in under 7\rminutes");
         AddAchievement("Beat the Clock", "Complete the Time Attack\rmode in less than 45\rminutes");
+    }
+    else if (Engine.gameType == GAME_SONIC3) {
+        // Normally there would be some achievements here, but no achievements have been decided yet, so...
     }
 
     if (skipStart)
@@ -513,8 +501,6 @@ void RetroEngine::Init()
 
         fClose(f);
     }
-
-#endif
 }
 
 void RetroEngine::Run()
@@ -526,7 +512,6 @@ void RetroEngine::Run()
     unsigned long long prevTicks  = 0;
 
     while (running) {
-#if !RETRO_USE_ORIGINAL_CODE
         if (!vsync) {
             curTicks = SDL_GetPerformanceCounter();
             if (curTicks < prevTicks + targetFreq)
@@ -535,7 +520,6 @@ void RetroEngine::Run()
         }
 
         Engine.deltaTime = 1.0 / 60;
-#endif
         running = ProcessEvents();
 
         // Focus Checks
@@ -552,32 +536,28 @@ void RetroEngine::Run()
         }
 
         if (!(Engine.focusState & 1) || vsPlaying) {
-#if !RETRO_USE_ORIGINAL_CODE
             for (int s = 0; s < gameSpeed; ++s) {
                 ProcessInput();
-#endif
 
-#if !RETRO_USE_ORIGINAL_CODE
                 if (!masterPaused || frameStep) {
-#endif
-                    ProcessNativeObjects();
-#if !RETRO_USE_ORIGINAL_CODE
+                    if (Engine.gameMode == ENGINE_VIDEOWAIT) {
+                        if (ProcessVideo() == 1)
+                            Engine.gameMode = ENGINE_MAINGAME;
+                    }
+                    else {
+                        ProcessNativeObjects();
+                    }
                 }
-#endif
             }
 
-#if !RETRO_USE_ORIGINAL_CODE
             if (!masterPaused || frameStep) {
-#endif
                 FlipScreen();
 
-#if !RETRO_USE_ORIGINAL_CODE
 #if RETRO_USING_OPENGL && RETRO_USING_SDL2
                 SDL_GL_SwapWindow(Engine.window);
 #endif
                 frameStep = false;
             }
-#endif
 
             Engine.message = MESSAGE_NONE;
 
@@ -596,7 +576,6 @@ void RetroEngine::Run()
     ReleaseAudioDevice();
     StopVideoPlayback();
     ReleaseRenderDevice();
-#if !RETRO_USE_ORIGINAL_CODE
     ReleaseInputDevices();
 #if RETRO_USE_NETWORKING
     DisconnectNetwork(true);
@@ -604,7 +583,6 @@ void RetroEngine::Run()
     WriteSettings();
 #if RETRO_USE_MOD_LOADER
     SaveMods();
-#endif
 #endif
 
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2
@@ -1178,11 +1156,9 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
             FileRead(&strBuffer, fileBuffer);
 
             // needed for PlayerName[] stuff in scripts
-#if !RETRO_USE_ORIGINAL_CODE
             strBuffer[fileBuffer] = 0;
             StrCopy(playerNames[p], strBuffer);
             playerCount++;
-#endif
         }
 
         for (byte c = 0; c < 4; ++c) {
@@ -1297,7 +1273,6 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     AddNativeFunction("RefreshEngine", RefreshEngine); // Reload engine after changing mod status
 #endif
 
-#if !RETRO_USE_ORIGINAL_CODE
     if (strlen(Engine.startSceneFolder) && strlen(Engine.startSceneID)) {
         SceneInfo *scene = &stageList[STAGELIST_BONUS][0xFE]; // slot 0xFF is used for "none" startStage
         strcpy(scene->name, "_RSDK_SCENE");
@@ -1306,7 +1281,6 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
         startList_Game  = STAGELIST_BONUS;
         startStage_Game = 0xFE;
     }
-#endif
 
     return loaded;
 }
