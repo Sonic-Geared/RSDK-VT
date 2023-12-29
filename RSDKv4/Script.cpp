@@ -321,7 +321,7 @@ const char variableNames[][0x20] = {
     "engine.trialMode",
     "engine.deviceType",
 
-// Extras
+    // Extras
     "screen.currentID",
     "camera.enabled",
     "camera.target",
@@ -330,7 +330,7 @@ const char variableNames[][0x20] = {
     "camera.ypos",
     "camera.adjustY",
 
-// Haptics
+    // Haptics
 #if RETRO_USE_HAPTICS
     "engine.hapticsEnabled",
 #endif
@@ -387,6 +387,8 @@ const FunctionInfo functions[] = {
     // Math Functions
     FunctionInfo("NewRand", 3),
     FunctionInfo("Rand", 2),
+    FunctionInfo("SetRandSeed", 1),
+    FunctionInfo("RandSeeded", 4),
     FunctionInfo("Sin1024", 2),
     FunctionInfo("Cos1024", 2),
     FunctionInfo("Tan1024", 2),
@@ -464,7 +466,7 @@ const FunctionInfo functions[] = {
     FunctionInfo("ObjectTileCollision", 4),
     FunctionInfo("ObjectTileGrip", 4),
 
-    // Video
+    // Video Stuff
     FunctionInfo("LoadVideo", 1),
     FunctionInfo("NextVideoFrame", 0),
 
@@ -908,6 +910,8 @@ enum ScrFunc {
     FUNC_ENDSWITCH,
     FUNC_NEWRAND,
     FUNC_RAND,
+    FUNC_SETRANDSEED,
+    FUNC_RANDSEEDED,
     FUNC_SIN1024,
     FUNC_COS1024,
     FUNC_TAN1024,
@@ -4283,6 +4287,9 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 break;
             case FUNC_NEWRAND: scriptEng.operands[0] = Rand(scriptEng.operands[1], scriptEng.operands[2]); break;
             case FUNC_RAND: scriptEng.operands[0] = rand() % scriptEng.operands[1]; break;
+            case FUNC_SETRANDSEED: SetRandSeed(scriptEng.operands[0]); break;
+            case FUNC_RANDSEEDED: scriptEng.operands[0] = RandSeeded(scriptEng.operands[1], scriptEng.operands[2], &randSeed); break;
+
             case FUNC_SIN1024: {
                 scriptEng.operands[0] = Sin1024(scriptEng.operands[1]);
                 break;
