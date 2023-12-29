@@ -4288,7 +4288,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
             case FUNC_NEWRAND: scriptEng.operands[0] = Rand(scriptEng.operands[1], scriptEng.operands[2]); break;
             case FUNC_RAND: scriptEng.operands[0] = rand() % scriptEng.operands[1]; break;
             case FUNC_SETRANDSEED: SetRandSeed(scriptEng.operands[0]); break;
-            case FUNC_RANDSEEDED: scriptEng.operands[0] = RandSeeded(scriptEng.operands[1], scriptEng.operands[2], &randSeed); break;
+            case FUNC_RANDSEEDED: scriptEng.operands[0] = RandSeeded(scriptEng.operands[1], scriptEng.operands[2], randSeed); break;
 
             case FUNC_SIN1024: {
                 scriptEng.operands[0] = Sin1024(scriptEng.operands[1]);
