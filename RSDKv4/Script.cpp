@@ -3987,7 +3987,8 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                     case VAR_ENGINEDEVICETYPE: scriptEng.operands[i] = RETRO_DEVICETYPE; break;
 
                     // Origins Extras
-                    // Due to using regular v4, these don't support array values like origins expects, so its always screen[0]
+                    // Due to using regular v4, these wouldn't support array values like origins expects, so its always screen[0]
+                    // But as Scarlet kind of readds the v5U tech to v4, those are available the way origins expect!
                     case VAR_SCREENCURRENTID: scriptEng.operands[i] = 0; break;
                     case VAR_CAMERAENABLED:
                         if (arrayVal == 0)
@@ -4288,7 +4289,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
             case FUNC_NEWRAND: scriptEng.operands[0] = Rand(scriptEng.operands[1], scriptEng.operands[2]); break;
             case FUNC_RAND: scriptEng.operands[0] = rand() % scriptEng.operands[1]; break;
             case FUNC_SETRANDSEED: SetRandSeed(scriptEng.operands[0]); break;
-            case FUNC_RANDSEEDED: scriptEng.operands[0] = RandSeeded(scriptEng.operands[1], scriptEng.operands[2], (int)randSeed); break;
+            case FUNC_RANDSEEDED: scriptEng.operands[0] = RandSeeded(scriptEng.operands[1], scriptEng.operands[2], (int*)randSeed); break;
 
             case FUNC_SIN1024: {
                 scriptEng.operands[0] = Sin1024(scriptEng.operands[1]);
@@ -4826,9 +4827,9 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                     case CSIDE_LWALL: ObjectLWallCollision(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
                     case CSIDE_RWALL: ObjectRWallCollision(scriptEng.operands[1] - 1, scriptEng.operands[2], scriptEng.operands[3]); break;
                     case CSIDE_ROOF: ObjectRoofCollision(scriptEng.operands[1], scriptEng.operands[2] - 1, scriptEng.operands[3]); break;
-                    // Yes, the right side also calls for LWall
+                    // Yes, the right side used to also call for LWall, but this got fixed in Scarlet (for whatever reason...)
                     case CSIDE_LENTITY: ObjectLWallCollision(scriptEng.operands[2], 0, objectEntityList[scriptEng.operands[1]].collisionPlane); break;
-                    case CSIDE_RENTITY: ObjectLWallCollision(scriptEng.operands[2] - 1, 0, objectEntityList[scriptEng.operands[1]].collisionPlane); break;
+                    case CSIDE_RENTITY: ObjectRWallCollision(scriptEng.operands[2] - 1, 0, objectEntityList[scriptEng.operands[1]].collisionPlane); break;
                 }
                 break;
             case FUNC_OBJECTTILEGRIP:
@@ -5275,6 +5276,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 // FUNCTION NOTES:
                 // - Sets scriptEng.checkResult
 
+				// This half works, the screenCount stuff is there but the cameras themselves aren't present, so...
                 if (scriptEng.operands[2] > 0 && scriptEng.operands[3] > 0) {
                     for (int s = 0; s < videoSettings.screenCount; ++s) {
                         int sx = abs(scriptEng.operands[0] - cameraXPos);
@@ -6098,7 +6100,8 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                     case VAR_ENGINEDEVICETYPE: break;
 
                     // Origins Extras
-                    // Due to using regular v4, these don't support array values like origins expects, so its always screen[0]
+                    // Due to using regular v4, these wouldn't support array values like origins expects, so its always screen[0]
+                    // But again, Scarlet exists and it'll make those work as origins expect
                     case VAR_SCREENCURRENTID: break;
                     case VAR_CAMERAENABLED:
                         if (arrayVal == 0)
