@@ -1,7 +1,7 @@
-# RSDKv4 DECOMPILATION & Scarlet Engine SOURCE CODE LICENSE v2
+# RSDKv4 DECOMPILATION & Scarlet Engine SOURCE CODE LICENSE
 
 The code in this repository is a decompilation of RSDK (Retro-Engine, also known as Retro Software Development Kit) version 4, edited to have more capabilities than the original decompilation of RSDKv4.
-There is original code in this repo, but most of the code is to be functionally the same as the original RSDKv4 and some extra functionality added by Scarlet Engine.
+There is original code in this repo, but most of the code is to be functionally the same as the official RSDKv4 and some extra functionality added by Scarlet Engine.
 
 This code is provided as-is, that is to say, without liability or warranty. 
 Original authors of RSDK, authors of the decompilation and authors of Scarlet Engine are not held responsible for any damages or other claims said.
