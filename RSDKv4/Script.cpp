@@ -4290,7 +4290,6 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
             case FUNC_RAND: scriptEng.operands[0] = rand() % scriptEng.operands[1]; break;
             case FUNC_SETRANDSEED: SetRandSeed(scriptEng.operands[0]); break;
             case FUNC_RANDSEEDED: scriptEng.operands[0] = RandSeeded(scriptEng.operands[1], scriptEng.operands[2], &scriptEng.operands[3]); break;
-
             case FUNC_SIN1024: {
                 scriptEng.operands[0] = Sin1024(scriptEng.operands[1]);
                 break;
@@ -4532,7 +4531,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                         if (scriptEng.operands[4] == 1 && titleCardText[charID] != 0) {
                             int character = titleCardText[charID];
                             if (character == ' ')
-                                character = 0;
+                                character = -1; // Not necessary, according to Leon himself, but let's put it here anyways
                             if (character == '-')
                                 character = 0;
                             if (character >= '0' && character <= '9')
@@ -4557,7 +4556,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                         while (titleCardText[charID] != 0) {
                             int character = titleCardText[charID];
                             if (character == ' ')
-                                character = 0;
+                                character = -1;
                             if (character == '-')
                                 character = 0;
                             if (character >= '0' && character <= '9')
@@ -4841,7 +4840,8 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                     case CSIDE_RWALL: ObjectRWallGrip(scriptEng.operands[1] - 1, scriptEng.operands[2], scriptEng.operands[3]); break;
                     case CSIDE_ROOF: ObjectRoofGrip(scriptEng.operands[1], scriptEng.operands[2] - 1, scriptEng.operands[3]); break;
                     case CSIDE_LENTITY: ObjectLEntityGrip(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
-                    case CSIDE_RENTITY: ObjectREntityGrip(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
+                    // I make no idea if this was intentional or not... but get accurate to CSIDE_RWALL anyways :p
+                    case CSIDE_RENTITY: ObjectREntityGrip(scriptEng.operands[1] - 1, scriptEng.operands[2], scriptEng.operands[3]); break;
                 }
                 break;
             case FUNC_LOADVIDEO:
