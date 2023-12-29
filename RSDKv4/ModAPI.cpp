@@ -230,7 +230,7 @@ bool LoadMod(ModInfo *info, std::string modsPath, std::string folder, bool activ
             Engine.forceSonic1 = true;
 
         info->forceSonic2 = false;
-        modSettings.GetBool("", "ForceSonic2", &info->forceSonic1);
+        modSettings.GetBool("", "ForceSonic2", &info->forceSonic2);
         if (info->forceSonic2 && info->active)
             Engine.forceSonic2 = true;
 
