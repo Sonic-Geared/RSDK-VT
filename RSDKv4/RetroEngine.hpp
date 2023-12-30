@@ -282,8 +282,10 @@ enum RetroGameType {
 // General Defines
 #if RETRO_PLATFORM == RETRO_VITA
 #define SCREEN_YSIZE   (272)
+#define SCREEN_YSIZE_MAX (272)
 #else
 #define SCREEN_YSIZE   (240)
+#define SCREEN_YSIZE_MAX (240)
 #endif
 #define SCREEN_CENTERY (SCREEN_YSIZE / 2)
 
