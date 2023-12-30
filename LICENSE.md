@@ -11,13 +11,13 @@ You may copy, modify, contribute, and distribute, for public or private use, **a
   - A define, `RSDK_AUTOBUILD`, and a CMake flag, `RETRO_DISABLE_PLUS`, are already provided for you to force DLC off.
   - Creating a configuration setting *is allowed,* so long as it is set to off by default.
     - *No such configuration will be pushed to the master repository.*
-  - This is to ensure an extra layer of legal protection for Sonic Origins Plus and other games that involve legal protection (Virtua Scarlet and RSDK-GDT, though, don't make part of this layer, thankfully).
-- You may not use neither the decompilation or Scarlet Engine for commercial (any sort of profit) use.
-- You must clearly specify that the decompilation, original & Scarlet Engine code are not yours: the developers of the three must be credited.
+  - This is to ensure an extra layer of legal protection for Sonic Origins Plus and other games that involve legal protection
+- You may not use neither the decompilation or/and Scarlet Engine for commercial (any sort of profit) use.
+- You must clearly specify that the decompilation, original & Scarlet Engine's new code are not yours: the developers of the three must be credited.
 - You may not distribute assets used to run the game not directly provided by the repository (other than unique, modded assets).
-- This license must be in all modified copies of source code, and all forks must follow this license (this edited version of the license though, must only be in Scarlet Engine forks. The original license made by Rubberduckycooly and Chuli must only stay in RSDKv4 decompilation forks).
+- This license must be in all modified copies of source code, and all forks must follow this license (this edited version of the license though, must only be in Scarlet Engine forks. The original license made by Rubberduckycooly (aka RDC/Ducky) and Chuli (aka RMGRich/stxtic) must only stay in RSDKv4 decompilation forks).
 Original RSDK author: Christian "Taxman" Whitehead
 
-Decompilation authors: Rubberduckycooly and Chuli
+Decompilation authors: Rubberduckycooly (aka RDC/Ducky) and Chuli (aka RMGRich/stxtic)
 
 Scarlet Engine authors: Klashicola and Geared
