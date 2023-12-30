@@ -16,6 +16,7 @@ You may copy, modify, contribute, and distribute, for public or private use, **a
 - You must clearly specify that the decompilation, original & Scarlet Engine's new code are not yours: the developers of the three must be credited.
 - You may not distribute assets used to run the game not directly provided by the repository (other than unique, modded assets).
 - This license must be in all modified copies of source code, and all forks must follow this license (this edited version of the license though, must only be in Scarlet Engine forks. The original license made by Rubberduckycooly (aka RDC/Ducky) and Chuli (aka RMGRich/stxtic) must only stay in RSDKv4 decompilation forks).
+
 Original RSDK author: Christian "Taxman" Whitehead
 
 Decompilation authors: Rubberduckycooly (aka RDC/Ducky) and Chuli (aka RMGRich/stxtic)
