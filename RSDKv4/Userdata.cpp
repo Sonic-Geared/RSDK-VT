@@ -301,7 +301,9 @@ void InitUserdata()
         ini.SetInteger("Window", "ScalingMode", Engine.scalingMode = 0);
         ini.SetInteger("Window", "WindowScale", Engine.windowScale = 2);
         ini.SetInteger("Window", "ScreenWidth", SCREEN_XSIZE_CONFIG = DEFAULT_SCREEN_XSIZE);
-        SCREEN_XSIZE = SCREEN_XSIZE_CONFIG;
+#if RETRO_PLATFORM == RETRO_VITA
+        ini.SetInteger("Window", "ScreenHeight", SCREEN_YSIZE = SCREEN_YSIZE_MAX);
+#endif
         ini.SetInteger("Window", "RefreshRate", Engine.refreshRate = 60);
         ini.SetInteger("Window", "DimLimit", Engine.dimLimit = 300);
         Engine.dimLimit *= Engine.refreshRate;
@@ -459,7 +461,10 @@ void InitUserdata()
             Engine.windowScale = 2;
         if (!ini.GetInteger("Window", "ScreenWidth", &SCREEN_XSIZE_CONFIG))
             SCREEN_XSIZE_CONFIG = DEFAULT_SCREEN_XSIZE;
-        SCREEN_XSIZE = SCREEN_XSIZE_CONFIG;
+#if RETRO_PLATFORM == RETRO_VITA
+        if (!ini.GetInteger("Window", "ScreenHeight", &SCREEN_YSIZE))
+            SCREEN_YSIZE = SCREEN_YSIZE_MAX;
+#endif
         if (!ini.GetInteger("Window", "RefreshRate", &Engine.refreshRate))
             Engine.refreshRate = 60;
         if (!ini.GetInteger("Window", "DimLimit", &Engine.dimLimit))
@@ -740,6 +745,10 @@ void WriteSettings()
     ini.SetInteger("Window", "WindowScale", Engine.windowScale);
     ini.SetComment("Window", "SWComment", "How wide the base screen will be in pixels");
     ini.SetInteger("Window", "ScreenWidth", SCREEN_XSIZE_CONFIG);
+#if RETRO_PLATFORM == RETRO_VITA
+    ini.SetComment("Window", "SHComment", "How tall the base screen will be in pixels");
+    ini.SetInteger("Window", "ScreenHeight", SCREEN_YSIZE);
+#endif
     ini.SetComment("Window", "RRComment", "Determines the target FPS");
     ini.SetInteger("Window", "RefreshRate", Engine.refreshRate);
     ini.SetComment("Window", "DLComment", "Determines the dim timer in seconds, set to -1 to disable dimming");
