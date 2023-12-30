@@ -301,6 +301,7 @@ void InitUserdata()
         ini.SetInteger("Window", "ScalingMode", Engine.scalingMode = 0);
         ini.SetInteger("Window", "WindowScale", Engine.windowScale = 2);
         ini.SetInteger("Window", "ScreenWidth", SCREEN_XSIZE_CONFIG = DEFAULT_SCREEN_XSIZE);
+        SCREEN_XSIZE = SCREEN_XSIZE_CONFIG;
 #if RETRO_PLATFORM == RETRO_VITA
         ini.SetInteger("Window", "ScreenHeight", SCREEN_YSIZE = SCREEN_YSIZE_MAX);
 #endif
@@ -461,6 +462,7 @@ void InitUserdata()
             Engine.windowScale = 2;
         if (!ini.GetInteger("Window", "ScreenWidth", &SCREEN_XSIZE_CONFIG))
             SCREEN_XSIZE_CONFIG = DEFAULT_SCREEN_XSIZE;
+            SCREEN_XSIZE = SCREEN_XSIZE_CONFIG;
 #if RETRO_PLATFORM == RETRO_VITA
         if (!ini.GetInteger("Window", "ScreenHeight", &SCREEN_YSIZE))
             SCREEN_YSIZE = SCREEN_YSIZE_MAX;
