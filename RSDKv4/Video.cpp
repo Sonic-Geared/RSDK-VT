@@ -73,13 +73,13 @@ void PlayVideoFile(char *filePath)
     }
 #endif
 
+    char filepath[0x100];
 #if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_ANDROID
 #if RETRO_USE_MOD_LOADER
     if (addPath) {
 #else
     if (true) {
 #endif
-        char filepath[0x100];
         sprintf(filepath, "%s/%s", gamePath, pathBuffer);
         sprintf(pathBuffer, "%s", pathBuffer);
     }
