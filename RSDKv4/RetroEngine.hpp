@@ -52,7 +52,6 @@ typedef unsigned int uint;
 // Custom Platforms start here
 #define RETRO_UWP   (7)
 #define RETRO_LINUX (8)
-#define RETRO_VITA  (9)
 
 // Platform types (Game manages platform-specific code such as HUD position using this rather than the above)
 #define RETRO_STANDARD (0)
@@ -91,26 +90,18 @@ typedef unsigned int uint;
 #define RETRO_PLATFORM   (RETRO_LINUX)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #else
+//#error "No Platform was defined"
 #define RETRO_PLATFORM   (RETRO_WIN)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
 
-#if RETRO_PLATFORM == RETRO_VITA
-#define DEFAULT_SCREEN_XSIZE 480
-#define DEFAULT_FULLSCREEN   false
-#else
 #define DEFAULT_SCREEN_XSIZE 426
 #define DEFAULT_FULLSCREEN   false
 #define RETRO_USING_MOUSE
 #define RETRO_USING_TOUCH
-#endif
 
 #ifndef BASE_PATH
-#if RETRO_PLATFORM == RETRO_VITA
-#define BASE_PATH "ux0:data/ScarletEngine/"
-#else
 #define BASE_PATH ""
-#endif
 #endif
 
 #if !defined(RETRO_USE_SDL2) && !defined(RETRO_USE_SDL1)
@@ -118,7 +109,7 @@ typedef unsigned int uint;
 #endif
 
 #if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_LINUX || RETRO_PLATFORM == RETRO_UWP                       \
-    || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_VITA
+    || RETRO_PLATFORM == RETRO_ANDROID
 #ifdef RETRO_USE_SDL2
 #define RETRO_USING_SDL1 (0)
 #define RETRO_USING_SDL2 (1)
@@ -218,7 +209,7 @@ typedef unsigned int uint;
 #else
 
 // use *this* macro to determine what platform the game thinks its running on (since only the first 7 platforms are supported natively by scripts)
-#if RETRO_PLATFORM == RETRO_LINUX || RETRO_PLATFORM == RETRO_VITA
+#if RETRO_PLATFORM == RETRO_LINUX
 #define RETRO_GAMEPLATFORMID (RETRO_WIN)
 #elif RETRO_PLATFORM == RETRO_UWP
 #define RETRO_GAMEPLATFORMID (UAP_GetRetroGamePlatformId())
@@ -280,16 +271,10 @@ enum RetroGameType {
 };
 
 // General Defines
-#if RETRO_PLATFORM == RETRO_VITA
-#define SCREEN_YSIZE   (272)
-#define SCREEN_YSIZE_MAX (272)
-#else
 #define SCREEN_YSIZE   (240)
-#define SCREEN_YSIZE_MAX (240)
-#endif
-#define SCREEN_CENTERY (SCREEN_YSIZE / 2)
+#define SCREEN_CENTERY (120)
 
-#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_UWP || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_LINUX || RETRO_PLATFORM == RETRO_VITA
+#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_UWP || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_LINUX
 #if RETRO_USING_SDL2
 #include <SDL.h>
 #elif RETRO_USING_SDL1
