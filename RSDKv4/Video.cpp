@@ -48,7 +48,7 @@ void PlayVideoFile(char *filePath)
     StrAdd(pathBuffer, ".ogv");
 
     bool forceFolder = false;
-    bool addPath = true;
+#if RETRO_USE_MOD_LOADER
     // Fixes ".ani" ".Ani" bug and any other case differences
     char pathLower[0x100];
     memset(pathLower, 0, sizeof(char) * 0x100);
@@ -56,8 +56,9 @@ void PlayVideoFile(char *filePath)
         pathLower[c] = tolower(pathBuffer[c]);
     }
 
-#if RETRO_USE_MOD_LOADER
-    for (int m = 0; m < modList.size(); ++m) {
+    bool addPath = true;
+    int m = activeMod != -1 ? activeMod : 0; 
+    for (; m < modList.size(); ++m) {
         if (modList[m].active) {
             std::map<std::string, std::string>::const_iterator iter = modList[m].fileMap.find(pathLower);
             if (iter != modList[m].fileMap.cend()) {
@@ -67,31 +68,22 @@ void PlayVideoFile(char *filePath)
                 break;
             }
         }
+        if (activeMod != -1)
+            break;
     }
 #endif
 
-    char filepath[0x100];
+#if RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_ANDROID
+#if RETRO_USE_MOD_LOADER
     if (addPath) {
-#if RETRO_PLATFORM == RETRO_UWP
-        static char resourcePath[256] = { 0 };
-
-        if (strlen(resourcePath) == 0) {
-            auto folder = winrt::Windows::Storage::ApplicationData::Current().LocalFolder();
-            auto path   = to_string(folder.Path());
-
-            std::copy(path.begin(), path.end(), resourcePath);
-        }
-
-        sprintf(filepath, "%s/%s", resourcePath, pathBuffer);
-#elif RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_ANDROID
-        sprintf(filepath, "%s/%s", gamePath, pathBuffer);
 #else
-        sprintf(filepath, "%s%s", BASE_PATH, pathBuffer);
+    if (true) {
 #endif
+        char filepath[0x100];
+        sprintf(filepath, "%s/%s", gamePath, pathBuffer);
+        sprintf(pathBuffer, "%s", pathBuffer);
     }
-    else {
-        sprintf(filepath, "%s", pathBuffer);
-    }
+#endif
 
     FileIO *file = fOpen(filepath, "rb");
     if (file) {
