@@ -34,10 +34,12 @@ cmake/
 [Dd]ependencies/windows/*
 [Dd]ependencies/android/*
 [Dd]ependencies/mac/libogg/
+[Dd]ependencies/mac/libtheora/
 [Dd]ependencies/mac/libvorbis/
 [Dd]ependencies/mac/SDL2.framework/
 [Dd]ependencies/mac/glew/
 [Dd]ependencies/ios/Ogg.framework/
+[Dd]ependencies/ios/Theora.framework/
 [Dd]ependencies/ios/Vorbis.framework/
 [Dd]ependencies/ios/SDL2.framework/
 [Dd]ependencies/ios/libSDLMain.a
@@ -61,12 +63,14 @@ cmake/
 
 # Safety
 *.rsdk
+*.ogv
 
 # Visual Studio Debugging
 RSDKv4/[Bb]yte[Cc]ode/
 RSDKv4/[Dd]ata/
 RSDKv4/[Mm]ods/
 RSDKv4/[Ss]cripts/
+RSDKv4/[Vv]ideos/
 RSDKv4/*.txt
 RSDKv4/*.ini
 RSDKv4/*.bin
