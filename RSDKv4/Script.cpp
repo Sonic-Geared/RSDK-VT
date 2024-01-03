@@ -385,8 +385,8 @@ const FunctionInfo functions[] = {
     FunctionInfo("endswitch", 0), // endswitch
 
     // Math Functions
-    FunctionInfo("NewRand", 3),
     FunctionInfo("Rand", 2),
+    FunctionInfo("RandUpdated", 3),
     FunctionInfo("SetRandSeed", 1),
     FunctionInfo("RandSeeded", 4),
     FunctionInfo("Sin1024", 2),
@@ -407,6 +407,19 @@ const FunctionInfo functions[] = {
     FunctionInfo("ATan2", 3),
     FunctionInfo("Interpolate", 4),
     FunctionInfo("InterpolateXY", 7),
+    FunctionInfo("Min", 3),
+    FunctionInfo("Max", 3),
+    FunctionInfo("Clamp", 4),
+    FunctionInfo("Fabs", 2),
+    FunctionInfo("IntToVoid", 2),
+    FunctionInfo("FloatToVoid", 2),
+    FunctionInfo("VoidToInt", 2),
+    FunctionInfo("VoidToFloat", 2),
+    FunctionInfo("Unused", 1),
+    FunctionInfo("ToFixed", 2),
+    FunctionInfo("FromFixed", 2),
+    FunctionInfo("ToFixedF", 2),
+    FunctionInfo("FromFixedF", 2),
 
     // Graphics Functions
     FunctionInfo("LoadSpriteSheet", 1),
@@ -460,6 +473,7 @@ const FunctionInfo functions[] = {
     // Sound FX
     FunctionInfo("PlaySfx", 2),
     FunctionInfo("StopSfx", 1),
+    FunctionInfo("StopAllSfx", 0),
     FunctionInfo("SetSfxAttributes", 3),
 
     // More Collision Stuff
@@ -496,6 +510,7 @@ const FunctionInfo functions[] = {
 
     FunctionInfo("GetBit", 3),
     FunctionInfo("SetBit", 3),
+    FunctionInfo("SetBitUpdated", 4),
 
     FunctionInfo("ClearDrawList", 1),
     FunctionInfo("AddDrawListEntityRef", 2),
@@ -908,8 +923,8 @@ enum ScrFunc {
     FUNC_SWITCH,
     FUNC_BREAK,
     FUNC_ENDSWITCH,
-    FUNC_NEWRAND,
     FUNC_RAND,
+    FUNC_RANDUPDATED,
     FUNC_SETRANDSEED,
     FUNC_RANDSEEDED,
     FUNC_SIN1024,
@@ -930,6 +945,19 @@ enum ScrFunc {
     FUNC_ATAN2,
     FUNC_INTERPOLATE,
     FUNC_INTERPOLATEXY,
+    FUNC_MIN,
+    FUNC_MAX,
+    FUNC_CLAMP,
+    FUNC_FABS,
+    FUNC_INTTOVOID,
+    FUNC_FLOATTOVOID,
+    FUNC_VOIDTOINT,
+    FUNC_VOIDTOFLOAT,
+    FUNC_UNUSED,
+    FUNC_TOFIXED,
+    FUNC_FROMFIXED,
+    FUNC_TOFIXEDF,
+    FUNC_FROMFIXEDF,
     FUNC_LOADSPRITESHEET,
     FUNC_REMOVESPRITESHEET,
     FUNC_DRAWSPRITE,
@@ -973,6 +1001,7 @@ enum ScrFunc {
     FUNC_SWAPMUSICTRACK,
     FUNC_PLAYSFX,
     FUNC_STOPSFX,
+    FUNC_STOPALLSFX,
     FUNC_SETSFXATTRIBUTES,
     FUNC_OBJECTTILECOLLISION,
     FUNC_OBJECTTILEGRIP,
@@ -998,6 +1027,7 @@ enum ScrFunc {
     FUNC_SETTILELAYERENTRY,
     FUNC_GETBIT,
     FUNC_SETBIT,
+    FUNC_SETBITUPDATED,
     FUNC_CLEARDRAWLIST,
     FUNC_ADDDRAWLISTENTITYREF,
     FUNC_GETDRAWLISTENTITYREF,
@@ -4286,8 +4316,8 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 opcodeSize = 0;
                 --jumpTableStackPos;
                 break;
-            case FUNC_NEWRAND: scriptEng.operands[0] = Rand(scriptEng.operands[1], scriptEng.operands[2]); break;
             case FUNC_RAND: scriptEng.operands[0] = rand() % scriptEng.operands[1]; break;
+            case FUNC_RANDUPDATED: scriptEng.operands[0] = Rand(scriptEng.operands[1], scriptEng.operands[2]); break;
             case FUNC_SETRANDSEED: SetRandSeed(scriptEng.operands[0]); break;
             case FUNC_RANDSEEDED: scriptEng.operands[0] = RandSeeded(scriptEng.operands[1], scriptEng.operands[2], &scriptEng.operands[3]); break;
             case FUNC_SIN1024: {
@@ -4363,6 +4393,43 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                     (scriptEng.operands[3] * (0x100 - scriptEng.operands[6]) >> 8) + ((scriptEng.operands[6] * scriptEng.operands[2]) >> 8);
                 scriptEng.operands[1] =
                     (scriptEng.operands[5] * (0x100 - scriptEng.operands[6]) >> 8) + (scriptEng.operands[6] * scriptEng.operands[4] >> 8);
+                break;
+            case FUNC_MIN:
+                scriptEng.operands[0] = scriptEng.operands[1] < scriptEng.operands[2] ? scriptEng.operands[1] : scriptEng.operands[2];
+                break;
+            case FUNC_MAX:
+                scriptEng.operands[0] = scriptEng.operands[1] > scriptEng.operands[2] ? scriptEng.operands[1] : scriptEng.operands[2];
+                break;
+            case FUNC_CLAMP:
+                scriptEng.operands[0] = (scriptEng.operands[1] < scriptEng.operands[2]) ? scriptEng.operands[2] : ((scriptEng.operands[1] > scriptEng.operands[3]) ? scriptEng.operands[3] : scriptEng.operands[1]);
+                break;
+            case FUNC_FABS:
+                scriptEng.operands[0] = scriptEng.operands[1] > 0 ? scriptEng.operands[1] : -scriptEng.operands[1];
+                break;
+            case FUNC_INTTOVOID:
+                scriptEng.operands[0] = (void *)(size_t)scriptEng.operands[1];
+                break;
+            case FUNC_FLOATTOVOID:
+                scriptEng.operands[0] = INT_TO_VOID(*(int *)&scriptEng.operands[1]);
+                break;
+            case FUNC_VOIDTOINT:
+                scriptEng.operands[0] = (int)(size_t)scriptEng.operands[1];
+                break;
+            case FUNC_VOIDTOFLOAT:
+                scriptEng.operands[0] = *(float *)&scriptEng.operands[1];
+                break;
+            case FUNC_UNUSED: (void)scriptEng.operands[0]; break;
+            case FUNC_TOFIXED:
+                scriptEng.operands[0] = scriptEng.operands[1] << 16;
+                break;
+            case FUNC_FROMFIXED:
+                scriptEng.operands[0] = scriptEng.operands[1] >> 16;
+                break;
+            case FUNC_TOFIXEDF:
+                scriptEng.operands[0] = scriptEng.operands[1]*65536.0;
+                break;
+            case FUNC_FROMFIXEDF:
+                scriptEng.operands[0] = scriptEng.operands[1] / 65536.0;
                 break;
             case FUNC_LOADSPRITESHEET:
                 opcodeSize                = 0;
@@ -4814,6 +4881,10 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 opcodeSize = 0;
                 StopSfx(scriptEng.operands[0]);
                 break;
+             case FUNC_STOPALLSFX:
+                opcodeSize = 0;
+                StopAllSfx();
+                break;
             case FUNC_SETSFXATTRIBUTES:
                 opcodeSize = 0;
                 SetSfxAttributes(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2]);
@@ -4826,7 +4897,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                     case CSIDE_LWALL: ObjectLWallCollision(scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]); break;
                     case CSIDE_RWALL: ObjectRWallCollision(scriptEng.operands[1] - 1, scriptEng.operands[2], scriptEng.operands[3]); break;
                     case CSIDE_ROOF: ObjectRoofCollision(scriptEng.operands[1], scriptEng.operands[2] - 1, scriptEng.operands[3]); break;
-                    // Yes, the right side used to also call for LWall, but this got fixed in Scarlet (for whatever reason...)
+                    // Yes, the right side used to also call for LWall, but this got fixed in Scarlet(?)
                     case CSIDE_LENTITY: ObjectLWallCollision(scriptEng.operands[2], 0, objectEntityList[scriptEng.operands[1]].collisionPlane); break;
                     case CSIDE_RENTITY: ObjectRWallCollision(scriptEng.operands[2] - 1, 0, objectEntityList[scriptEng.operands[1]].collisionPlane); break;
                 }
@@ -5003,12 +5074,15 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
             case FUNC_SETTILELAYERENTRY:
                 stageLayouts[scriptEng.operands[1]].tiles[scriptEng.operands[2] + 0x100 * scriptEng.operands[3]] = scriptEng.operands[0];
                 break;
-            case FUNC_GETBIT: scriptEng.operands[0] = (scriptEng.operands[1] & (1 << scriptEng.operands[2])) >> scriptEng.operands[2]; break;
+            case FUNC_GETBIT: scriptEng.operands[0] = scriptEng.operands[1] >> scriptEng.operands[2]&1; break; // This code kinda worries me out but that's how it looks like in Mania's/v5(U)'s code so...
             case FUNC_SETBIT:
                 if (scriptEng.operands[2] <= 0)
                     scriptEng.operands[0] &= ~(1 << scriptEng.operands[1]);
                 else
                     scriptEng.operands[0] |= 1 << scriptEng.operands[1];
+                break;
+            case FUNC_SETBITUPDATED:
+                scriptEng.operands[0] = scriptEng.operands[1] ^= (-(int)scriptEng.operands[2] ^ scriptEng.operands[1]) & (1 << scriptEng.operands[3]);
                 break;
             case FUNC_CLEARDRAWLIST:
                 opcodeSize                                      = 0;
