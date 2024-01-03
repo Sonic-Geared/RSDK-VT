@@ -4410,7 +4410,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 scriptEng.operands[0] = (void *)(size_t)scriptEng.operands[1];
                 break;
             case FUNC_FLOATTOVOID:
-                scriptEng.operands[0] = FUNC_INTTOVOID(*(int *)&scriptEng.operands[1]);
+                scriptEng.operands[0] = INT_TO_VOID(void *(int *)&scriptEng.operands[1]); // the void in there is a temp fix till i figure out what's going wrong with this
                 break;
             case FUNC_VOIDTOINT:
                 scriptEng.operands[0] = (int)(size_t)scriptEng.operands[1];
