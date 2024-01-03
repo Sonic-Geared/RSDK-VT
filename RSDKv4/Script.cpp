@@ -411,10 +411,10 @@ const FunctionInfo functions[] = {
     FunctionInfo("Max", 3),
     FunctionInfo("Clamp", 4),
     FunctionInfo("Fabs", 2),
-    FunctionInfo("IntToVoid", 2),
-    FunctionInfo("FloatToVoid", 2),
-    FunctionInfo("VoidToInt", 2),
-    FunctionInfo("VoidToFloat", 2),
+    FunctionInfo("IntToVoid", 1),
+    FunctionInfo("FloatToVoid", 1),
+    FunctionInfo("VoidToInt", 1),
+    FunctionInfo("VoidToFloat", 1),
     FunctionInfo("Unused", 1),
     FunctionInfo("ToFixed", 2),
     FunctionInfo("FromFixed", 2),
@@ -4407,16 +4407,16 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 scriptEng.operands[0] = scriptEng.operands[1] > 0 ? scriptEng.operands[1] : -scriptEng.operands[1];
                 break;
             case FUNC_INTTOVOID:
-                scriptEng.operands[0] = (void *)(size_t)scriptEng.operands[1];
+                (void *)(size_t)scriptEng.operands[0];
                 break;
             case FUNC_FLOATTOVOID:
                 INT_TO_VOID(*(int *)&scriptEng.operands[0]);
                 break;
             case FUNC_VOIDTOINT:
-                scriptEng.operands[0] = (int)(size_t)scriptEng.operands[1];
+                (int)(size_t)scriptEng.operands[0];
                 break;
             case FUNC_VOIDTOFLOAT:
-                scriptEng.operands[0] = *(float *)&scriptEng.operands[1];
+                *(float *)&scriptEng.operands[0];
                 break;
             case FUNC_UNUSED: (void)scriptEng.operands[0]; break;
             case FUNC_TOFIXED:
