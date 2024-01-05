@@ -320,6 +320,7 @@ const char variableNames[][0x20] = {
     "engine.platformID",
     "engine.trialMode",
     "engine.deviceType",
+    "engine.deltaTime",
 
     // Extras
     "screen.currentID",
@@ -866,6 +867,7 @@ enum ScrVar {
     VAR_ENGINEPLATFORMID, // v3-style device type aka Windows/Mac/Android/etc
     VAR_ENGINETRIALMODE,
     VAR_ENGINEDEVICETYPE, // v4-style device type aka Standard/Mobile/Etc
+    VAR_ENGINEDELTATIME,
 
     // Extras
     VAR_SCREENCURRENTID,
@@ -4015,46 +4017,29 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                     case VAR_ENGINEPLATFORMID: scriptEng.operands[i] = RETRO_GAMEPLATFORMID; break;
                     case VAR_ENGINETRIALMODE: scriptEng.operands[i] = Engine.trialMode; break;
                     case VAR_ENGINEDEVICETYPE: scriptEng.operands[i] = RETRO_DEVICETYPE; break;
+                    case VAR_ENGINEDELTATIME: scriptEng.operands[i] = Engine.deltaTime; break;
 
                     // Origins Extras
                     // Due to using regular v4, these wouldn't support array values like origins expects, so its always screen[0]
                     // But as Scarlet kind of readds the v5U tech to v4, those are available the way origins expect!
                     case VAR_SCREENCURRENTID: scriptEng.operands[i] = 0; break;
                     case VAR_CAMERAENABLED:
-                        if (arrayVal == 0)
-                            scriptEng.operands[i] = cameraEnabled;
-                        else
-                            scriptEng.operands[i] = 0;
+                        scriptEng.operands[i] = cameraEnabled;
                         break;
                     case VAR_CAMERATARGET:
-                        if (arrayVal == 0)
-                            scriptEng.operands[i] = cameraTarget;
-                        else
-                            scriptEng.operands[i] = 0;
+                        scriptEng.operands[i] = cameraTarget;
                         break;
                     case VAR_CAMERASTYLE:
-                        if (arrayVal == 0)
-                            scriptEng.operands[i] = cameraStyle;
-                        else
-                            scriptEng.operands[i] = 0;
+                        scriptEng.operands[i] = cameraStyle;
                         break;
                     case VAR_CAMERAXPOS:
-                        if (arrayVal == 0)
-                            scriptEng.operands[i] = cameraXPos;
-                        else
-                            scriptEng.operands[i] = 0;
+                        scriptEng.operands[i] = cameraXPos;
                         break;
                     case VAR_CAMERAYPOS:
-                        if (arrayVal == 0)
-                            scriptEng.operands[i] = cameraYPos;
-                        else
-                            scriptEng.operands[i] = 0;
+                        scriptEng.operands[i] = cameraYPos;
                         break;
                     case VAR_CAMERAADJUSTY:
-                        if (arrayVal == 0)
-                            scriptEng.operands[i] = cameraAdjustY;
-                        else
-                            scriptEng.operands[i] = 0;
+                        scriptEng.operands[i] = cameraAdjustY;
                         break;
 
 #if RETRO_USE_HAPTICS
@@ -6172,34 +6157,29 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                     case VAR_ENGINEPLATFORMID: break;
                     case VAR_ENGINETRIALMODE: Engine.trialMode = scriptEng.operands[i]; break;
                     case VAR_ENGINEDEVICETYPE: break;
+                    case VAR_ENGINEDELTATIME: Engine.deltaTime = scriptEng.operands[i]; break;
 
                     // Origins Extras
                     // Due to using regular v4, these wouldn't support array values like origins expects, so its always screen[0]
-                    // But again, Scarlet exists and it'll make those work as origins expect
+                    // But again, Scarlet exists and it'll make those work as origins expect, so here goes nothing!
                     case VAR_SCREENCURRENTID: break;
                     case VAR_CAMERAENABLED:
-                        if (arrayVal == 0)
-                            cameraEnabled = scriptEng.operands[i];
+                        cameraEnabled = scriptEng.operands[i];
                         break;
                     case VAR_CAMERATARGET:
-                        if (arrayVal == 0)
-                            cameraTarget = scriptEng.operands[i];
+                        cameraTarget = scriptEng.operands[i];
                         break;
                     case VAR_CAMERASTYLE:
-                        if (arrayVal == 0)
-                            cameraStyle = scriptEng.operands[i];
+                        cameraStyle = scriptEng.operands[i];
                         break;
                     case VAR_CAMERAXPOS:
-                        if (arrayVal == 0)
-                            cameraXPos = scriptEng.operands[i];
+                        cameraXPos = scriptEng.operands[i];
                         break;
                     case VAR_CAMERAYPOS:
-                        if (arrayVal == 0)
-                            cameraYPos = scriptEng.operands[i];
+                        cameraYPos = scriptEng.operands[i];
                         break;
                     case VAR_CAMERAADJUSTY:
-                        if (arrayVal == 0)
-                            cameraAdjustY = scriptEng.operands[i];
+                        cameraAdjustY = scriptEng.operands[i];
                         break;
 
 #if RETRO_USE_HAPTICS
@@ -6214,11 +6194,9 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 int strLen = scriptCode[scriptCodePtr++];
                 for (int c = 0; c < strLen; ++c) {
                     switch (c % 4) {
-                        case 0: break;
-                        case 1: break;
-                        case 2: break;
-                        case 3: ++scriptCodePtr; break;
+                        // there used to exist cases for values 0, 1 and 2, but the fact that the default case already did the same thing they did, and was also more efficient & simpler, it was replaced with it, only the case for value 3 is there to tell history, rip :(
                         default: break;
+                        case 3: ++scriptCodePtr; break;
                     }
                 }
                 scriptCodePtr++;
