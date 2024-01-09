@@ -1094,9 +1094,9 @@ void FlipScreenVideo()
 
     glLoadIdentity();
     glBindTexture(GL_TEXTURE_2D, videoBuffer);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(displaySettings.offsetX, 0, displaySettings.width, displaySettings.height);
-    glVertexPointer(3, GL_FLOAT, sizeof(DrawVertex), &screenVerts[0]);
+    glVertexPointer(3, GL_FLOAT, sizeof(DrawVertex), screenVerts[0]);
     glTexCoordPointer(2, GL_FLOAT, sizeof(DrawVertex), &screenVerts[6]);
     glDisable(GL_BLEND);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, &drawIndexList);
