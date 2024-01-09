@@ -444,7 +444,7 @@ void FlipScreen()
         }
     }
     else {
-	// TODO: Get a functional way to ensure that the videoBuffer is being filled with something instead of being NULL all-time
+	    // TODO: Get a functional way to ensure that the videoBuffer is being filled with something instead of being NULL all-time
         SDL_RenderCopy(Engine.renderer, Engine.videoBuffer, NULL, destScreenPos);
     }
 

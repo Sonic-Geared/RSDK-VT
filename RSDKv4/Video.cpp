@@ -7,9 +7,8 @@ int videoWidth        = 0;
 int videoHeight       = 0;
 float videoAR         = 0;
 
-THEORAPLAY_Decoder *videoDecoder;
-const THEORAPLAY_VideoFrame *videoVidData;
-THEORAPLAY_Io callbacks;
+THEORAPLAY_Decoder *videoDecoder = nullptr;
+const THEORAPLAY_VideoFrame *videoVidData = nullptr;
 
 byte videoSurface = 0;
 int videoFilePos  = 0;
@@ -18,21 +17,6 @@ int vidFrameMS    = 0;
 int vidBaseticks  = 0;
 
 bool videoSkipped = false;
-
-static long videoRead(THEORAPLAY_Io *io, void *buf, long buflen)
-{
-    FileIO *file    = (FileIO *)io->userdata;
-    const size_t br = fRead(buf, 1, buflen * sizeof(byte), file);
-    if (br == 0)
-        return -1;
-    return (int)br;
-} // IoFopenRead
-
-static void videoClose(THEORAPLAY_Io *io)
-{
-    FileIO *file = (FileIO *)io->userdata;
-    fClose(file);
-}
 
 void PlayVideoFile(char *filePath)
 {
@@ -93,56 +77,38 @@ void PlayVideoFile(char *filePath)
         sprintf(filepath, "%s", pathBuffer);
     }
 
-    FileIO *file = fOpen(filepath, "rb");
-    if (file) {
-        PrintLog("Loaded File '%s'!", filepath);
-
-        callbacks.read     = videoRead;
-        callbacks.close    = videoClose;
-        callbacks.userdata = (void *)file;
-#if RETRO_USING_SDL2 && !RETRO_USING_OPENGL
-        videoDecoder = THEORAPLAY_startDecode(&callbacks, /*FPS*/ 60, THEORAPLAY_VIDFMT_IYUV, GetGlobalVariableByName("options.soundtrack") ? 1 : 0);
+#if RETRO_USING_OPENGL || RETRO_USING_SDL1
+    videoDecoder = THEORAPLAY_startDecodeFile(filepath, 60, THEORAPLAY_VIDFMT_RGBA, GetGlobalVariableByName("Options.Soundtrack") ? 1 : 0);
+#else
+    videoDecoder = THEORAPLAY_startDecodeFile(filepath, 60, THEORAPLAY_VIDFMT_IYUV, GetGlobalVariableByName("Options.Soundtrack") ? 1 : 0);
 #endif
 
-        // TODO: does SDL1.2 support YUV?
-#if RETRO_USING_SDL1 && !RETRO_USING_OPENGL
-        videoDecoder = THEORAPLAY_startDecode(&callbacks, /*FPS*/ 60, THEORAPLAY_VIDFMT_RGBA, GetGlobalVariableByName("options.soundtrack") ? 1 : 0);
-#endif
+    videoVidData = NULL;
 
-#if RETRO_USING_OPENGL
-        videoDecoder = THEORAPLAY_startDecode(&callbacks, /*FPS*/ 60, THEORAPLAY_VIDFMT_RGBA, GetGlobalVariableByName("options.soundtrack") ? 1 : 0);
-#endif
-
-        if (!videoDecoder) {
-            PrintLog("Video Decoder Error!");
-            return;
-        }
-        while (!videoVidData) {
-            if (!videoVidData)
-                videoVidData = THEORAPLAY_getVideo(videoDecoder);
-        }
-        if (!videoVidData) {
-            PrintLog("Video Error!");
-            return;
-        }
-
-        videoWidth  = videoVidData->width;
-        videoHeight = videoVidData->height;
-        // commit video Aspect Ratio.
-        videoAR = float(videoWidth) / float(videoHeight);
-
-        SetupVideoBuffer(videoWidth, videoHeight);
-        vidBaseticks = SDL_GetTicks();
-        vidFrameMS   = (videoVidData->fps == 0.0) ? 0 : ((Uint32)(1000.0 / videoVidData->fps));
-        videoPlaying = 1; // playing ogv
-        trackID      = TRACK_COUNT - 1;
-
-        videoSkipped    = false;
-        Engine.gameMode = ENGINE_VIDEOWAIT;
+    if (!videoDecoder) {
+        PrintLog("Video Decoder Error!");
+        return;
     }
-    else {
-        PrintLog("Couldn't find file '%s'!", filepath);
+    while (!videoVidData) {
+        if (!videoVidData)
+            videoVidData = THEORAPLAY_getVideo(videoDecoder);
     }
+    if (!videoVidData) {
+        PrintLog("Video Error!");
+        return;
+    }
+
+    videoWidth = videoVidData->width;
+    videoHeight = videoVidData->height;
+    videoAR = float(videoWidth) / float(videoHeight);
+
+    SetupVideoBuffer(videoVidData->width, videoVidData->height);
+    vidFrameMS = (videoVidData->fps == 0.0) ? 0 : ((Uint32)(1000.0 / videoVidData->fps));
+    vidBaseticks = SDL_GetTicks();
+    videoPlaying = 1;
+    trackID      = TRACK_COUNT - 1;
+    videoSkipped    = false;
+    Engine.gameMode = ENGINE_VIDEOWAIT;
 }
 
 void UpdateVideoFrame()
@@ -265,7 +231,6 @@ int ProcessVideo()
                 const Uint8 *y = (const Uint8 *)videoVidData->pixels;
                 const Uint8 *u = y + (videoVidData->width * videoVidData->height);
                 const Uint8 *v = u + (half_w * (videoVidData->height / 2));
-
                 SDL_UpdateYUVTexture(Engine.videoBuffer, NULL, y, videoVidData->width, u, half_w, v, half_w);
 #elif RETRO_USING_SDL1
                 memcpy(Engine.videoBuffer->pixels, videoVidData->pixels, videoVidData->width * videoVidData->height * sizeof(uint));
@@ -333,7 +298,7 @@ void SetupVideoBuffer(int width, int height)
     if (!Engine.videoBuffer)
         PrintLog("Failed to create video buffer!");
 #elif RETRO_USING_SDL2
-    Engine.videoBuffer = SDL_CreateTexture(Engine.renderer, SDL_PIXELFORMAT_YV12, SDL_TEXTUREACCESS_STREAMING, width, height);
+    Engine.videoBuffer = SDL_CreateTexture(Engine.renderer, SDL_PIXELFORMAT_IYUV, SDL_TEXTUREACCESS_TARGET, width, height);
 
     if (!Engine.videoBuffer)
         PrintLog("Failed to create video buffer!");
