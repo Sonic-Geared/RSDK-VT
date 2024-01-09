@@ -1052,6 +1052,7 @@ void SetMeshVertexColors(MeshInfo *mesh, byte r, byte g, byte b, byte a)
 }
 
 // Rendering
+#define minVal(a, b) (a <= b ? a : b)
 #define normalize(val, minVal, maxVal) ((float)(val) - (float)(minVal)) / ((float)(maxVal) - (float)(minVal))
 void FlipScreenVideo()
 {
