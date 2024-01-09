@@ -171,26 +171,12 @@ int InitRenderDevice()
         return 0;
     }
 
-    /*Engine.screenBuffer2x = SDL_SetVideoMode(SCREEN_XSIZE * 2, SCREEN_YSIZE * 2, 16, SDL_SWSURFACE | flags);
-    if (!Engine.screenBuffer2x) {
-        PrintLog("ERROR: failed to create screen buffer HQ!\nerror msg: %s", SDL_GetError());
-        return 0;
-    }*/
-
     if (Engine.startFullScreen) {
         Engine.windowSurface =
             SDL_SetVideoMode(SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale, 16, SDL_SWSURFACE | SDL_FULLSCREEN | flags);
         SDL_ShowCursor(SDL_FALSE);
         Engine.isFullScreen = true;
     }
-
-    // TODO: not supported in 1.2?
-    if (Engine.borderless) {
-        // SDL_RestoreWindow(Engine.window);
-        // SDL_SetWindowBordered(Engine.window, SDL_FALSE);
-    }
-
-    // SDL_SetWindowPosition(Engine.window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
     Engine.useHQModes = false; // disabled
     Engine.borderless = false; // disabled
@@ -283,9 +269,7 @@ int InitRenderDevice()
     }
 
     OBJECT_BORDER_X2 = SCREEN_XSIZE + 0x80;
-    // OBJECT_BORDER_Y2 = SCREEN_YSIZE + 0x100;
     OBJECT_BORDER_X4 = SCREEN_XSIZE + 0x20;
-    // OBJECT_BORDER_Y4 = SCREEN_YSIZE + 0x80;
 
     InitInputDevices();
 
@@ -444,7 +428,6 @@ void FlipScreen()
         }
     }
     else {
-	    // TODO: Get a functional way to ensure that the videoBuffer is being filled with something instead of being NULL all-time
         SDL_RenderCopy(Engine.renderer, Engine.videoBuffer, NULL, destScreenPos);
     }
 
@@ -493,7 +476,6 @@ void FlipScreen()
                 frameBufferPtr += GFX_LINESIZE;
                 px += Engine.screenBuffer->pitch / sizeof(ushort);
             }
-            // memcpy(Engine.screenBuffer->pixels, Engine.frameBuffer, Engine.screenBuffer->pitch * SCREEN_YSIZE);
         }
         else {
             // TODO: this better, I really dont know how to use SDL1.2 well lol
@@ -600,7 +582,6 @@ void SetScreenDimensions(int width, int height)
     touchWidthF              = width;
     displaySettings.unknown1 = 16;
     touchHeightF             = height;
-    // displaySettings.maxWidth = 424;
     double aspect    = (((width >> 16) * 65536.0) + width) / (((height >> 16) * 65536.0) + height);
     SCREEN_XSIZE_F   = SCREEN_YSIZE * aspect;
     SCREEN_CENTERX_F = aspect * SCREEN_CENTERY;
@@ -611,8 +592,6 @@ void SetScreenDimensions(int width, int height)
 
     Engine.useHighResAssets = displaySettings.height > (SCREEN_YSIZE * 2);
     int displayWidth        = aspect * SCREEN_YSIZE;
-    // if (val > displaySettings.maxWidth)
-    //    val = displaySettings.maxWidth;
     SetScreenSize(displayWidth, (displayWidth + 9) & -0x8);
 
     int width2 = 0;
@@ -2774,7 +2753,6 @@ void DrawScaledTintMask(int direction, int XPos, int YPos, int pivotX, int pivot
     GFXSurface *surface = &gfxSurface[sheetID];
     int pitch           = GFX_LINESIZE - width;
     int gfxwidth        = surface->width;
-    // byte *lineBuffer       = &gfxLineBuffer[trueYPos];
     byte *gfxData          = &graphicData[sprX + surface->width * sprY + surface->dataPosition];
     ushort *frameBufferPtr = &Engine.frameBuffer[trueXPos + GFX_LINESIZE * trueYPos];
     if (direction == FLIP_X) {
@@ -4144,9 +4122,6 @@ void DrawObjectAnimation(void *objScr, void *ent, int XPos, int YPos)
             frame = &animFrames[sprAnim->frameListOffset + frameID];
             DrawSpriteRotated(entity->direction, XPos, YPos, -frame->pivotX, -frame->pivotY, frame->sprX, frame->sprY, frame->width, frame->height,
                               rotation, frame->sheetID);
-            // DrawSpriteRotozoom(entity->direction, XPos, YPos, -frame->pivotX, -frame->pivotY, frame->sprX, frame->sprY, frame->width,
-            // frame->height,
-            //                  rotation, entity->scale, frame->sheetID);
             break;
         }
 

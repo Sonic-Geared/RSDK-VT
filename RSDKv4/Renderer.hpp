@@ -165,9 +165,7 @@ void RenderImageFlipH(float x, float y, float z, float scaleX, float scaleY, flo
 void RenderText(ushort *text, int fontID, float x, float y, int z, float scale, int alpha);
 void RenderTextClipped(ushort *text, int fontID, float x, float y, int z, float scale, int alpha);
 void RenderRect(float x, float y, float z, float w, float h, byte r, byte g, byte b, int alpha);
-#if !RETRO_USE_ORIGINAL_CODE
 void RenderRectClipped(float x, float y, float z, float w, float h, byte r, byte g, byte b, int alpha);
-#endif
 void RenderMesh(MeshInfo *mesh, byte type, byte depthTest);
 
 #endif // !RENDERER_H

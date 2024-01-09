@@ -343,7 +343,6 @@ void RenderScene()
     if (renderStateCount == -1)
         return;
 
-#if !RETRO_USE_ORIGINAL_CODE
     float dimAmount = 1.0;
     if ((!Engine.masterPaused || Engine.frameStep) && !drawStageGFXHQ) {
         if (Engine.dimTimer < Engine.dimLimit) {
@@ -365,7 +364,6 @@ void RenderScene()
         RenderRect(-SCREEN_CENTERX_F, SCREEN_CENTERY_F, 160.0, SCREEN_XSIZE_F, SCREEN_YSIZE_F, 0, 0, 0, 0xFF - (dimAmount * 0xFF));
         SetRenderBlendMode(RENDER_BLEND_NONE);
     }
-#endif
 
 #if RETRO_USING_OPENGL
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -1054,6 +1052,56 @@ void SetMeshVertexColors(MeshInfo *mesh, byte r, byte g, byte b, byte a)
 }
 
 // Rendering
+#define normalize(val, minVal, maxVal) ((float)(val) - (float)(minVal)) / ((float)(maxVal) - (float)(minVal))
+void FlipScreenVideo()
+{
+#if RETRO_USING_OPENGL
+    float screenVerts[40];
+    for (int i = 0; i < 40; ++i) {
+        screenVerts[i] = retroVertexList[i];
+        screenVerts[i] = retroVertexList[i];
+    }
+
+    float best = minVal(viewWidth / (float)videoWidth, viewHeight / (float)videoHeight);
+
+    float w = videoWidth * best;
+    float h = videoHeight * best;
+
+    float x = normalize((viewWidth - w) / 2, 0, viewWidth) * 2 - 1.0f;
+    float y = -(normalize((viewHeight - h) / 2, 0, viewHeight) * 2 - 1.0f);
+
+    w = normalize(w, 0, viewWidth) * 2;
+    h = -(normalize(h, 0, viewHeight) * 2);
+
+    screenVerts[0] = x;
+    screenVerts[1] = y;
+    screenVerts[2] = 1.0;
+
+    screenVerts[9] = w + x;
+    screenVerts[10] = y;
+    screenVerts[11] = 1.0;
+
+    screenVerts[18] = x;
+    screenVerts[19] = h + y;
+    screenVerts[20] = 1.0;
+
+    screenVerts[27] = w + x;
+    screenVerts[28] = h + y;
+    screenVerts[29] = 1.0;
+
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glLoadIdentity();
+    glBindTexture(GL_TEXTURE_2D, videoBuffer);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glViewport(displaySettings.offsetX, 0, displaySettings.width, displaySettings.height);
+    glVertexPointer(2, GL_FLOAT, sizeof(DrawVertex), &screenVerts[0]);
+    glTexCoordPointer(2, GL_SHORT, sizeof(DrawVertex), &screenVerts[6]);
+    glDisable(GL_BLEND);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, &drawIndexList);
+#endif
+}
+
 void TransferRetroBuffer()
 {
 #if RETRO_USING_OPENGL
@@ -1708,7 +1756,6 @@ void RenderRect(float x, float y, float z, float w, float h, byte r, byte g, byt
     }
 }
 
-#if !RETRO_USE_ORIGINAL_CODE
 void RenderRectClipped(float x, float y, float z, float w, float h, byte r, byte g, byte b, int alpha)
 {
     if (vertexListSize < DRAWVERTEX_COUNT) {
@@ -1784,7 +1831,6 @@ void RenderRectClipped(float x, float y, float z, float w, float h, byte r, byte
         }
     }
 }
-#endif
 
 void RenderMesh(MeshInfo *mesh, byte type, byte depthTest)
 {
