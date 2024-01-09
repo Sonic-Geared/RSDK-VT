@@ -154,6 +154,7 @@ void SetMeshAnimation(MeshInfo *mesh, MeshAnimator *animator, ushort frameID, us
 void AnimateMesh(MeshInfo *mesh, MeshAnimator *animator);
 
 // Rendering
+void FlipScreenVideo();
 void TransferRetroBuffer();
 void RenderRetroBuffer(int alpha, float z);
 void RenderImage(float x, float y, float z, float scaleX, float scaleY, float pivotX, float pivotY, float sprW, float sprH, float sprX, float sprY,
