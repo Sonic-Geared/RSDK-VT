@@ -1062,16 +1062,16 @@ void FlipScreenVideo()
         screenVerts[i] = retroVertexList[i];
     }
 
-    float best = minVal(viewWidth / (float)videoWidth, viewHeight / (float)videoHeight);
+    float best = minVal(displaySettings.width / (float)videoWidth, displaySettings.height / (float)videoHeight);
 
     float w = videoWidth * best;
     float h = videoHeight * best;
 
-    float x = normalize((viewWidth - w) / 2, 0, viewWidth) * 2 - 1.0f;
-    float y = -(normalize((viewHeight - h) / 2, 0, viewHeight) * 2 - 1.0f);
+    float x = normalize((displaySettings.width - w) / 2, 0, displaySettings.width) * 2 - 1.0f;
+    float y = -(normalize((displaySettings.height - h) / 2, 0, displaySettings.height) * 2 - 1.0f);
 
-    w = normalize(w, 0, viewWidth) * 2;
-    h = -(normalize(h, 0, viewHeight) * 2);
+    w = normalize(w, 0, displaySettings.width) * 2;
+    h = -(normalize(h, 0, displaySettings.height) * 2);
 
     screenVerts[0] = x;
     screenVerts[1] = y;
@@ -1095,8 +1095,8 @@ void FlipScreenVideo()
     glBindTexture(GL_TEXTURE_2D, videoBuffer);
     glClear(GL_COLOR_BUFFER_BIT);
     glViewport(displaySettings.offsetX, 0, displaySettings.width, displaySettings.height);
-    glVertexPointer(2, GL_FLOAT, sizeof(DrawVertex), &screenVerts[0]);
-    glTexCoordPointer(2, GL_SHORT, sizeof(DrawVertex), &screenVerts[6]);
+    glVertexPointer(3, GL_FLOAT, sizeof(DrawVertex), &screenVerts[0]);
+    glTexCoordPointer(2, GL_FLOAT, sizeof(DrawVertex), &screenVerts[6]);
     glDisable(GL_BLEND);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, &drawIndexList);
 #endif
