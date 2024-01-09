@@ -274,7 +274,7 @@ enum RetroGameType {
 #define SCREEN_YSIZE   (240)
 #define SCREEN_CENTERY (120)
 
-#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_UWP || RETRO_PLATFORM == RETRO_ANDROID || RETRO_PLATFORM == RETRO_LINUX
+#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_UWP || RETRO_PLATFORM == RETRO_ANDROID
 #if RETRO_USING_SDL2
 #include <SDL.h>
 #elif RETRO_USING_SDL1
@@ -288,9 +288,16 @@ enum RetroGameType {
 #include <Vorbis/vorbisfile.h>
 #include <Theora/theora.h>
 #include "theoraplay.h"
-
 #include "cocoaHelpers.hpp"
-
+#elif RETRO_PLATFORM == RETRO_LINUX
+#if RETRO_USING_SDL2
+#include <SDL2/SDL.h>
+#elif RETRO_USING_SDL1
+#include <SDL/SDL.H>
+#endif
+#include <vorbis/vorbisfile.h>
+#include <theora/theora.h>
+#include "theoraplay.h"
 #elif RETRO_USING_SDL2
 #include <SDL2/SDL.h>
 #include <vorbis/vorbisfile.h>
