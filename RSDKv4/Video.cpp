@@ -80,7 +80,7 @@ void PlayVideoFile(char *filePath)
 #if RETRO_USING_OPENGL || RETRO_USING_SDL1
     videoDecoder = THEORAPLAY_startDecodeFile(filepath, 60, THEORAPLAY_VIDFMT_RGBA);
 #else
-    videoDecoder = THEORAPLAY_startDecodeFile(filepath, 60, THEORAPLAY_VIDFMT_IYUV;
+    videoDecoder = THEORAPLAY_startDecodeFile(filepath, 60, THEORAPLAY_VIDFMT_IYUV);
 #endif
 
     videoVidData = NULL;
