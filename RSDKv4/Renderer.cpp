@@ -1058,10 +1058,6 @@ void FlipScreenVideo()
 {
 #if RETRO_USING_OPENGL
     float screenVerts[40];
-    for (int i = 0; i < 40; ++i) {
-        screenVerts[i] = retroVertexList[i];
-        screenVerts[i] = retroVertexList[i];
-    }
 
     float best = minVal(displaySettings.width / (float)videoWidth, displaySettings.height / (float)videoHeight);
 
@@ -1077,18 +1073,26 @@ void FlipScreenVideo()
     screenVerts[0] = x;
     screenVerts[1] = y;
     screenVerts[2] = 1.0;
+    screenVerts[6] = retroVertexList[6];
+    screenVerts[7] = retroVertexList[7];
 
     screenVerts[9] = w + x;
     screenVerts[10] = y;
     screenVerts[11] = 1.0;
+    screenVerts[15] = retroVertexList[15];
+    screenVerts[16] = retroVertexList[16];
 
     screenVerts[18] = x;
     screenVerts[19] = h + y;
     screenVerts[20] = 1.0;
+    screenVerts[24] = retroVertexList[24];
+    screenVerts[25] = retroVertexList[25];
 
     screenVerts[27] = w + x;
     screenVerts[28] = h + y;
     screenVerts[29] = 1.0;
+    screenVerts[33] = retroVertexList[33];
+    screenVerts[34] = retroVertexList[34];
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
