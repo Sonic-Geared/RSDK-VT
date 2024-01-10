@@ -42,12 +42,12 @@ jobs:
           vcpkg integrate install
       - name: Build Scarlet Engine
         run: |
-          msbuild RSDKv4.sln -target:RSDKv4-sdl2 /p:Configuration=Release /p:Platform=x86 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions.props"
+          msbuild RSDKv4.sln -target:RSDKv4-ogl /p:Configuration=Release /p:Platform=x86 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions.props"
       - name: Move artifacts
         run: |
           mkdir artifacts
-          move ./build/Win32/Release/SDL2/*.dll ./artifacts
-          move ./build/Win32/Release/SDL2/*.exe ./artifacts
+          move ./build/Win32/Release/OGL/*.dll ./artifacts
+          move ./build/Win32/Release/OGL/*.exe ./artifacts
       - name: Upload artifacts
         uses: actions/upload-artifact@v1.0.0
         with:
@@ -89,12 +89,12 @@ jobs:
           vcpkg integrate install
       - name: Build Scarlet Engine
         run: |
-          msbuild RSDKv4.sln -target:RSDKv4-sdl2 /p:Configuration=Release /p:Platform=x64 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions_x64.props"
+          msbuild RSDKv4.sln -target:RSDKv4-ogl /p:Configuration=Release /p:Platform=x64 /p:ForceImportBeforeCppTargets="$env:GITHUB_WORKSPACE/props/winactions_x64.props"
       - name: Move artifacts
         run: |
           mkdir artifacts
-          move ./build/x64/Release/SDL2/*.dll ./artifacts
-          move ./build/x64/Release/SDL2/*.exe ./artifacts
+          move ./build/x64/Release/OGL/*.dll ./artifacts
+          move ./build/x64/Release/OGL/*.exe ./artifacts
       - name: Upload artifacts
         uses: actions/upload-artifact@v1.0.0
         with:
