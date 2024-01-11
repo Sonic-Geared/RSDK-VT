@@ -486,12 +486,12 @@ void SetTextMenu(int sm)
             AddTextMenuEntry(&gameMenu[0], " ");
             AddTextMenuEntry(&gameMenu[0], "SCARLET ENGINE");
             AddTextMenuEntry(&gameMenu[0], "DEV MENU");
+            AddTextMenuEntry(&gameMenu[0], " ");
 #ifdef RETRO_DEV_EXTRA
             AddTextMenuEntry(&gameMenu[0], RETRO_DEV_EXTRA);
 #else
             AddTextMenuEntry(&gameMenu[0], " ");
 #endif
-            AddTextMenuEntry(&gameMenu[0], " ");
             AddTextMenuEntry(&gameMenu[0], " ");
             AddTextMenuEntry(&gameMenu[0], " ");
             AddTextMenuEntry(&gameMenu[0], " ");
