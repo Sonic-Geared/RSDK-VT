@@ -26,11 +26,11 @@ Even if your platform isn't supported by the official releases, you **must** buy
 ).
 
 # Additional Tweaks over RSDKv4
-* Adds the video playback from RSDKv3 (still more of a POC than something functional at the moment lol)
+* Adds the video playback from RSDKv3
 * Added all the features from every revision of RSDKv4 (REV00, REV01, REV02 & REV03)
 * Removed the 2MBs Audio limit
 * Re-adds the Disable Focus Pause that was missing from the Mobile versions of RSDKv4
-* Extra functions for the scripting language (such as RSDKv5(U) related functions, alongside with RSDKv3 & RSDKv2/Sonic Nexus functions)
+* Extra functions for the scripting language (such as RSDKv5(U)-backported functions, alongside with RSDKv3 & RSDKv2/Sonic Nexus functions)
 
 # Scarlet Engine's Compatible Games
 * Sonic 1
@@ -40,11 +40,9 @@ Even if your platform isn't supported by the official releases, you **must** buy
 * RSDK-GDT (Framework)
 
 # How to Build?
-
-This project uses [CMake](https://cmake.org/), a versatile building system that supports many different compilers and platforms. You can download CMake [here](https://cmake.org/download/). **(Make sure to enable the feature to add CMake to the system PATH during the installation!)**
+Both the original RSDKv4 decompilation project and this project uses [CMake](https://cmake.org/), a versatile building system that supports many different compilers and platforms. You can download CMake [here](https://cmake.org/download/). **(Make sure to enable the feature to add CMake to the system PATH during the installation!)**
 
 ## Get the source code
-
 In order to clone the repository, you need to install Git, which you can get [here](https://git-scm.com/downloads).
 
 Clone the repo **recursively**, using:
