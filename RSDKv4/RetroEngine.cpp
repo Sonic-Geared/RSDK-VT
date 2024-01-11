@@ -1,4 +1,5 @@
 #include "RetroEngine.hpp"
+#include "Scene.hpp"
 
 bool usingCWD        = false;
 bool engineDebugMode = false;
@@ -133,10 +134,6 @@ bool ProcessEvents()
                             if (Engine.gameMode == ENGINE_DEVMENU && stageMode == DEVMENU_MODMENU)
                                 RefreshEngine();
 #endif
-                            ClearNativeObjects();
-                            CREATE_ENTITY(RetroGameLoop);
-                            if (Engine.gameDeviceType == RETRO_MOBILE)
-                                CREATE_ENTITY(VirtualDPad);
                             Engine.gameMode = ENGINE_INITDEVMENU;
                         }
                         break;
@@ -314,9 +311,9 @@ void RetroEngine::Init()
         }
     }
 
-    gameMode = ENGINE_MAINGAME;
-    running  = false;
-    bool skipStart = skipStartMenu;
+    gameMode           = ENGINE_MAINGAME;
+    running            = false;
+    bool skipStart     = skipStartMenu;
     SaveGame *saveGame = (SaveGame *)saveRAM;
 
     if (LoadGameConfig("Data/Game/GameConfig.bin")) {
@@ -406,17 +403,16 @@ void RetroEngine::Init()
     }
     else
 #if RETRO_USE_MOD_LOADER
-    if (strstr(gameWindowText, "Sonic 2") || forceSonic2) {
+        if (strstr(gameWindowText, "Sonic 2") || forceSonic2) {
 #else
-    if (strstr(gameWindowText, "Sonic 2")) {
+        if (strstr(gameWindowText, "Sonic 2")) {
 #endif
         gameType = GAME_SONIC2;
     }
 
     bool skipStore = skipStartMenu;
     skipStartMenu  = skipStart;
-    InitNativeObjectSystem();
-    skipStartMenu = skipStore;
+    skipStartMenu  = skipStore;
 
     // Calculate Skip frame
     int lower        = GetLowerRate(targetRefreshRate, refreshRate);
@@ -476,7 +472,7 @@ void RetroEngine::Init()
 #elif RETRO_PLATFORM == RETRO_OSX
         sprintf(rootDir, "%s/", gamePath);
 #else
-        sprintf(rootDir, "%s", "");
+    sprintf(rootDir, "%s", "");
 #endif
         sprintf(pathBuffer, "%s%s", rootDir, "usage.txt");
 
@@ -520,7 +516,7 @@ void RetroEngine::Run()
         }
 
         Engine.deltaTime = 1.0 / 60;
-        running = ProcessEvents();
+        running          = ProcessEvents();
 
         // Focus Checks
         if (!((disableFocusPause + 1) & 2)) {
@@ -545,7 +541,15 @@ void RetroEngine::Run()
                             Engine.gameMode = ENGINE_MAINGAME;
                     }
                     else {
-                        ProcessNativeObjects();
+                        switch (Engine.gameMode) {
+                            case ENGINE_DEVMENU: ProcessStageSelect(); break;
+                            case ENGINE_MAINGAME: ProcessStage(); break;
+                            case ENGINE_INITDEVMENU:
+                                LoadGameConfig("Data/Game/GameConfig.bin");
+                                InitDevMenu();
+                                ResetCurrentStageFolder();
+                                break;
+                        }
                     }
                 }
             }
@@ -553,9 +557,6 @@ void RetroEngine::Run()
 
         FlipScreen();
 
-#if RETRO_USING_OPENGL && RETRO_USING_SDL2
-        SDL_GL_SwapWindow(Engine.window);
-#endif
         frameStep = false;
 
         Engine.message = MESSAGE_NONE;
@@ -725,29 +726,29 @@ void RetroEngine::LoadXMLPalettes()
                 const tinyxml2::XMLElement *paletteElement = FirstXMLChildElement(doc, gameElement, "palette");
                 if (paletteElement) {
                     for (const tinyxml2::XMLElement *clrElement = paletteElement->FirstChildElement("color"); clrElement;
-                         clrElement = clrElement->NextSiblingElement("color")) {
+                         clrElement                             = clrElement->NextSiblingElement("color")) {
                         const tinyxml2::XMLAttribute *bankAttr = clrElement->FindAttribute("bank");
-                        int clrBank = 0;
+                        int clrBank                            = 0;
                         if (bankAttr)
                             clrBank = bankAttr->IntValue();
 
                         const tinyxml2::XMLAttribute *indAttr = clrElement->FindAttribute("index");
-                        int clrInd = 0;
+                        int clrInd                            = 0;
                         if (indAttr)
                             clrInd = indAttr->IntValue();
 
                         const tinyxml2::XMLAttribute *rAttr = clrElement->FindAttribute("r");
-                        int clrR = 0;
+                        int clrR                            = 0;
                         if (rAttr)
                             clrR = rAttr->IntValue();
 
                         const tinyxml2::XMLAttribute *gAttr = clrElement->FindAttribute("g");
-                        int clrG = 0;
+                        int clrG                            = 0;
                         if (gAttr)
                             clrG = gAttr->IntValue();
 
                         const tinyxml2::XMLAttribute *bAttr = clrElement->FindAttribute("b");
-                        int clrB = 0;
+                        int clrB                            = 0;
                         if (bAttr)
                             clrB = bAttr->IntValue();
 
@@ -755,14 +756,14 @@ void RetroEngine::LoadXMLPalettes()
                     }
 
                     for (const tinyxml2::XMLElement *clrsElement = paletteElement->FirstChildElement("colors"); clrsElement;
-                         clrsElement = clrsElement->NextSiblingElement("colors")) {
+                         clrsElement                             = clrsElement->NextSiblingElement("colors")) {
                         const tinyxml2::XMLAttribute *bankAttr = clrsElement->FindAttribute("bank");
-                        int bank = 0;
+                        int bank                               = 0;
                         if (bankAttr)
                             bank = bankAttr->IntValue();
 
                         const tinyxml2::XMLAttribute *indAttr = clrsElement->FindAttribute("start");
-                        int index = 0;
+                        int index                             = 0;
                         if (indAttr)
                             index = indAttr->IntValue();
 
@@ -1208,7 +1209,6 @@ bool RetroEngine::LoadGameConfig(const char *filePath)
     }
 
     SetGlobalVariableByName("game.hasPlusDLC", !RSDK_AUTOBUILD);
-
 
     // These need to be set every time its reloaded
     nativeFunctionCount = 0;

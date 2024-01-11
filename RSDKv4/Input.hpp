@@ -230,10 +230,10 @@ inline uint GetInputDeviceID(byte inputSlot)
 
 inline uint GetFilteredInputDeviceID(bool confirmOnly, bool unassignedOnly, uint maxInactiveTimer)
 {
-    uint mostRecentTime    = -1;
+    uint mostRecentTime   = -1;
     int mostRecentValidID = 0;
     int mostRecentID      = 0;
-    uint maxTime           = maxInactiveTimer ? maxInactiveTimer : -1;
+    uint maxTime          = maxInactiveTimer ? maxInactiveTimer : -1;
 
     if (inputType) {
         for (int i = 0; i < inputType; ++i) {
@@ -334,7 +334,6 @@ void CheckKeyPress(InputData *input);
 void CheckKeyDown(InputData *input);
 
 int CheckTouchRect(float x1, float y1, float x2, float y2);
-int CheckTouchRectMatrix(void *m, float x1, float y1, float x2, float y2);
 
 #if RETRO_USE_HAPTICS
 inline int GetHapticEffectNum()

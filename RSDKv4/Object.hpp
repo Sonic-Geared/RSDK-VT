@@ -106,23 +106,6 @@ enum ObjectPriority {
     PRIORITY_ACTIVE_SMALL
 };
 
-// Native Objects
-extern int nativeEntityPos;
-
-extern int activeEntityList[NATIVEENTITY_COUNT];
-extern byte objectRemoveFlag[NATIVEENTITY_COUNT];
-extern NativeEntity objectEntityBank[NATIVEENTITY_COUNT];
-extern int nativeEntityCount;
-
-extern int nativeEntityCountBackup;
-extern int backupEntityList[NATIVEENTITY_COUNT];
-extern NativeEntity objectEntityBackup[NATIVEENTITY_COUNT];
-
-extern int nativeEntityCountBackupS;
-extern int backupEntityListS[NATIVEENTITY_COUNT];
-extern NativeEntity objectEntityBackupS[NATIVEENTITY_COUNT];
-
-// Game Objects
 extern int objectEntityPos;
 extern int curObjectType;
 extern Entity objectEntityList[ENTITY_COUNT * 2];
@@ -151,49 +134,5 @@ void SetObjectTypeName(const char *objectName, int objectID);
 extern int playerListPos;
 
 void ProcessObjectControl(Entity *entity);
-
-void InitNativeObjectSystem();
-NativeEntity *CreateNativeObject(void (*objCreate)(void *objPtr), void (*objMain)(void *objPtr));
-void RemoveNativeObject(NativeEntityBase *NativeEntry);
-void ResetNativeObject(NativeEntityBase *obj, void (*objCreate)(void *objPtr), void (*objMain)(void *objPtr));
-void ProcessNativeObjects();
-inline void BackupNativeObjects()
-{
-    memcpy(backupEntityList, activeEntityList, sizeof(activeEntityList));
-    memcpy(objectEntityBackup, objectEntityBank, sizeof(objectEntityBank));
-    nativeEntityCountBackup = nativeEntityCount;
-}
-inline void BackupNativeObjectsSettings()
-{
-    memcpy(backupEntityListS, activeEntityList, sizeof(activeEntityList));
-    memcpy(objectEntityBackupS, objectEntityBank, sizeof(objectEntityBank));
-    nativeEntityCountBackupS = nativeEntityCount;
-}
-void RestoreNativeObjects();
-void RestoreNativeObjectsNoFade();
-void RestoreNativeObjectsSettings();
-inline NativeEntity *GetNativeObject(uint objID)
-{
-    if (objID >= NATIVEENTITY_COUNT)
-        return nullptr;
-    else
-        return &objectEntityBank[objID];
-}
-
-// Custom, used for cleaning purposes
-inline void RemoveNativeObjectType(void (*eventCreate)(void *objPtr), void (*eventMain)(void *objPtr))
-{
-    for (int i = nativeEntityCount - 1; i >= 0; --i) {
-        NativeEntity *entity = &objectEntityBank[activeEntityList[i]];
-        if (entity->eventCreate == eventCreate && entity->eventMain == eventMain) {
-            RemoveNativeObject((NativeEntityBase *)entity);
-        }
-    }
-}
-inline void ClearNativeObjects()
-{
-    nativeEntityCount = 0;
-    memset(objectEntityBank, 0, sizeof(objectEntityBank));
-}
 
 #endif // !OBJECT_H

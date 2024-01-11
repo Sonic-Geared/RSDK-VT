@@ -37,13 +37,6 @@ DisplaySettings displaySettings;
 bool convertTo32Bit     = false;
 bool mixFiltersOnJekyll = false;
 
-#if RETRO_USING_OPENGL
-GLint defaultFramebuffer = -1;
-GLuint framebufferHiRes  = -1;
-GLuint renderbufferHiRes = -1;
-GLuint videoBuffer       = -1;
-#endif
-
 // enable integer scaling, which is a modification of enhanced scaling
 bool integerScaling = false;
 // allows me to disable it to prevent blur on resolutions that match only on 1 axis
@@ -55,7 +48,8 @@ int InitRenderDevice()
 {
     char gameTitle[0x40];
 
-    sprintf(gameTitle, "%s", Engine.gameWindowText); // I personally don't want anyone playing Virtua Scarlet while having "(Using Data Folder)" shit in their screen, so remove it completely at this point =/
+    sprintf(gameTitle, "%s", Engine.gameWindowText); // I personally don't want anyone playing Virtua Scarlet while having "(Using Data Folder)" shit
+                                                     // in their screen, so remove it completely at this point =/
 
 #if RETRO_USING_SDL2
     SDL_Init(SDL_INIT_EVERYTHING);
@@ -66,21 +60,6 @@ int InitRenderDevice()
     SDL_SetHint(SDL_HINT_RENDER_VSYNC, Engine.vsync ? "1" : "0");
 
     byte flags = 0;
-#if RETRO_USING_OPENGL
-    flags |= SDL_WINDOW_OPENGL;
-
-#if RETRO_PLATFORM != RETRO_OSX // dude idk either you just gotta trust that this works
-#if RETRO_PLATFORM != RETRO_ANDROID
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-#else
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-#endif
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-#endif
-#endif
 #if RETRO_DEVICETYPE == RETRO_MOBILE
     Engine.startFullScreen = true;
 
@@ -101,14 +80,13 @@ int InitRenderDevice()
 
     SCREEN_CENTERX = SCREEN_XSIZE / 2;
     Engine.window  = SDL_CreateWindow(gameTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_XSIZE * Engine.windowScale,
-                                     SCREEN_YSIZE * Engine.windowScale, SDL_WINDOW_ALLOW_HIGHDPI | flags);
+                                      SCREEN_YSIZE * Engine.windowScale, SDL_WINDOW_ALLOW_HIGHDPI | flags);
 
     if (!Engine.window) {
         PrintLog("ERROR: failed to create window!");
         return 0;
     }
 
-#if !RETRO_USING_OPENGL
     Engine.renderer = SDL_CreateRenderer(Engine.window, -1, SDL_RENDERER_ACCELERATED);
 
     if (!Engine.renderer) {
@@ -133,7 +111,6 @@ int InitRenderDevice()
         PrintLog("ERROR: failed to create screen buffer HQ!\nerror msg: %s", SDL_GetError());
         return 0;
     }
-#endif
 
     if (Engine.borderless) {
         SDL_RestoreWindow(Engine.window);
@@ -150,11 +127,7 @@ int InitRenderDevice()
 #if RETRO_USING_SDL1
     SDL_Init(SDL_INIT_EVERYTHING);
 
-    byte flags = 0;
-#if RETRO_USING_OPENGL
-    flags |= SDL_OPENGL;
-#endif
-
+    byte flags           = 0;
     Engine.windowSurface = SDL_SetVideoMode(SCREEN_XSIZE * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale, 32, SDL_SWSURFACE | flags);
     if (!Engine.windowSurface) {
         PrintLog("ERROR: failed to create window!\nerror msg: %s", SDL_GetError());
@@ -182,73 +155,6 @@ int InitRenderDevice()
     Engine.borderless = false; // disabled
 #endif
 
-#if RETRO_USING_OPENGL
-
-    // Init GL
-    Engine.glContext = SDL_GL_CreateContext(Engine.window);
-
-    SDL_GL_SetSwapInterval(Engine.vsync ? 1 : 0);
-
-#if RETRO_PLATFORM != RETRO_ANDROID && RETRO_PLATFORM != RETRO_OSX
-    GLenum err = glewInit();
-    if (err != GLEW_OK && err != GLEW_ERROR_NO_GLX_DISPLAY) {
-        PrintLog("glew init error:");
-        PrintLog((const char *)glewGetErrorString(err));
-        return false;
-    }
-#endif
-
-    displaySettings.unknown2 = 0;
-
-    glClearColor(0.0, 0.0, 0.0, 1.0);
-
-    glDisable(GL_LIGHTING);
-    glEnable(GL_TEXTURE_2D);
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_DITHER);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDisable(GL_BLEND);
-    glEnable(GL_CULL_FACE);
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-
-#if RETRO_PLATFORM == RETRO_ANDROID
-    Engine.windowScale     = 1;
-    displaySettings.width  = SCREEN_XSIZE;
-    displaySettings.height = SCREEN_YSIZE;
-#else
-    displaySettings.width  = SCREEN_XSIZE_CONFIG * Engine.windowScale;
-    displaySettings.height = SCREEN_YSIZE * Engine.windowScale;
-#endif
-
-    textureList[0].id = -1;
-    SetupViewport();
-
-    ResetRenderStates();
-    SetupDrawIndexList();
-
-    for (int c = 0; c < 0x10000; ++c) {
-        int r               = (c & 0b1111100000000000) >> 8;
-        int g               = (c & 0b0000011111100000) >> 3;
-        int b               = (c & 0b0000000000011111) << 3;
-        gfxPalette16to32[c] = (0xFF << 24) | (b << 16) | (g << 8) | (r << 0);
-    }
-
-    float lightAmbient[4] = { 2.0, 2.0, 2.0, 1.0 };
-    float lightDiffuse[4] = { 1.0, 1.0, 1.0, 1.0 };
-    float lightPos[4]     = { 0.0, 0.0, 0.0, 1.0 };
-
-    glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
-    glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
-    glEnable(GL_LIGHT0);
-
-#if RETRO_PLATFORM == RETRO_ANDROID
-    Engine.startFullScreen = true;
-#endif
-#endif
-
 #if RETRO_PLATFORM != RETRO_ANDROID
     SetScreenDimensions(SCREEN_XSIZE_CONFIG * Engine.windowScale, SCREEN_YSIZE * Engine.windowScale);
 #else
@@ -259,7 +165,7 @@ int InitRenderDevice()
     Engine.frameBuffer2x = new ushort[GFX_LINESIZE_DOUBLE * (SCREEN_YSIZE * 2)];
     memset(Engine.frameBuffer, 0, (GFX_LINESIZE * SCREEN_YSIZE) * sizeof(ushort));
     memset(Engine.frameBuffer2x, 0, GFX_LINESIZE_DOUBLE * (SCREEN_YSIZE * 2) * sizeof(ushort));
-    Engine.texBuffer = new uint[GFX_LINESIZE * SCREEN_YSIZE];
+    Engine.texBuffer   = new uint[GFX_LINESIZE * SCREEN_YSIZE];
     Engine.texBuffer2x = new uint[(SCREEN_XSIZE * 2) * (SCREEN_YSIZE * 2)];
     memset(Engine.texBuffer, 0, (GFX_LINESIZE * SCREEN_YSIZE) * sizeof(uint));
     memset(Engine.texBuffer2x, 0, (SCREEN_XSIZE * 2) * (SCREEN_YSIZE * 2) * sizeof(uint));
@@ -293,7 +199,6 @@ void FlipScreen()
         dimAmount = Engine.dimMax * Engine.dimPercent;
     }
 
-#if !RETRO_USING_OPENGL
 #if RETRO_USING_SDL2
     SDL_Rect *destScreenPos = NULL;
     SDL_Rect destScreenPos_scaled, destScreenPosRect;
@@ -337,13 +242,12 @@ void FlipScreen()
         // get integer scale
         float scale = 1;
         if (!bilinearScaling) {
-            scale = std::fminf(std::floor((float)Engine.windowXSize / (float)SCREEN_XSIZE),
-                               std::floor((float)Engine.windowYSize / (float)SCREEN_YSIZE));
+            scale =
+                std::fminf(std::floor((float)Engine.windowXSize / (float)SCREEN_XSIZE), std::floor((float)Engine.windowYSize / (float)SCREEN_YSIZE));
         }
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear"); // set interpolation to linear
         // create texture that's integer scaled.
-        texTarget =
-            SDL_CreateTexture(Engine.renderer, SDL_PIXELFORMAT_RGB565, SDL_TEXTUREACCESS_TARGET, SCREEN_XSIZE * scale, SCREEN_YSIZE * scale);
+        texTarget = SDL_CreateTexture(Engine.renderer, SDL_PIXELFORMAT_RGB565, SDL_TEXTUREACCESS_TARGET, SCREEN_XSIZE * scale, SCREEN_YSIZE * scale);
 
         // keep aspect
         float aspectScale = std::fminf(Engine.windowYSize / screenysize, Engine.windowXSize / screenxsize);
@@ -405,9 +309,9 @@ void FlipScreen()
             ushort *framebufferPtr = Engine.frameBuffer;
             for (int y = 0; y < (SCREEN_YSIZE / 2) + 12; ++y) {
                 for (int x = 0; x < SCREEN_XSIZE; ++x) {
-                    *pixels = *framebufferPtr;
-                    *(pixels + 1) = *framebufferPtr;
-                    *(pixels + lineWidth) = *framebufferPtr;
+                    *pixels                   = *framebufferPtr;
+                    *(pixels + 1)             = *framebufferPtr;
+                    *(pixels + lineWidth)     = *framebufferPtr;
                     *(pixels + lineWidth + 1) = *framebufferPtr;
                     pixels += 2;
                     framebufferPtr++;
@@ -504,22 +408,15 @@ void FlipScreen()
     // Update Screen
     SDL_Flip(Engine.windowSurface);
 #endif
-
-#endif // ! !RETRO_USING_OPENGL
 }
 
 void ReleaseRenderDevice(bool refresh)
 {
-    if (!refresh) {
-        ClearMeshData();
-        ClearTextures(false);
-    }
-
     if (Engine.frameBuffer)
         delete[] Engine.frameBuffer;
     if (Engine.frameBuffer2x)
         delete[] Engine.frameBuffer2x;
-#if RETRO_USING_SDL2 && !RETRO_USING_OPENGL
+#if RETRO_USING_SDL2
     SDL_DestroyTexture(Engine.screenBuffer);
     Engine.screenBuffer = NULL;
     SDL_DestroyTexture(Engine.screenBuffer2x);
@@ -534,15 +431,8 @@ void ReleaseRenderDevice(bool refresh)
     SDL_FreeSurface(Engine.screenBuffer);
 #endif
 
-#if RETRO_USING_OPENGL
-    if (Engine.glContext)
-        SDL_GL_DeleteContext(Engine.glContext);
-#endif
-
 #if RETRO_USING_SDL2
-#if !RETRO_USING_OPENGL
     SDL_DestroyRenderer(Engine.renderer);
-#endif
     SDL_DestroyWindow(Engine.window);
 #endif
 }
@@ -582,16 +472,11 @@ void SetScreenDimensions(int width, int height)
     touchWidthF              = width;
     displaySettings.unknown1 = 16;
     touchHeightF             = height;
-    double aspect    = (((width >> 16) * 65536.0) + width) / (((height >> 16) * 65536.0) + height);
-    SCREEN_XSIZE_F   = SCREEN_YSIZE * aspect;
-    SCREEN_CENTERX_F = aspect * SCREEN_CENTERY;
-    SetPerspectiveMatrix(SCREEN_YSIZE * aspect, SCREEN_YSIZE_F, 0.0, 1000.0);
-#if RETRO_USING_OPENGL
-    glViewport(0, 0, displaySettings.width, displaySettings.height);
-#endif
-
-    Engine.useHighResAssets = displaySettings.height > (SCREEN_YSIZE * 2);
-    int displayWidth        = aspect * SCREEN_YSIZE;
+    double aspect            = (((width >> 16) * 65536.0) + width) / (((height >> 16) * 65536.0) + height);
+    SCREEN_XSIZE_F           = SCREEN_YSIZE * aspect;
+    SCREEN_CENTERX_F         = aspect * SCREEN_CENTERY;
+    Engine.useHighResAssets  = displaySettings.height > (SCREEN_YSIZE * 2);
+    int displayWidth         = aspect * SCREEN_YSIZE;
     SetScreenSize(displayWidth, (displayWidth + 9) & -0x8);
 
     int width2 = 0;
@@ -608,61 +493,6 @@ void SetScreenDimensions(int width, int height)
     }
     int texWidth  = 1 << width2;
     int texHeight = 1 << height2;
-
-    textureList[0].widthN  = 1.0f / texWidth;
-    textureList[0].heightN = 1.0f / texHeight;
-
-    float w  = (SCREEN_XSIZE * textureList[0].widthN);
-    float w2 = (GFX_LINESIZE * textureList[0].widthN);
-    float h  = (SCREEN_YSIZE * textureList[0].heightN);
-
-    retroVertexList[0] = -SCREEN_CENTERX_F;
-    retroVertexList[1] = SCREEN_CENTERY_F;
-    retroVertexList[2] = 160.0;
-    retroVertexList[6] = 0.0;
-    retroVertexList[7] = 0.0;
-
-    retroVertexList[9]  = SCREEN_CENTERX_F;
-    retroVertexList[10] = SCREEN_CENTERY_F;
-    retroVertexList[11] = 160.0;
-    retroVertexList[15] = w;
-    retroVertexList[16] = 0.0;
-
-    retroVertexList[18] = -SCREEN_CENTERX_F;
-    retroVertexList[19] = -SCREEN_CENTERY_F;
-    retroVertexList[20] = 160.0;
-    retroVertexList[24] = 0.0;
-    retroVertexList[25] = h;
-
-    retroVertexList[27] = SCREEN_CENTERX_F;
-    retroVertexList[28] = -SCREEN_CENTERY_F;
-    retroVertexList[29] = 160.0;
-    retroVertexList[33] = w;
-    retroVertexList[34] = h;
-
-    screenBufferVertexList[0] = -1.0;
-    screenBufferVertexList[1] = 1.0;
-    screenBufferVertexList[2] = 1.0;
-    screenBufferVertexList[6] = 0.0;
-    screenBufferVertexList[7] = h;
-
-    screenBufferVertexList[9]  = 1.0;
-    screenBufferVertexList[10] = 1.0;
-    screenBufferVertexList[11] = 1.0;
-    screenBufferVertexList[15] = w2;
-    screenBufferVertexList[16] = h;
-
-    screenBufferVertexList[18] = -1.0;
-    screenBufferVertexList[19] = -1.0;
-    screenBufferVertexList[20] = 1.0;
-    screenBufferVertexList[24] = 0.0;
-    screenBufferVertexList[25] = 0.0;
-
-    screenBufferVertexList[27] = 1.0;
-    screenBufferVertexList[28] = -1.0;
-    screenBufferVertexList[29] = 1.0;
-    screenBufferVertexList[33] = w2;
-    screenBufferVertexList[34] = 0.0;
 }
 
 void SetScreenSize(int width, int lineSize)
@@ -716,198 +546,6 @@ void CopyFrameOverlay2x()
     }
 }
 
-void SetupViewport()
-{
-    double aspect    = displaySettings.width / (double)displaySettings.height;
-    SCREEN_XSIZE_F   = SCREEN_YSIZE * aspect;
-    SCREEN_CENTERX_F = aspect * SCREEN_CENTERY;
-
-#if RETRO_USING_OPENGL
-    glScalef(320.0f / (SCREEN_YSIZE * aspect), 1.0, 1.0);
-#endif
-
-    SetPerspectiveMatrix(90.0, 0.75, 1.0, 5000.0);
-
-#if RETRO_USING_OPENGL
-    glViewport(displaySettings.offsetX, 0, displaySettings.width, displaySettings.height);
-#endif
-    int displayWidth = aspect * SCREEN_YSIZE;
-    SetScreenSize(displayWidth, (displayWidth + 9) & -0x8);
-
-    Engine.useHighResAssets = displaySettings.height > (SCREEN_YSIZE * 2);
-
-#if RETRO_USING_OPENGL
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-#endif
-
-    int width2 = 0;
-    int wBuf   = GFX_LINESIZE - 1;
-    while (wBuf > 0) {
-        width2++;
-        wBuf >>= 1;
-    }
-    int height2 = 0;
-    int hBuf    = SCREEN_YSIZE - 1;
-    while (hBuf > 0) {
-        height2++;
-        hBuf >>= 1;
-    }
-    int texWidth  = 1 << width2;
-    int texHeight = 1 << height2;
-
-    float w  = (SCREEN_XSIZE * textureList[0].widthN);
-    float w2 = (GFX_LINESIZE * textureList[0].widthN);
-    float h  = (SCREEN_YSIZE * textureList[0].heightN);
-
-    retroVertexList[0] = -SCREEN_CENTERX_F;
-    retroVertexList[1] = SCREEN_CENTERY_F;
-    retroVertexList[2] = 160.0;
-    retroVertexList[6] = 0.0;
-    retroVertexList[7] = 0.0;
-
-    retroVertexList[9]  = SCREEN_CENTERX_F;
-    retroVertexList[10] = SCREEN_CENTERY_F;
-    retroVertexList[11] = 160.0;
-    retroVertexList[15] = w;
-    retroVertexList[16] = 0.0;
-
-    retroVertexList[18] = -SCREEN_CENTERX_F;
-    retroVertexList[19] = -SCREEN_CENTERY_F;
-    retroVertexList[20] = 160.0;
-    retroVertexList[24] = 0.0;
-    retroVertexList[25] = h;
-
-    retroVertexList[27] = SCREEN_CENTERX_F;
-    retroVertexList[28] = -SCREEN_CENTERY_F;
-    retroVertexList[29] = 160.0;
-    retroVertexList[33] = w;
-    retroVertexList[34] = h;
-
-    screenBufferVertexList[0] = -1.0;
-    screenBufferVertexList[1] = 1.0;
-    screenBufferVertexList[2] = 1.0;
-    screenBufferVertexList[6] = 0.0;
-    screenBufferVertexList[7] = h;
-
-    screenBufferVertexList[9]  = 1.0;
-    screenBufferVertexList[10] = 1.0;
-    screenBufferVertexList[11] = 1.0;
-    screenBufferVertexList[15] = w2;
-    screenBufferVertexList[16] = h;
-
-    screenBufferVertexList[18] = -1.0;
-    screenBufferVertexList[19] = -1.0;
-    screenBufferVertexList[20] = 1.0;
-    screenBufferVertexList[24] = 0.0;
-    screenBufferVertexList[25] = 0.0;
-
-    screenBufferVertexList[27] = 1.0;
-    screenBufferVertexList[28] = -1.0;
-    screenBufferVertexList[29] = 1.0;
-    screenBufferVertexList[33] = w2;
-    screenBufferVertexList[34] = 0.0;
-
-    StrCopy(textureList[0].fileName, "RetroBuffer");
-    textureList[0].width   = texWidth;
-    textureList[0].height  = texHeight;
-    textureList[0].format  = TEXFMT_RETROBUFFER;
-    textureList[0].widthN  = 1.0f / texWidth;
-    textureList[0].heightN = 1.0f / texHeight;
-
-    if (Engine.useHighResAssets) {
-#if RETRO_USING_OPENGL
-        if (framebufferHiRes != -1)
-            glDeleteFramebuffers(1, &framebufferHiRes);
-        if (renderbufferHiRes != -1)
-            glDeleteTextures(1, &renderbufferHiRes);
-        framebufferHiRes  = -1;
-        renderbufferHiRes = -1;
-
-        glGenFramebuffers(1, &framebufferHiRes);
-        glBindFramebuffer(GL_FRAMEBUFFER, framebufferHiRes);
-        glGenTextures(1, &renderbufferHiRes);
-        glBindTexture(GL_TEXTURE_2D, renderbufferHiRes);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Engine.scalingMode ? GL_LINEAR : GL_NEAREST);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, Engine.scalingMode ? GL_LINEAR : GL_NEAREST);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texWidth << 1, texHeight << 1, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, 0);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderbufferHiRes, 0);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glBindTexture(GL_TEXTURE_2D, 0);
-#endif
-
-        float w                    = (((((GFX_LINESIZE >> 16) * 65536.0) + GFX_LINESIZE) + 0.5) * textureList[0].widthN) - 0.001;
-        float h                    = (SCREEN_YSIZE * textureList[0].heightN) - 0.001;
-        screenBufferVertexList[0]  = -1.0;
-        screenBufferVertexList[1]  = 1.0;
-        screenBufferVertexList[2]  = 1.0;
-        screenBufferVertexList[6]  = 0.0;
-        screenBufferVertexList[9]  = 1.0;
-        screenBufferVertexList[10] = 1.0;
-        screenBufferVertexList[11] = 1.0;
-        screenBufferVertexList[7]  = h;
-        screenBufferVertexList[16] = h;
-        screenBufferVertexList[18] = -1.0;
-        screenBufferVertexList[19] = -1.0;
-        screenBufferVertexList[20] = 1.0;
-        screenBufferVertexList[24] = 0.0;
-        screenBufferVertexList[25] = 0.0;
-        screenBufferVertexList[27] = 1.0;
-        screenBufferVertexList[28] = -1.0;
-        screenBufferVertexList[29] = 1.0;
-        screenBufferVertexList[15] = w;
-        screenBufferVertexList[34] = 0.0;
-        screenBufferVertexList[33] = w;
-    }
-    else {
-#if RETRO_USING_OPENGL
-        if (framebufferHiRes != -1)
-            glDeleteFramebuffers(1, &framebufferHiRes);
-        if (renderbufferHiRes != -1)
-            glDeleteTextures(1, &renderbufferHiRes);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        framebufferHiRes  = -1;
-        renderbufferHiRes = -1;
-#endif
-    }
-
-    bool transfer = false;
-#if RETRO_USING_OPENGL
-    if (textureList[0].id != -1) {
-        glDeleteTextures(1, &textureList[0].id);
-        transfer = true;
-    }
-    glGenTextures(1, &textureList[0].id);
-    glBindTexture(GL_TEXTURE_2D, textureList[0].id);
-#endif
-
-    convertTo32Bit = true;
-#if RETRO_USING_OPENGL
-    if (displaySettings.height > 720) {
-        convertTo32Bit = true;
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-    }
-    else if (convertTo32Bit)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-    else
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, 0);
-
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Engine.scalingMode ? GL_LINEAR : GL_NEAREST);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, Engine.scalingMode ? GL_LINEAR : GL_NEAREST);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glBindTexture(GL_TEXTURE_2D, 0);
-#endif
-
-    mixFiltersOnJekyll = Engine.useHighResAssets;
-
-    if (transfer && Engine.frameBuffer)
-        TransferRetroBuffer();
-}
-
 void SetFullScreen(bool fs)
 {
     if (fs) {
@@ -919,35 +557,6 @@ void SetFullScreen(bool fs)
         SDL_RestoreWindow(Engine.window);
         SDL_SetWindowFullscreen(Engine.window, SDL_WINDOW_FULLSCREEN_DESKTOP);
         SDL_ShowCursor(SDL_FALSE);
-
-#if RETRO_USING_OPENGL
-        SDL_DisplayMode mode;
-        SDL_GetDesktopDisplayMode(0, &mode);
-
-        int w = mode.w;
-        int h = mode.h;
-        if (mode.h > mode.w) {
-            w = mode.h;
-            h = mode.w;
-        }
-
-#if RETRO_PLATFORM != RETRO_iOS && RETRO_PLATFORM != RETRO_ANDROID
-        float aspect            = SCREEN_XSIZE_CONFIG / (float)SCREEN_YSIZE;
-        displaySettings.height  = h;
-        displaySettings.width   = aspect * displaySettings.height;
-        displaySettings.offsetX = abs(w - displaySettings.width) / 2;
-        if (displaySettings.width > w) {
-            displaySettings.offsetX = 0;
-            displaySettings.width   = w;
-        }
-
-        SetupViewport();
-#else
-        displaySettings.height = h;
-        displaySettings.width  = w;
-        glViewport(0, 0, displaySettings.width, displaySettings.height);
-#endif
-#endif
 #endif
     }
     else {
@@ -964,7 +573,6 @@ void SetFullScreen(bool fs)
         displaySettings.width   = SCREEN_XSIZE_CONFIG * Engine.windowScale;
         displaySettings.height  = SCREEN_YSIZE * Engine.windowScale;
         displaySettings.offsetX = 0;
-        SetupViewport();
 #endif
     }
     Engine.isFullScreen = fs;
@@ -2750,9 +2358,9 @@ void DrawScaledTintMask(int direction, int XPos, int YPos, int pivotX, int pivot
     if (width <= 0 || height <= 0)
         return;
 
-    GFXSurface *surface = &gfxSurface[sheetID];
-    int pitch           = GFX_LINESIZE - width;
-    int gfxwidth        = surface->width;
+    GFXSurface *surface    = &gfxSurface[sheetID];
+    int pitch              = GFX_LINESIZE - width;
+    int gfxwidth           = surface->width;
     byte *gfxData          = &graphicData[sprX + surface->width * sprY + surface->dataPosition];
     ushort *frameBufferPtr = &Engine.frameBuffer[trueXPos + GFX_LINESIZE * trueYPos];
     if (direction == FLIP_X) {
@@ -3410,26 +3018,27 @@ void DrawSpriteRotozoom(int direction, int XPos, int YPos, int pivotX, int pivot
     }
 }
 
-void DrawSpriteAllEffect(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY, int width, int height, int rotation, int scale,
-                        int sheetID, int alpha, int ink, int flags)
+void DrawSpriteAllEffect(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY, int width, int height, int rotation,
+                         int scale, int sheetID, int alpha, int ink, int flags)
 {
-	// Credits to Elsie (or just Team Forever in general?) by the og code of this, still gotta find a better way of retribution, just crediting doesn't seems like enough...maybe help with her version of v4 alongside with Cosmic? or playtest the Team Forever games? idk
-	// Check the flags
-	if ((flags & FX_INK) == 0)
-		ink = INK_NONE;
-	if ((flags & FX_SCALE) == 0)
-		scale = 0x200;
-	if ((flags & FX_ROTATE) == 0)
-		rotation = 0;
-	if ((flags & FX_FLIP) == 0) // Originally there was a 3 instead of FX_FLIP, i assume it was probably a mistake from Elsie from when she was first coding it, so here it is, a fixed version, i guess...
-		direction = FLIP_NONE;
-	
-	if ((ink > INK_NONE) && (alpha == 0))
-		return;
-	
-	if (alpha > 0xFF)
+    // Credits to Elsie (or just Team Forever in general?) by the og code of this, still gotta find a better way of retribution, just crediting
+    // doesn't seems like enough...maybe help with her version of v4 alongside with Cosmic? or playtest the Team Forever games? idk Check the flags
+    if ((flags & FX_INK) == 0)
+        ink = INK_NONE;
+    if ((flags & FX_SCALE) == 0)
+        scale = 0x200;
+    if ((flags & FX_ROTATE) == 0)
+        rotation = 0;
+    if ((flags & FX_FLIP) == 0) // Originally there was a 3 instead of FX_FLIP, i assume it was probably a mistake from Elsie from when she was first
+                                // coding it, so here it is, a fixed version, i guess...
+        direction = FLIP_NONE;
+
+    if ((ink > INK_NONE) && (alpha == 0))
+        return;
+
+    if (alpha > 0xFF)
         alpha = 0xFF;
-	
+
     if (scale == 0)
         return;
 
@@ -3459,7 +3068,7 @@ void DrawSpriteAllEffect(int direction, int XPos, int YPos, int pivotX, int pivo
         xPositions[3] = XPos + ((sine * b + cosine * a) >> 9);
         yPositions[3] = YPos + ((cosine * b - sine * a) >> 9);
     }
-	else if (direction == FLIP_Y) {
+    else if (direction == FLIP_Y) {
         xPositions[0] = XPos + ((sine * (pivotY + 2) + cosine * (-pivotX - 2)) >> 9);
         yPositions[0] = YPos + ((cosine * (pivotY + 2) - sine * (-pivotX - 2)) >> 9);
         xPositions[1] = XPos + ((sine * (pivotY + 2) + cosine * (width - pivotX + 2)) >> 9);
@@ -3471,7 +3080,7 @@ void DrawSpriteAllEffect(int direction, int XPos, int YPos, int pivotX, int pivo
         xPositions[3] = XPos + ((sine * b + cosine * a) >> 9);
         yPositions[3] = YPos + ((cosine * b - sine * a) >> 9);
     }
-	else if (direction == FLIP_XY) {
+    else if (direction == FLIP_XY) {
         xPositions[0] = XPos + ((sine * (pivotY + 2) + cosine * (pivotX + 2)) >> 9);
         yPositions[0] = YPos + ((cosine * (pivotY + 2) - sine * (pivotX + 2)) >> 9);
         xPositions[1] = XPos + ((sine * (pivotY + 2) + cosine * (pivotX - width - 2)) >> 9);
@@ -3536,12 +3145,12 @@ void DrawSpriteAllEffect(int direction, int XPos, int YPos, int pivotX, int pivo
     if (maxX <= 0 || maxY <= 0)
         return;
 
-	// Ink tables are stored here	
-	ushort *fbufferBlend = &blendLookupTable[0x20 * (0xFF - alpha)];
-	ushort *pixelBlend   = &blendLookupTable[0x20 * alpha];
-	ushort *blendTablePtr  = &blendLookupTable[0x20 * alpha];
-	ushort *subBlendTable  = &subtractLookupTable[0x20 * alpha];
-	
+    // Ink tables are stored here
+    ushort *fbufferBlend  = &blendLookupTable[0x20 * (0xFF - alpha)];
+    ushort *pixelBlend    = &blendLookupTable[0x20 * alpha];
+    ushort *blendTablePtr = &blendLookupTable[0x20 * alpha];
+    ushort *subBlendTable = &subtractLookupTable[0x20 * alpha];
+
     GFXSurface *surface    = &gfxSurface[sheetID];
     int pitch              = GFX_LINESIZE - maxX;
     int lineSize           = surface->widthShift;
@@ -3571,41 +3180,37 @@ void DrawSpriteAllEffect(int direction, int XPos, int YPos, int pivotX, int pivo
                 if (finalX > shiftPivot && finalX < fullwidth && finalY > shiftheight && finalY < fullheight) {
                     byte index = gfxData[(finalY >> 9 << lineSize) + (finalX >> 9)];
                     if (index > 0) {
-						
-						ushort color = activePalette[index];
-						int R;
-						int G;
-						int B;
-						switch (ink) {
-							case INK_NONE:
-								*frameBufferPtr = activePalette[index];
-								break;
-							case INK_BLEND:
-								*frameBufferPtr = ((activePalette[index] & 0xF7DE) >> 1) + ((*frameBufferPtr & 0xF7DE) >> 1);
-								break;
-							case INK_ALPHA:
-								R = (fbufferBlend[(*frameBufferPtr & 0xF800) >> 11] + pixelBlend[(color & 0xF800) >> 11]) << 11;
-								G = (fbufferBlend[(*frameBufferPtr & 0x7E0) >> 6] + pixelBlend[(color & 0x7E0) >> 6]) << 6;
-								B = fbufferBlend[*frameBufferPtr & 0x1F] + pixelBlend[color & 0x1F];
 
-								*frameBufferPtr = R | G | B;
-								break;
-							case INK_ADD:
-								R = minVal((blendTablePtr[(color & 0xF800) >> 11] << 11) + (*frameBufferPtr & 0xF800), 0xF800);
-								G = minVal((blendTablePtr[(color & 0x7E0) >> 6] << 6) + (*frameBufferPtr & 0x7E0), 0x7E0);
-								B = minVal(blendTablePtr[color & 0x1F] + (*frameBufferPtr & 0x1F), 0x1F);
+                        ushort color = activePalette[index];
+                        int R;
+                        int G;
+                        int B;
+                        switch (ink) {
+                            case INK_NONE: *frameBufferPtr = activePalette[index]; break;
+                            case INK_BLEND: *frameBufferPtr = ((activePalette[index] & 0xF7DE) >> 1) + ((*frameBufferPtr & 0xF7DE) >> 1); break;
+                            case INK_ALPHA:
+                                R = (fbufferBlend[(*frameBufferPtr & 0xF800) >> 11] + pixelBlend[(color & 0xF800) >> 11]) << 11;
+                                G = (fbufferBlend[(*frameBufferPtr & 0x7E0) >> 6] + pixelBlend[(color & 0x7E0) >> 6]) << 6;
+                                B = fbufferBlend[*frameBufferPtr & 0x1F] + pixelBlend[color & 0x1F];
 
-								*frameBufferPtr = R | G | B;
-								break;
-							case INK_SUB:
-								R = maxVal((*frameBufferPtr & 0xF800) - (subBlendTable[(color & 0xF800) >> 11] << 11), 0);
-								G = maxVal((*frameBufferPtr & 0x7E0) - (subBlendTable[(color & 0x7E0) >> 6] << 6), 0);
-								B = maxVal((*frameBufferPtr & 0x1F) - subBlendTable[color & 0x1F], 0);
+                                *frameBufferPtr = R | G | B;
+                                break;
+                            case INK_ADD:
+                                R = minVal((blendTablePtr[(color & 0xF800) >> 11] << 11) + (*frameBufferPtr & 0xF800), 0xF800);
+                                G = minVal((blendTablePtr[(color & 0x7E0) >> 6] << 6) + (*frameBufferPtr & 0x7E0), 0x7E0);
+                                B = minVal(blendTablePtr[color & 0x1F] + (*frameBufferPtr & 0x1F), 0x1F);
 
-								*frameBufferPtr = R | G | B;
-								break;
-						}
-					}
+                                *frameBufferPtr = R | G | B;
+                                break;
+                            case INK_SUB:
+                                R = maxVal((*frameBufferPtr & 0xF800) - (subBlendTable[(color & 0xF800) >> 11] << 11), 0);
+                                G = maxVal((*frameBufferPtr & 0x7E0) - (subBlendTable[(color & 0x7E0) >> 6] << 6), 0);
+                                B = maxVal((*frameBufferPtr & 0x1F) - subBlendTable[color & 0x1F], 0);
+
+                                *frameBufferPtr = R | G | B;
+                                break;
+                        }
+                    }
                 }
                 ++frameBufferPtr;
                 finalX -= cosine;
@@ -3630,42 +3235,37 @@ void DrawSpriteAllEffect(int direction, int XPos, int YPos, int pivotX, int pivo
                 if (finalX > shiftPivot && finalX < fullwidth && finalY > shiftheight && finalY < fullheight) {
                     byte index = gfxData[(finalY >> 9 << lineSize) + (finalX >> 9)];
                     if (index > 0) {
-						
-						ushort color = activePalette[index];
-						int R;
-						int G;
-						int B;
-						switch (ink) {
-							case INK_NONE:
-								*frameBufferPtr = activePalette[index];
-								break;
-							case INK_BLEND:
-								*frameBufferPtr = ((activePalette[index] & 0xF7DE) >> 1) + ((*frameBufferPtr & 0xF7DE) >> 1);
-								break;
-							case INK_ALPHA:
-								R = (fbufferBlend[(*frameBufferPtr & 0xF800) >> 11] + pixelBlend[(color & 0xF800) >> 11]) << 11;
-								G = (fbufferBlend[(*frameBufferPtr & 0x7E0) >> 6] + pixelBlend[(color & 0x7E0) >> 6]) << 6;
-								B = fbufferBlend[*frameBufferPtr & 0x1F] + pixelBlend[color & 0x1F];
 
-								*frameBufferPtr = R | G | B;
-								break;
-							case INK_ADD:
-								R = minVal((blendTablePtr[(color & 0xF800) >> 11] << 11) + (*frameBufferPtr & 0xF800), 0xF800);
-								G = minVal((blendTablePtr[(color & 0x7E0) >> 6] << 6) + (*frameBufferPtr & 0x7E0), 0x7E0);
-								B = minVal(blendTablePtr[color & 0x1F] + (*frameBufferPtr & 0x1F), 0x1F);
+                        ushort color = activePalette[index];
+                        int R;
+                        int G;
+                        int B;
+                        switch (ink) {
+                            case INK_NONE: *frameBufferPtr = activePalette[index]; break;
+                            case INK_BLEND: *frameBufferPtr = ((activePalette[index] & 0xF7DE) >> 1) + ((*frameBufferPtr & 0xF7DE) >> 1); break;
+                            case INK_ALPHA:
+                                R = (fbufferBlend[(*frameBufferPtr & 0xF800) >> 11] + pixelBlend[(color & 0xF800) >> 11]) << 11;
+                                G = (fbufferBlend[(*frameBufferPtr & 0x7E0) >> 6] + pixelBlend[(color & 0x7E0) >> 6]) << 6;
+                                B = fbufferBlend[*frameBufferPtr & 0x1F] + pixelBlend[color & 0x1F];
 
-								*frameBufferPtr = R | G | B;
-								break;
-							case INK_SUB:
-								R = maxVal((*frameBufferPtr & 0xF800) - (subBlendTable[(color & 0xF800) >> 11] << 11), 0);
-								G = maxVal((*frameBufferPtr & 0x7E0) - (subBlendTable[(color & 0x7E0) >> 6] << 6), 0);
-								B = maxVal((*frameBufferPtr & 0x1F) - subBlendTable[color & 0x1F], 0);
+                                *frameBufferPtr = R | G | B;
+                                break;
+                            case INK_ADD:
+                                R = minVal((blendTablePtr[(color & 0xF800) >> 11] << 11) + (*frameBufferPtr & 0xF800), 0xF800);
+                                G = minVal((blendTablePtr[(color & 0x7E0) >> 6] << 6) + (*frameBufferPtr & 0x7E0), 0x7E0);
+                                B = minVal(blendTablePtr[color & 0x1F] + (*frameBufferPtr & 0x1F), 0x1F);
 
-								*frameBufferPtr = R | G | B;
-								break;
-						}
-					}
+                                *frameBufferPtr = R | G | B;
+                                break;
+                            case INK_SUB:
+                                R = maxVal((*frameBufferPtr & 0xF800) - (subBlendTable[(color & 0xF800) >> 11] << 11), 0);
+                                G = maxVal((*frameBufferPtr & 0x7E0) - (subBlendTable[(color & 0x7E0) >> 6] << 6), 0);
+                                B = maxVal((*frameBufferPtr & 0x1F) - subBlendTable[color & 0x1F], 0);
 
+                                *frameBufferPtr = R | G | B;
+                                break;
+                        }
+                    }
                 }
                 ++frameBufferPtr;
                 finalX += cosine;
@@ -3690,42 +3290,37 @@ void DrawSpriteAllEffect(int direction, int XPos, int YPos, int pivotX, int pivo
                 if (finalX > shiftPivot && finalX < fullwidth && finalY > shiftheight && finalY < fullheight) {
                     byte index = gfxData[(finalY >> 9 << lineSize) + (finalX >> 9)];
                     if (index > 0) {
-						
-						ushort color = activePalette[index];
-						int R;
-						int G;
-						int B;
-						switch (ink) {
-							case INK_NONE:
-								*frameBufferPtr = activePalette[index];
-								break;
-							case INK_BLEND:
-								*frameBufferPtr = ((activePalette[index] & 0xF7DE) >> 1) + ((*frameBufferPtr & 0xF7DE) >> 1);
-								break;
-							case INK_ALPHA:
-								R = (fbufferBlend[(*frameBufferPtr & 0xF800) >> 11] + pixelBlend[(color & 0xF800) >> 11]) << 11;
-								G = (fbufferBlend[(*frameBufferPtr & 0x7E0) >> 6] + pixelBlend[(color & 0x7E0) >> 6]) << 6;
-								B = fbufferBlend[*frameBufferPtr & 0x1F] + pixelBlend[color & 0x1F];
 
-								*frameBufferPtr = R | G | B;
-								break;
-							case INK_ADD:
-								R = minVal((blendTablePtr[(color & 0xF800) >> 11] << 11) + (*frameBufferPtr & 0xF800), 0xF800);
-								G = minVal((blendTablePtr[(color & 0x7E0) >> 6] << 6) + (*frameBufferPtr & 0x7E0), 0x7E0);
-								B = minVal(blendTablePtr[color & 0x1F] + (*frameBufferPtr & 0x1F), 0x1F);
+                        ushort color = activePalette[index];
+                        int R;
+                        int G;
+                        int B;
+                        switch (ink) {
+                            case INK_NONE: *frameBufferPtr = activePalette[index]; break;
+                            case INK_BLEND: *frameBufferPtr = ((activePalette[index] & 0xF7DE) >> 1) + ((*frameBufferPtr & 0xF7DE) >> 1); break;
+                            case INK_ALPHA:
+                                R = (fbufferBlend[(*frameBufferPtr & 0xF800) >> 11] + pixelBlend[(color & 0xF800) >> 11]) << 11;
+                                G = (fbufferBlend[(*frameBufferPtr & 0x7E0) >> 6] + pixelBlend[(color & 0x7E0) >> 6]) << 6;
+                                B = fbufferBlend[*frameBufferPtr & 0x1F] + pixelBlend[color & 0x1F];
 
-								*frameBufferPtr = R | G | B;
-								break;
-							case INK_SUB:
-								R = maxVal((*frameBufferPtr & 0xF800) - (subBlendTable[(color & 0xF800) >> 11] << 11), 0);
-								G = maxVal((*frameBufferPtr & 0x7E0) - (subBlendTable[(color & 0x7E0) >> 6] << 6), 0);
-								B = maxVal((*frameBufferPtr & 0x1F) - subBlendTable[color & 0x1F], 0);
+                                *frameBufferPtr = R | G | B;
+                                break;
+                            case INK_ADD:
+                                R = minVal((blendTablePtr[(color & 0xF800) >> 11] << 11) + (*frameBufferPtr & 0xF800), 0xF800);
+                                G = minVal((blendTablePtr[(color & 0x7E0) >> 6] << 6) + (*frameBufferPtr & 0x7E0), 0x7E0);
+                                B = minVal(blendTablePtr[color & 0x1F] + (*frameBufferPtr & 0x1F), 0x1F);
 
-								*frameBufferPtr = R | G | B;
-								break;
-						}
-					}
+                                *frameBufferPtr = R | G | B;
+                                break;
+                            case INK_SUB:
+                                R = maxVal((*frameBufferPtr & 0xF800) - (subBlendTable[(color & 0xF800) >> 11] << 11), 0);
+                                G = maxVal((*frameBufferPtr & 0x7E0) - (subBlendTable[(color & 0x7E0) >> 6] << 6), 0);
+                                B = maxVal((*frameBufferPtr & 0x1F) - subBlendTable[color & 0x1F], 0);
 
+                                *frameBufferPtr = R | G | B;
+                                break;
+                        }
+                    }
                 }
                 ++frameBufferPtr;
                 finalX -= cosine;
@@ -3750,41 +3345,37 @@ void DrawSpriteAllEffect(int direction, int XPos, int YPos, int pivotX, int pivo
                 if (finalX > shiftPivot && finalX < fullwidth && finalY > shiftheight && finalY < fullheight) {
                     byte index = gfxData[(finalY >> 9 << lineSize) + (finalX >> 9)];
                     if (index > 0) {
-						
-						ushort color = activePalette[index];
-						int R;
-						int G;
-						int B;
-						switch (ink) {
-							case INK_NONE:
-								*frameBufferPtr = activePalette[index];
-								break;
-							case INK_BLEND:
-								*frameBufferPtr = ((activePalette[index] & 0xF7DE) >> 1) + ((*frameBufferPtr & 0xF7DE) >> 1);
-								break;
-							case INK_ALPHA:
-								R = (fbufferBlend[(*frameBufferPtr & 0xF800) >> 11] + pixelBlend[(color & 0xF800) >> 11]) << 11;
-								G = (fbufferBlend[(*frameBufferPtr & 0x7E0) >> 6] + pixelBlend[(color & 0x7E0) >> 6]) << 6;
-								B = fbufferBlend[*frameBufferPtr & 0x1F] + pixelBlend[color & 0x1F];
 
-								*frameBufferPtr = R | G | B;
-								break;
-							case INK_ADD:
-								R = minVal((blendTablePtr[(color & 0xF800) >> 11] << 11) + (*frameBufferPtr & 0xF800), 0xF800);
-								G = minVal((blendTablePtr[(color & 0x7E0) >> 6] << 6) + (*frameBufferPtr & 0x7E0), 0x7E0);
-								B = minVal(blendTablePtr[color & 0x1F] + (*frameBufferPtr & 0x1F), 0x1F);
+                        ushort color = activePalette[index];
+                        int R;
+                        int G;
+                        int B;
+                        switch (ink) {
+                            case INK_NONE: *frameBufferPtr = activePalette[index]; break;
+                            case INK_BLEND: *frameBufferPtr = ((activePalette[index] & 0xF7DE) >> 1) + ((*frameBufferPtr & 0xF7DE) >> 1); break;
+                            case INK_ALPHA:
+                                R = (fbufferBlend[(*frameBufferPtr & 0xF800) >> 11] + pixelBlend[(color & 0xF800) >> 11]) << 11;
+                                G = (fbufferBlend[(*frameBufferPtr & 0x7E0) >> 6] + pixelBlend[(color & 0x7E0) >> 6]) << 6;
+                                B = fbufferBlend[*frameBufferPtr & 0x1F] + pixelBlend[color & 0x1F];
 
-								*frameBufferPtr = R | G | B;
-								break;
-							case INK_SUB:
-								R = maxVal((*frameBufferPtr & 0xF800) - (subBlendTable[(color & 0xF800) >> 11] << 11), 0);
-								G = maxVal((*frameBufferPtr & 0x7E0) - (subBlendTable[(color & 0x7E0) >> 6] << 6), 0);
-								B = maxVal((*frameBufferPtr & 0x1F) - subBlendTable[color & 0x1F], 0);
+                                *frameBufferPtr = R | G | B;
+                                break;
+                            case INK_ADD:
+                                R = minVal((blendTablePtr[(color & 0xF800) >> 11] << 11) + (*frameBufferPtr & 0xF800), 0xF800);
+                                G = minVal((blendTablePtr[(color & 0x7E0) >> 6] << 6) + (*frameBufferPtr & 0x7E0), 0x7E0);
+                                B = minVal(blendTablePtr[color & 0x1F] + (*frameBufferPtr & 0x1F), 0x1F);
 
-								*frameBufferPtr = R | G | B;
-								break;
-						}
-					}
+                                *frameBufferPtr = R | G | B;
+                                break;
+                            case INK_SUB:
+                                R = maxVal((*frameBufferPtr & 0xF800) - (subBlendTable[(color & 0xF800) >> 11] << 11), 0);
+                                G = maxVal((*frameBufferPtr & 0x7E0) - (subBlendTable[(color & 0x7E0) >> 6] << 6), 0);
+                                B = maxVal((*frameBufferPtr & 0x1F) - subBlendTable[color & 0x1F], 0);
+
+                                *frameBufferPtr = R | G | B;
+                                break;
+                        }
+                    }
                 }
                 ++frameBufferPtr;
                 finalX += cosine;

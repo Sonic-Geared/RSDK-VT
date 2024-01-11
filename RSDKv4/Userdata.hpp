@@ -98,7 +98,7 @@ struct DataStorage {
 
 template <typename T> class List
 {
-    T *entries   = NULL;
+    T *entries = NULL;
     int count  = 0;
     int length = 0;
 
@@ -268,18 +268,12 @@ void GetAchievementName(uint *id, int *textMenu);
 void GetAchievementDescription(uint *id, int *textMenu);
 void GetAchievement(uint *id, void *unused);
 #endif
-inline void LoadAchievementsMenu()
-{
-    ReadUserdata();
-}
+inline void LoadAchievementsMenu() { ReadUserdata(); }
 
 void ShowAchievementsScreen();
 
 void SetLeaderboard(int *leaderboardID, int *score);
-inline void LoadLeaderboardsMenu()
-{
-    ReadUserdata();
-}
+inline void LoadLeaderboardsMenu() { ReadUserdata(); }
 void ShowLeaderboardsScreen();
 
 void Connect2PVS(int *gameLength, int *itemMode);

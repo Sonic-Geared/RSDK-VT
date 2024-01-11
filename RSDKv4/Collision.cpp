@@ -1605,7 +1605,7 @@ void ProcessTileCollisions(Entity *player)
     player->floorSensors[2] = false;
     player->floorSensors[3] = false;
     player->floorSensors[4] = false;
-    scriptEng.checkResult = false;
+    scriptEng.checkResult   = false;
 
     collisionTolerance = 15;
     if (player->speed < 0x60000)

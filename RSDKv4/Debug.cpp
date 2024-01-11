@@ -30,13 +30,6 @@ void InitDevMenu()
     SetPaletteEntry(-1, 0xFF, 0xFF, 0xFF, 0xFF);
     SetTextMenu(DEVMENU_MAIN);
     drawStageGFXHQ = false;
-#if !RETRO_USE_ORIGINAL_CODE
-    RemoveNativeObjectType(PauseMenu_Create, PauseMenu_Main);
-#endif
-#if RETRO_HARDWARE_RENDER
-    render3DEnabled = false;
-    UpdateHardwareTextures();
-#endif
 }
 void InitErrorMessage()
 {
@@ -63,13 +56,6 @@ void InitErrorMessage()
     gameMenu[1].visibleRowOffset = 0;
     stageMode                    = DEVMENU_SCRIPTERROR;
     drawStageGFXHQ               = false;
-#if !RETRO_USE_ORIGINAL_CODE
-    RemoveNativeObjectType(PauseMenu_Create, PauseMenu_Main);
-#endif
-#if RETRO_HARDWARE_RENDER
-    render3DEnabled = false;
-    UpdateHardwareTextures();
-#endif
 }
 void ProcessStageSelect()
 {
@@ -167,7 +153,6 @@ void ProcessStageSelect()
                     stageMode                  = DEVMENU_PLAYERSEL;
                 }
                 else if (gameMenu[0].selection2 == 13) {
-                    ClearNativeObjects();
                     Engine.gameMode         = ENGINE_WAIT;
                     Engine.nativeMenuFadeIn = false;
 #if !RETRO_USE_ORIGINAL_CODE
@@ -178,13 +163,9 @@ void ProcessStageSelect()
                         stageMode         = STAGEMODE_LOAD;
                         Engine.gameMode   = ENGINE_MAINGAME;
                         stageListPosition = 0;
-                        CREATE_ENTITY(RetroGameLoop);
-                        if (Engine.gameDeviceType == RETRO_MOBILE)
-                            CREATE_ENTITY(VirtualDPad);
                     }
                     else {
 #endif
-                        CREATE_ENTITY(SegaSplash);
                     }
                 }
 #if RETRO_USE_MOD_LOADER
@@ -312,7 +293,7 @@ void ProcessStageSelect()
                 gameMenu[1].timer += 1;
                 if (gameMenu[1].timer > 8) {
                     gameMenu[1].timer = 0;
-                    keyPress.down   = true;
+                    keyPress.down     = true;
                 }
             }
             else {
@@ -320,7 +301,7 @@ void ProcessStageSelect()
                     gameMenu[1].timer -= 1;
                     if (gameMenu[1].timer < -8) {
                         gameMenu[1].timer = 0;
-                        keyPress.up     = true;
+                        keyPress.up       = true;
                     }
                 }
                 else {
@@ -394,7 +375,7 @@ void ProcessStageSelect()
                 gameMenu[1].timer++;
                 if (gameMenu[1].timer > 8) {
                     gameMenu[1].timer = 0;
-                    keyPress.down   = true;
+                    keyPress.down     = true;
                 }
             }
             else {
@@ -402,7 +383,7 @@ void ProcessStageSelect()
                     gameMenu[1].timer--;
                     if (gameMenu[1].timer < -8) {
                         gameMenu[1].timer = 0;
-                        keyPress.up     = true;
+                        keyPress.up       = true;
                     }
                 }
                 else {

@@ -154,7 +154,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
     }
 
     bool addPath = true;
-    int m = activeMod != -1 ? activeMod : 0; 
+    int m        = activeMod != -1 ? activeMod : 0;
     for (; m < modList.size(); ++m) {
         if (modList[m].active) {
             std::map<std::string, std::string>::const_iterator iter = modList[m].fileMap.find(pathLower);
@@ -172,7 +172,7 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
     if (forceUseScripts && !forceFolder) {
         if (std::string(filePathBuf).rfind("Data/Scripts/", 0) == 0 && ends_with(std::string(filePathBuf), "txt")) {
             // is a script, since those dont exist normally, load them from "scripts/"
-            forceFolder   = true;
+            forceFolder          = true;
             Engine.usingDataFile = false;
             addPath              = true;
             std::string fStr     = std::string(filePathBuf);
@@ -202,8 +202,8 @@ bool LoadFile(const char *filePath, FileInfo *fileInfo)
     int fileIndex = CheckFileInfo(fileName);
     if (fileIndex != -1 && !forceFolder) {
         RSDKFileInfo *file = &rsdkContainer.files[fileIndex];
-        packID      = file->packID;
-        cFileHandle = fOpen(rsdkContainer.packNames[file->packID], "rb");
+        packID             = file->packID;
+        cFileHandle        = fOpen(rsdkContainer.packNames[file->packID], "rb");
         if (cFileHandle) {
             fSeek(cFileHandle, 0, SEEK_END);
             fileSize = (int)fTell(cFileHandle);

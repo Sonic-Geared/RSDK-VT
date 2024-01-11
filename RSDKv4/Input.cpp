@@ -23,7 +23,7 @@ int inputType = 0;
 
 InputDevice *inputDeviceList[INPUTDEVICE_COUNT];
 
-int inputSlots[4]              = { INPUT_NONE, INPUT_NONE, INPUT_NONE, INPUT_NONE };
+int inputSlots[4]                = { INPUT_NONE, INPUT_NONE, INPUT_NONE, INPUT_NONE };
 InputDevice *inputSlotDevices[4] = { NULL, NULL, NULL, NULL };
 
 // mania deadzone vals lol
@@ -262,7 +262,7 @@ void controllerClose(byte controllerID)
 
 void InitInputDevices()
 {
-	// default the input slot state to "auto assign" rather than "none"
+    // default the input slot state to "auto assign" rather than "none"
     // this fixes the "controller disconnected" popup since the engine handles the autoassign
     // without this, the engine has to wait for the game to tell the engine to start autoassignments
     for (int i = 0; i < 4; ++i) inputSlots[i] = INPUT_AUTOASSIGN;
@@ -469,7 +469,7 @@ void ProcessInput()
         int assign = inputSlots[i];
         if (assign && assign != INPUT_UNASSIGNED) {
             if (assign == INPUT_AUTOASSIGN) {
-                int id      = GetAvaliableInputDevice();
+                int id        = GetAvaliableInputDevice();
                 inputSlots[i] = id;
                 if (id != INPUT_AUTOASSIGN)
                     AssignInputSlotToDevice(CONT_P1 + i, id);
@@ -538,24 +538,6 @@ int CheckTouchRect(float x, float y, float w, float h)
     for (int f = 0; f < touches; ++f) {
         if (touchDown[f] && touchXF[f] > (x - w) && touchYF[f] > (y - h) && touchXF[f] <= (x + w) && touchYF[f] <= (y + h)) {
             return f;
-        }
-    }
-    return -1;
-}
-
-int CheckTouchRectMatrix(void *m, float x, float y, float w, float h)
-{
-    MatrixF *mat = (MatrixF *)m;
-    for (int f = 0; f < touches; ++f) {
-        float tx = touchXF[f];
-        float ty = touchYF[f];
-        if (touchDown[f]) {
-            float posX = (((tx * mat->values[0][0]) + (ty * mat->values[1][0])) + (mat->values[2][0] * SCREEN_YSIZE)) + mat->values[3][0];
-            if (posX > (x - w) && posX <= (x + w)) {
-                float posY = (((tx * mat->values[0][1]) + (ty * mat->values[1][1])) + (mat->values[2][1] * SCREEN_YSIZE)) + mat->values[3][1];
-                if (posY > (y - h) && posY <= (y + h))
-                    return f;
-            }
         }
     }
     return -1;

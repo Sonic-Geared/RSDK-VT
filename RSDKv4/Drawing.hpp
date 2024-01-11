@@ -72,13 +72,6 @@ extern DisplaySettings displaySettings;
 extern bool convertTo32Bit;
 extern bool mixFiltersOnJekyll;
 
-#if RETRO_USING_OPENGL
-extern GLint defaultFramebuffer;
-extern GLuint framebufferHiRes;
-extern GLuint renderbufferHiRes;
-extern GLuint videoBuffer;
-#endif
-
 int InitRenderDevice();
 void FlipScreen();
 void ReleaseRenderDevice(bool refresh = false);
@@ -131,8 +124,8 @@ void DrawSpriteRotated(int direction, int XPos, int YPos, int pivotX, int pivotY
                        int sheetID);
 void DrawSpriteRotozoom(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY, int width, int height, int rotation, int scale,
                         int sheetID);
-void DrawSpriteAllEffect(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY, int width, int height, int rotation, int scale,
-                         int sheetID, int alpha, int ink, int flags);
+void DrawSpriteAllEffect(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY, int width, int height, int rotation,
+                         int scale, int sheetID, int alpha, int ink, int flags);
 
 void DrawBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int sheetID);
 void DrawAlphaBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int alpha, int sheetID);

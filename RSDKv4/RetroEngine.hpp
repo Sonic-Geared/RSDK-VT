@@ -90,7 +90,7 @@ typedef unsigned int uint;
 #define RETRO_PLATFORM   (RETRO_LINUX)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #else
-//#error "No Platform was defined"
+// #error "No Platform was defined"
 #define RETRO_PLATFORM   (RETRO_WIN)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
@@ -130,76 +130,9 @@ typedef unsigned int uint;
 #define RETRO_GAMEPLATFORM (RETRO_STANDARD)
 #endif
 
-#define RETRO_SW_RENDER (0)
-#define RETRO_HW_RENDER (1)
-
-#ifdef USE_SW_REN
-#define RETRO_RENDERTYPE (RETRO_SW_RENDER)
-#elif defined(USE_HW_REN)
-#define RETRO_RENDERTYPE (RETRO_HW_RENDER)
-#elif !defined(RETRO_RENDERTYPE)
-#define RETRO_RENDERTYPE (RETRO_SW_RENDER)
-#endif
-
-#ifndef RETRO_USING_OPENGL
-#define RETRO_USING_OPENGL (1)
-#endif
-
+#define RETRO_SW_RENDER       (0)
+#define RETRO_RENDERTYPE      (RETRO_SW_RENDER)
 #define RETRO_SOFTWARE_RENDER (RETRO_RENDERTYPE == RETRO_SW_RENDER)
-#define RETRO_HARDWARE_RENDER (RETRO_RENDERTYPE == RETRO_HW_RENDER)
-
-#if RETRO_USING_OPENGL
-#if RETRO_PLATFORM == RETRO_ANDROID
-#define GL_GLEXT_PROTOTYPES
-
-#include <GLES/gl.h>
-#include <GLES/glext.h>
-
-#undef glGenFramebuffers
-#undef glBindFramebuffer
-#undef glFramebufferTexture2D
-#undef glDeleteFramebuffers
-
-#undef GL_FRAMEBUFFER
-#undef GL_COLOR_ATTACHMENT0
-#undef GL_FRAMEBUFFER_BINDING
-
-#define glGenFramebuffers      glGenFramebuffersOES
-#define glBindFramebuffer      glBindFramebufferOES
-#define glFramebufferTexture2D glFramebufferTexture2DOES
-#define glDeleteFramebuffers   glDeleteFramebuffersOES
-
-#define GL_FRAMEBUFFER         GL_FRAMEBUFFER_OES
-#define GL_COLOR_ATTACHMENT0   GL_COLOR_ATTACHMENT0_OES
-#define GL_FRAMEBUFFER_BINDING GL_FRAMEBUFFER_BINDING_OES
-#elif RETRO_PLATFORM == RETRO_OSX
-#define GL_GLEXT_PROTOTYPES
-#define GL_SILENCE_DEPRECATION
-
-#include <OpenGL/gl.h>
-#include <OpenGL/glext.h>
-
-#undef glGenFramebuffers
-#undef glBindFramebuffer
-#undef glFramebufferTexture2D
-#undef glDeleteFramebuffers
-
-#undef GL_FRAMEBUFFER
-#undef GL_COLOR_ATTACHMENT0
-#undef GL_FRAMEBUFFER_BINDING
-
-#define glGenFramebuffers      glGenFramebuffersEXT
-#define glBindFramebuffer      glBindFramebufferEXT
-#define glFramebufferTexture2D glFramebufferTexture2DEXT
-#define glDeleteFramebuffers   glDeleteFramebuffersEXT
-
-#define GL_FRAMEBUFFER         GL_FRAMEBUFFER_EXT
-#define GL_COLOR_ATTACHMENT0   GL_COLOR_ATTACHMENT0_EXT
-#define GL_FRAMEBUFFER_BINDING GL_FRAMEBUFFER_BINDING_EXT
-#else
-#include <GL/glew.h>
-#endif
-#endif
 
 #define RETRO_USE_HAPTICS (1)
 
@@ -329,14 +262,10 @@ extern bool engineDebugMode;
 #include "Sprite.hpp"
 #include "Text.hpp"
 #include "Networking.hpp"
-#include "Renderer.hpp"
 #include "Video.hpp"
 #include "Userdata.hpp"
 #include "Debug.hpp"
 #include "ModAPI.hpp"
-
-// Native Entities
-#include "NativeObjects.hpp"
 
 class RetroEngine
 {
@@ -354,8 +283,8 @@ public:
     }
 
     bool usingDataFile_Config = false;
-    bool usingDataFile = false;
-    bool usingBytecode = false;
+    bool usingDataFile        = false;
+    bool usingBytecode        = false;
 
     char dataFile[RETRO_PACKFILE_COUNT][0x80];
 
@@ -363,11 +292,11 @@ public:
     bool running     = false;
     double deltaTime = 0;
 
-    int gameMode = ENGINE_MAINGAME;
-    int language = RETRO_EN;
-    int message = 0;
+    int gameMode          = ENGINE_MAINGAME;
+    int language          = RETRO_EN;
+    int message           = 0;
     int gameDeviceType    = RETRO_STANDARD;
-    int globalBoxRegion   = REGION_JP;
+    int globalBoxRegion   = RETRO_JP;
     bool nativeMenuFadeIn = false;
 
     bool trialMode        = false;
@@ -427,18 +356,13 @@ public:
 #ifdef DECOMP_VERSION
     const char *gameVersion = DECOMP_VERSION;
 #else
-    const char *gameVersion  = "1.0.0";
+    const char *gameVersion       = "1.0.0";
 #endif
     const char *gamePlatform = nullptr;
 
-    int gameTypeID       = 0;
-    const char *releaseType = "USE_STANDALONE";
-
-#if RETRO_RENDERTYPE == RETRO_SW_RENDER
+    int gameTypeID             = 0;
+    const char *releaseType    = "USE_STANDALONE";
     const char *gameRenderType = "SW_RENDERING";
-#elif RETRO_RENDERTYPE == RETRO_HW_RENDER
-    const char *gameRenderType = "HW_RENDERING";
-#endif
 
 #if RETRO_USE_HAPTICS
     const char *gameHapticSetting = "USE_F_FEEDBACK"; // None is default, but people with controllers exist
@@ -455,8 +379,8 @@ public:
 
     ushort *frameBuffer   = nullptr;
     ushort *frameBuffer2x = nullptr;
-    uint *texBuffer = nullptr;
-    uint *texBuffer2x = nullptr;
+    uint *texBuffer       = nullptr;
+    uint *texBuffer2x     = nullptr;
 
     bool isFullScreen = false;
 
@@ -476,28 +400,19 @@ public:
     int windowYSize; // height of window/screen in the previous frame
 
 #if RETRO_USING_SDL2
-    SDL_Window *window = nullptr;
-#if !RETRO_USING_OPENGL
-    SDL_Renderer *renderer = nullptr;
+    SDL_Window *window          = nullptr;
+    SDL_Renderer *renderer      = nullptr;
     SDL_Texture *screenBuffer   = nullptr;
     SDL_Texture *screenBuffer2x = nullptr;
     SDL_Texture *videoBuffer    = nullptr;
-#endif
-
     SDL_Event sdlEvents;
-
-#if RETRO_USING_OPENGL
-    SDL_GLContext glContext; // OpenGL context
-#endif // RETRO_USING_OPENGL
 #endif // RETRO_USING_SDL2
 
 #if RETRO_USING_SDL1
-    SDL_Surface *windowSurface = nullptr;
-
+    SDL_Surface *windowSurface  = nullptr;
     SDL_Surface *screenBuffer   = nullptr;
     SDL_Surface *screenBuffer2x = nullptr;
     SDL_Surface *videoBuffer    = nullptr;
-
     SDL_Event sdlEvents;
 #endif // RETRO_USING_SDL1
 };
