@@ -3,8 +3,6 @@
 bool endLine   = true;
 int touchFlags = 0;
 
-int taListStore = 0;
-
 void InitDevMenu()
 {
 #if RETRO_USE_MOD_LOADER
@@ -484,13 +482,10 @@ void SetTextMenu(int sm)
     SetupTextMenu(&gameMenu[1], 0);
     switch (sm) {
         case DEVMENU_MAIN: {
-            AddTextMenuEntry(&gameMenu[0], "SCARLET ENGINE DEV MENU");
-            AddTextMenuEntry(&gameMenu[0], "(BASED ON THE RETRO ENGINE)");
-            char version[0x80];
-            StrCopy(version, Engine.gameWindowText);
-            StrAdd(version, " Version");
-            AddTextMenuEntry(&gameMenu[0], version);
-            AddTextMenuEntry(&gameMenu[0], Engine.gameVersion);
+            AddTextMenuEntry(&gameMenu[0], Engine.gameWindowText);
+            AddTextMenuEntry(&gameMenu[0], " ");
+            AddTextMenuEntry(&gameMenu[0], "SCARLET ENGINE");
+            AddTextMenuEntry(&gameMenu[0], "DEV MENU");
 #ifdef RETRO_DEV_EXTRA
             AddTextMenuEntry(&gameMenu[0], RETRO_DEV_EXTRA);
 #else
