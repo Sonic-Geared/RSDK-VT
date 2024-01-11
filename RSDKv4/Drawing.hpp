@@ -6,9 +6,19 @@
 
 #define DRAWLAYER_COUNT (8)
 
+// gonna have to pull out DrawFXFlags like this now, so they can be merged with binary
+#define FX_FLIP (1)
+#define FX_ROTATE (2)
+#define FX_SCALE (4)
+#define FX_ROTOZOOM (6)
+#define FX_INK (8)
+#define FX_TINT (16)
 enum FlipFlags { FLIP_NONE, FLIP_X, FLIP_Y, FLIP_XY };
 enum InkFlags { INK_NONE, INK_BLEND, INK_ALPHA, INK_ADD, INK_SUB, INK_TINT, INK_MASKED, INK_UNMASKED };
-enum DrawFXFlags { FX_NONE = 0, FX_FLIP = 1, FX_ROTATE = 2, FX_SCALE = 4, FX_ROTOZOOM = 6, FX_INK = 8, FX_TINT = 16 };
+// Bug Details: Apparently 3D still uses these, though, Elsie changed their names
+// Because for some reason the names can't have numbers so it's D_ instead of 3D_
+// Really hoping Elsie can have some peaceful time after suffering with this
+enum DrawFXFlags { D_SCALE, D_ROTATE, D_ROTOZOOM, D_INK, D_TINT, D_FLIP };
 
 struct DrawListEntry {
     int entityRefs[ENTITY_COUNT];
@@ -131,6 +141,10 @@ void DrawBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int 
 void DrawAlphaBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int alpha, int sheetID);
 void DrawAdditiveBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int alpha, int sheetID);
 void DrawSubtractiveBlendedSprite(int XPos, int YPos, int width, int height, int sprX, int sprY, int alpha, int sheetID);
+
+void DrawAlphaBlendedSpriteRotated(int direction, int XPos, int YPos, int pivotX, int pivotY, int sprX, int sprY, int width, int height, int rotation, int alpha,
+                       int sheetID);
+void DrawAlphaBlendedSpriteFlipped(int XPos, int YPos, int width, int height, int sprX, int sprY, int direction, int alpha, int sheetID);
 
 void DrawObjectAnimation(void *objScr, void *ent, int XPos, int YPos);
 
