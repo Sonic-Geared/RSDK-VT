@@ -7,7 +7,7 @@ int videoWidth        = 0;
 int videoHeight       = 0;
 float videoAR         = 0;
 
-THEORAPLAY_Decoder *videoDecoder = nullptr;
+THEORAPLAY_Decoder *videoDecoder          = nullptr;
 const THEORAPLAY_VideoFrame *videoVidData = nullptr;
 
 byte videoSurface = 0;
@@ -32,7 +32,7 @@ void PlayVideoFile(char *filePath)
     StrAdd(pathBuffer, ".ogv");
 
     bool forceFolder = false;
-    bool addPath = true;
+    bool addPath     = true;
     // Fixes ".ani" ".Ani" bug and any other case differences
     char pathLower[0x100];
     memset(pathLower, 0, sizeof(char) * 0x100);
@@ -46,8 +46,8 @@ void PlayVideoFile(char *filePath)
             std::map<std::string, std::string>::const_iterator iter = modList[m].fileMap.find(pathLower);
             if (iter != modList[m].fileMap.cend()) {
                 StrCopy(pathBuffer, iter->second.c_str());
-                forceFolder   = true;
-                addPath       = false;
+                forceFolder = true;
+                addPath     = false;
                 break;
             }
         }
@@ -76,11 +76,10 @@ void PlayVideoFile(char *filePath)
     else {
         sprintf(filepath, "%s", pathBuffer);
     }
-
-#if RETRO_USING_OPENGL || RETRO_USING_SDL1
-    videoDecoder = THEORAPLAY_startDecodeFile(filepath, 60, THEORAPLAY_VIDFMT_RGBA, 0);
-#else
+#if RETRO_USING_SDL2
     videoDecoder = THEORAPLAY_startDecodeFile(filepath, 60, THEORAPLAY_VIDFMT_IYUV, 0);
+#elif RETRO_USING_SDL1
+    videoDecoder = THEORAPLAY_startDecodeFile(filepath, 60, THEORAPLAY_VIDFMT_RGBA, 0);
 #endif
 
     videoVidData = NULL;
@@ -98,15 +97,15 @@ void PlayVideoFile(char *filePath)
         return;
     }
 
-    videoWidth = videoVidData->width;
+    videoWidth  = videoVidData->width;
     videoHeight = videoVidData->height;
-    videoAR = float(videoWidth) / float(videoHeight);
+    videoAR     = float(videoWidth) / float(videoHeight);
 
     SetupVideoBuffer(videoVidData->width, videoVidData->height);
-    vidFrameMS = (videoVidData->fps == 0.0) ? 0 : ((Uint32)(1000.0 / videoVidData->fps));
-    vidBaseticks = SDL_GetTicks();
-    videoPlaying = 1;
-    trackID      = TRACK_COUNT - 1;
+    vidFrameMS      = (videoVidData->fps == 0.0) ? 0 : ((Uint32)(1000.0 / videoVidData->fps));
+    vidBaseticks    = SDL_GetTicks();
+    videoPlaying    = 1;
+    trackID         = TRACK_COUNT - 1;
     videoSkipped    = false;
     Engine.gameMode = ENGINE_VIDEOWAIT;
 }
@@ -175,8 +174,10 @@ int ProcessVideo()
             fadeMode += 8;
         }
 
-        if (inputDevice[INPUT_BUTTONA].press || inputDevice[INPUT_BUTTONB].press || inputDevice[INPUT_BUTTONC].press || inputDevice[INPUT_BUTTONX].press || inputDevice[INPUT_BUTTONY].press || inputDevice[INPUT_BUTTONZ].press || inputDevice[INPUT_BUTTONL].press || inputDevice[INPUT_BUTTONR].press
-            || inputDevice[INPUT_START].press || inputDevice[INPUT_SELECT].press || touches > 0) {
+        if (inputDevice[INPUT_BUTTONA].press || inputDevice[INPUT_BUTTONB].press || inputDevice[INPUT_BUTTONC].press
+            || inputDevice[INPUT_BUTTONX].press || inputDevice[INPUT_BUTTONY].press || inputDevice[INPUT_BUTTONZ].press
+            || inputDevice[INPUT_BUTTONL].press || inputDevice[INPUT_BUTTONR].press || inputDevice[INPUT_START].press
+            || inputDevice[INPUT_SELECT].press || touches > 0) {
             if (!videoSkipped)
                 fadeMode = 0;
 
@@ -222,11 +223,7 @@ int ProcessVideo()
                     // video lagging uh oh
                 }
 
-#if RETRO_USING_OPENGL
-                glBindTexture(GL_TEXTURE_2D, videoBuffer);
-                glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, videoVidData->width, videoVidData->height, GL_RGBA, GL_UNSIGNED_BYTE, videoVidData->pixels);
-                glBindTexture(GL_TEXTURE_2D, 0);
-#elif RETRO_USING_SDL2
+#if RETRO_USING_SDL2
                 int half_w     = videoVidData->width / 2;
                 const Uint8 *y = (const Uint8 *)videoVidData->pixels;
                 const Uint8 *u = y + (videoVidData->width * videoVidData->height);
@@ -276,23 +273,7 @@ void StopVideoPlayback()
 
 void SetupVideoBuffer(int width, int height)
 {
-#if RETRO_USING_OPENGL
-    if (videoBuffer > 0) {
-        glDeleteTextures(1, &videoBuffer);
-        videoBuffer = 0;
-    }
-    glGenTextures(1, &videoBuffer);
-    glBindTexture(GL_TEXTURE_2D, videoBuffer);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, videoVidData->width, videoVidData->height, GL_RGBA, GL_UNSIGNED_BYTE, videoVidData->pixels);
-
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glBindTexture(GL_TEXTURE_2D, 0);
-#elif RETRO_USING_SDL1
+#if RETRO_USING_SDL1
     Engine.videoBuffer = SDL_CreateRGBSurface(0, width, height, 32, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
 
     if (!Engine.videoBuffer)
@@ -308,12 +289,7 @@ void SetupVideoBuffer(int width, int height)
 void CloseVideoBuffer()
 {
     if (videoPlaying == 1) {
-#if RETRO_USING_OPENGL
-        if (videoBuffer > 0) {
-            glDeleteTextures(1, &videoBuffer);
-            videoBuffer = 0;
-        }
-#elif RETRO_USING_SDL1
+#if RETRO_USING_SDL1
         SDL_FreeSurface(Engine.videoBuffer);
         Engine.videoBuffer = nullptr;
 #elif RETRO_USING_SDL2

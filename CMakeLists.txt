@@ -7,7 +7,6 @@ set(DECOMP_VERSION 1.0.0)
 option(RETRO_FORCE_CASE_INSENSITIVE "Forces case insensivity." OFF)
 option(RETRO_MOD_LOADER "Enables or disables the mod loader." ON)
 option(RETRO_NETWORKING "Enables or disables networking features used for Sonic 2's 2P VS mode." ON)
-option(RETRO_USE_HW_RENDER "Enables usage of the Hardware Render, menus are unplayable without it." ON)
 option(RETRO_DISABLE_PLUS "Disables Plus. Should be set on for any public releases." OFF)
 option(RETRO_ORIGINAL_CODE "Removes any change that differs from the original code, a playable game can't be built this way." OFF)
 
@@ -40,7 +39,6 @@ set(RETRO_FILES
     RSDKv4/Object.cpp
     RSDKv4/Palette.cpp
     RSDKv4/Reader.cpp
-    RSDKv4/Renderer.cpp
     RSDKv4/RetroEngine.cpp
     RSDKv4/Scene.cpp
     RSDKv4/Scene3D.cpp
@@ -50,46 +48,6 @@ set(RETRO_FILES
     RSDKv4/Text.cpp
     RSDKv4/Userdata.cpp
     RSDKv4/Video.cpp
-    RSDKv4/NativeObjects/AboutScreen.cpp
-    RSDKv4/NativeObjects/AchievementDisplay.cpp
-    RSDKv4/NativeObjects/AchievementsButton.cpp
-    RSDKv4/NativeObjects/AchievementsMenu.cpp
-    RSDKv4/NativeObjects/BackButton.cpp
-    RSDKv4/NativeObjects/CWSplash.cpp
-    RSDKv4/NativeObjects/CreditText.cpp
-    RSDKv4/NativeObjects/DialogPanel.cpp
-    RSDKv4/NativeObjects/FadeScreen.cpp
-    RSDKv4/NativeObjects/InstructionsScreen.cpp
-    RSDKv4/NativeObjects/LeaderboardsButton.cpp
-    RSDKv4/NativeObjects/MenuBG.cpp
-    RSDKv4/NativeObjects/MenuControl.cpp
-    RSDKv4/NativeObjects/ModInfoButton.cpp
-    RSDKv4/NativeObjects/ModsButton.cpp
-    RSDKv4/NativeObjects/ModsMenu.cpp
-    RSDKv4/NativeObjects/MultiplayerButton.cpp
-    RSDKv4/NativeObjects/MultiplayerHandler.cpp
-    RSDKv4/NativeObjects/MultiplayerScreen.cpp
-    RSDKv4/NativeObjects/OptionsButton.cpp
-    RSDKv4/NativeObjects/OptionsMenu.cpp
-    RSDKv4/NativeObjects/PauseMenu.cpp
-    RSDKv4/NativeObjects/PlayerSelectScreen.cpp
-    RSDKv4/NativeObjects/PushButton.cpp
-    RSDKv4/NativeObjects/RecordsScreen.cpp
-    RSDKv4/NativeObjects/RetroGameLoop.cpp
-    RSDKv4/NativeObjects/SaveSelect.cpp
-    RSDKv4/NativeObjects/SegaIDButton.cpp
-    RSDKv4/NativeObjects/SegaSplash.cpp
-    RSDKv4/NativeObjects/SettingsScreen.cpp
-    RSDKv4/NativeObjects/StaffCredits.cpp
-    RSDKv4/NativeObjects/StartGameButton.cpp
-    RSDKv4/NativeObjects/SubMenuButton.cpp
-    RSDKv4/NativeObjects/TextLabel.cpp
-    RSDKv4/NativeObjects/TimeAttack.cpp
-    RSDKv4/NativeObjects/TimeAttackButton.cpp
-    RSDKv4/NativeObjects/TitleScreen.cpp
-    RSDKv4/NativeObjects/VirtualDPad.cpp
-    RSDKv4/NativeObjects/VirtualDPadM.cpp
-    RSDKv4/NativeObjects/ZoneButton.cpp
 )
 
 if(NOT PLATFORM)
@@ -224,7 +182,6 @@ target_compile_definitions(RetroEngine PRIVATE
     RSDK_REVISION=${RETRO_REVISION}
     RETRO_USE_MOD_LOADER=$<BOOL:${RETRO_MOD_LOADER}>
     RETRO_USE_NETWORKING=$<BOOL:${RETRO_NETWORKING}>
-    RETRO_USING_OPENGL=$<BOOL:${RETRO_USE_HW_RENDER}>
     RETRO_USE_SDL${RETRO_SDL_VERSION}=1
     FORCE_CASE_INSENSITIVE=$<BOOL:${RETRO_FORCE_CASE_INSENSITIVE}>
     RETRO_USE_ORIGINAL_CODE=$<BOOL:${RETRO_ORIGINAL_CODE}>

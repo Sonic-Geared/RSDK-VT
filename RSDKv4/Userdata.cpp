@@ -984,10 +984,6 @@ void GetAchievement(uint *id, void *unused)
     scriptEng.checkResult = achievements[*id].status;
 }
 #endif
-void ShowAchievementsScreen()
-{
-    CREATE_ENTITY(AchievementsMenu);
-}
 
 void SetLeaderboard(int *leaderboardID, int *score)
 {
@@ -1139,13 +1135,6 @@ void Receive2PVSMatchCode(int code)
     // Engine.devMenu  = false;
     Engine.gameMode = ENGINE_MAINGAME;
     vsPlaying       = true;
-    ClearNativeObjects();
-    CREATE_ENTITY(RetroGameLoop); // hack
-    if (Engine.gameDeviceType == RETRO_MOBILE)
-        CREATE_ENTITY(VirtualDPad);
-#if RETRO_USE_NETWORKING
-    CREATE_ENTITY(MultiplayerHandler);
-#endif
 }
 
 void ShowPromoPopup(int *id, const char *popupName) { PrintLog("Attempting to show promo popup: \"%s\" (%d)", popupName, id ? *id : 0); }
@@ -1228,9 +1217,10 @@ void NotifyCallback(int *callback, int *param1, int *param2, int *param3)
         case NOTIFY_BOSS_END: PrintLog("NOTIFY: BossEnd() -> %d", *param1); break;
         case NOTIFY_SPECIAL_END: PrintLog("NOTIFY: SpecialEnd() -> %d", *param1); break;
         case NOTIFY_DEBUGPRINT:
-            // Although there are instances of this being called from both CallNativeFunction2 and CallNativeFunction4 in Origins' scripts, there's no way we can tell which one was used here to handle possible errors
-            // Due to this, the original RSDKv4 decomp would only print param1 regardless of the opcode used
-            // Though, here's this temporary fix provided by Geared, this will stay here 'till anyone finds a better fix for this issue
+            // Although there are instances of this being called from both CallNativeFunction2 and CallNativeFunction4 in Origins' scripts, there's no
+            // way we can tell which one was used here to handle possible errors Due to this, the original RSDKv4 decomp would only print param1
+            // regardless of the opcode used Though, here's this temporary fix provided by Geared, this will stay here 'till anyone finds a better fix
+            // for this issue
             if (param2 && param3) // this code sucks imo :sob:
                 PrintLog("NOTIFY: DebugPrint() -> %d, %d, %d", *param1, *param2, *param3);
             else
@@ -1356,54 +1346,12 @@ void SetWindowVSync(int *enabled, int *unused)
 }
 void ApplyWindowChanges()
 {
-#if RETRO_USING_OPENGL
-    for (int i = 0; i < TEXTURE_COUNT; ++i) {
-        glDeleteTextures(1, &textureList[i].id);
-    }
-#endif
-
-    for (int i = 0; i < MESH_COUNT; ++i) {
-        MeshInfo *mesh = &meshList[i];
-        if (StrLength(mesh->fileName)) {
-            if (mesh->frameCount > 1)
-                free(mesh->frames);
-            if (mesh->indexCount)
-                free(mesh->indices);
-            if (mesh->vertexCount)
-                free(mesh->vertices);
-
-            mesh->frameCount  = 0;
-            mesh->indexCount  = 0;
-            mesh->vertexCount = 0;
-        }
-    }
-
     if (changedScreenWidth)
         SCREEN_XSIZE = SCREEN_XSIZE_CONFIG;
     changedScreenWidth = false;
 
     ReleaseRenderDevice(true);
     InitRenderDevice();
-
-    for (int i = 1; i < TEXTURE_COUNT; ++i) {
-        if (StrLength(textureList[i].fileName)) {
-            char fileName[64];
-            StrCopy(fileName, textureList[i].fileName);
-            textureList[i].fileName[0] = 0;
-
-            LoadTexture(fileName, textureList[i].format);
-        }
-    }
-
-    for (int i = 0; i < MESH_COUNT; ++i) {
-        if (StrLength(meshList[i].fileName)) {
-            char fileName[64];
-            StrCopy(fileName, meshList[i].fileName);
-            meshList[i].fileName[0] = 0;
-
-            LoadMesh(fileName, meshList[i].textureID);
-        }
-    }
 }
 #endif
 
@@ -1444,7 +1392,7 @@ void ReleaseStorage()
 void AllocateStorage(void **dataPtr, uint size, StorageDataSets dataSet, bool clear)
 {
     uint **data = (uint **)dataPtr;
-    *data         = NULL;
+    *data       = NULL;
 
     if ((uint)dataSet < DATASET_MAX) {
         // Align allocation to prevent unaligned memory accesses later on.
@@ -1544,7 +1492,7 @@ void RemoveStorageEntry(void **dataPtr)
         }
 
         uint newEntryCount = 0;
-        set                  = HEADER(data, HEADER_SET_ID);
+        set                = HEADER(data, HEADER_SET_ID);
         for (uint entryID = 0; entryID < dataStorage[set].entryCount; ++entryID) {
             if (dataStorage[HEADER(data, HEADER_SET_ID)].dataEntries[entryID]) {
                 if (entryID != newEntryCount) {
@@ -1642,7 +1590,6 @@ void DefragmentAndGarbageCollectStorage(StorageDataSets set)
                 // make sure dataEntries[e] isn't null. If it is null by some ungodly chance then it was prolly already freed or something idk
                 if (dataPtr == dataStorage[set].storageEntries[c] && dataStorage[set].dataEntries[c])
                     dataStorage[set].storageEntries[c] = *dataStorage[set].dataEntries[c] = currentHeader + HEADER_SIZE;
-                    
 
             // Update the offset in the allocation's header too.
             currentHeader[HEADER_DATA_OFFSET] = dataOffset + HEADER_SIZE;
@@ -1658,7 +1605,7 @@ void CopyStorage(uint **src, uint **dst)
 {
     if (dst != NULL) {
         uint *dstPtr = *dst;
-        *src           = *dst;
+        *src         = *dst;
 
         if (dataStorage[HEADER(dstPtr, HEADER_SET_ID)].entryCount < STORAGE_ENTRY_COUNT) {
             dataStorage[HEADER(dstPtr, HEADER_SET_ID)].dataEntries[dataStorage[HEADER(dstPtr, HEADER_SET_ID)].entryCount]    = src;

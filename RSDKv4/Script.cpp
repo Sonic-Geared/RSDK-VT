@@ -45,7 +45,7 @@ struct FunctionInfo {
         StrCopy(name, functionName);
         opcodeSize = opSize;
     }
-    
+
     char name[0x30];
     int opcodeSize;
 };
@@ -331,7 +331,7 @@ const char variableNames[][0x20] = {
     "camera.ypos",
     "camera.adjustY",
 
-    // Haptics
+// Haptics
 #if RETRO_USE_HAPTICS
     "engine.hapticsEnabled",
 #endif
@@ -1523,8 +1523,8 @@ void ConvertConditionalStatement(char *text)
             StrCopy(text, dest);
 
             jumpTableStack[++jumpTableStackPos] = jumpTablePos;
-            jumpTable[jumpTablePos++]       = -1;
-            jumpTable[jumpTablePos++]       = 0;
+            jumpTable[jumpTablePos++]           = -1;
+            jumpTable[jumpTablePos++]           = 0;
         }
     }
     else if (FindStringToken(text, "while", 1) == 0) {
@@ -1554,8 +1554,8 @@ void ConvertConditionalStatement(char *text)
             StrCopy(text, dest);
 
             jumpTableStack[++jumpTableStackPos] = jumpTablePos;
-            jumpTable[jumpTablePos++]       = scriptCodePos - scriptCodeOffset;
-            jumpTable[jumpTablePos++]       = 0;
+            jumpTable[jumpTablePos++]           = scriptCodePos - scriptCodeOffset;
+            jumpTable[jumpTablePos++]           = 0;
         }
     }
     else if (FindStringToken(text, "foreach", 1) == 0) {
@@ -1578,8 +1578,8 @@ void ConvertConditionalStatement(char *text)
             StrCopy(text, dest);
 
             jumpTableStack[++jumpTableStackPos] = jumpTablePos;
-            jumpTable[jumpTablePos++]       = scriptCodePos - scriptCodeOffset;
-            jumpTable[jumpTablePos++]       = 0;
+            jumpTable[jumpTablePos++]           = scriptCodePos - scriptCodeOffset;
+            jumpTable[jumpTablePos++]           = 0;
         }
     }
 }
@@ -1602,10 +1602,10 @@ bool ConvertSwitchStatement(char *text)
     StrAdd(switchText, ")");
     StrCopy(text, switchText);
     jumpTableStack[++jumpTableStackPos] = jumpTablePos;
-    jumpTable[jumpTablePos++]       = 0x10000;
-    jumpTable[jumpTablePos++]       = -0x10000;
-    jumpTable[jumpTablePos++]       = -1;
-    jumpTable[jumpTablePos++]       = 0;
+    jumpTable[jumpTablePos++]           = 0x10000;
+    jumpTable[jumpTablePos++]           = -0x10000;
+    jumpTable[jumpTablePos++]           = -1;
+    jumpTable[jumpTablePos++]           = 0;
 
     return true;
 }
@@ -1651,7 +1651,7 @@ void ConvertFunctionText(char *text)
             jumpTable[jumpTableStack[jumpTableStackPos]] = scriptCodePos - scriptCodeOffset;
 
         if (StrComp("endif", functions[opcode].name) == 1) {
-            int jPos                = jumpTableStack[jumpTableStackPos];
+            int jPos            = jumpTableStack[jumpTableStackPos];
             jumpTable[jPos + 1] = scriptCodePos - scriptCodeOffset;
             if (jumpTable[jPos] == -1)
                 jumpTable[jPos] = (scriptCodePos - scriptCodeOffset) - 1;
@@ -1659,11 +1659,11 @@ void ConvertFunctionText(char *text)
         }
 
         if (StrComp("endswitch", functions[opcode].name)) {
-            int jPos                = jumpTableStack[jumpTableStackPos];
+            int jPos            = jumpTableStack[jumpTableStackPos];
             jumpTable[jPos + 3] = scriptCodePos - scriptCodeOffset;
             if (jumpTable[jPos + 2] == -1) {
                 jumpTable[jPos + 2] = (scriptCodePos - scriptCodeOffset) - 1;
-                int caseCnt             = abs(jumpTable[jPos + 1] - jumpTable[jPos]) + 1;
+                int caseCnt         = abs(jumpTable[jPos + 1] - jumpTable[jPos]) + 1;
 
                 int jOffset = jPos + 4;
                 for (int c = 0; c < caseCnt; ++c) {
@@ -2444,9 +2444,9 @@ bool ReadSwitchCase(char *text)
         return true;
     }
     else if (FindStringToken(text, "default", 1) == 0) {
-        int jumpTablepos                = jumpTableStack[jumpTableStackPos];
+        int jumpTablepos            = jumpTableStack[jumpTableStackPos];
         jumpTable[jumpTablepos + 2] = scriptCodePos - scriptCodeOffset;
-        int cnt                         = abs(jumpTable[jumpTablepos + 1] - jumpTable[jumpTablepos]) + 1;
+        int cnt                     = abs(jumpTable[jumpTablepos + 1] - jumpTable[jumpTablepos]) + 1;
 
         int jOffset = jumpTablepos + 4;
         for (int i = 0; i < cnt; ++i) {
@@ -2812,11 +2812,11 @@ void ParseScriptFile(char *scriptName, int scriptID)
                     }
 
                     if (StrComp(scriptText, "eventObjectUpdate")) {
-                        parseMode                                          = PARSEMODE_FUNCTION;
+                        parseMode                                            = PARSEMODE_FUNCTION;
                         objectScriptList[scriptID].eventUpdate.scriptCodePtr = scriptCodePos;
                         objectScriptList[scriptID].eventUpdate.jumpTablePtr  = jumpTablePos;
-                        scriptCodeOffset                                   = scriptCodePos;
-                        jumpTableOffset                                    = jumpTablePos;
+                        scriptCodeOffset                                     = scriptCodePos;
+                        jumpTableOffset                                      = jumpTablePos;
                     }
 
                     if (StrComp(scriptText, "eventObjectDraw")) {
@@ -2960,7 +2960,7 @@ void ParseScriptFile(char *scriptName, int scriptID)
                                 && FindStringToken(scriptText, Engine.gameHapticSetting, 1) == -1
 #endif
                                 && FindStringToken(scriptText, Engine.releaseType, 1) == -1 // general flag for standalone/origins content switching
-                                && FindStringToken(scriptText, "USE_DECOMP", 1) == -1 // general flag for decomp-only stuff
+                                && FindStringToken(scriptText, "USE_DECOMP", 1) == -1       // general flag for decomp-only stuff
 #if RETRO_USE_NETWORKING
                                 && FindStringToken(scriptText, "USE_NETWORKING", 1) == -1
 #endif
@@ -4023,24 +4023,12 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                     // Due to using regular v4, these wouldn't support array values like origins expects, so its always screen[0]
                     // But as Scarlet kind of readds the v5U tech to v4, those are available the way origins expect!
                     case VAR_SCREENCURRENTID: scriptEng.operands[i] = 0; break;
-                    case VAR_CAMERAENABLED:
-                        scriptEng.operands[i] = cameraEnabled;
-                        break;
-                    case VAR_CAMERATARGET:
-                        scriptEng.operands[i] = cameraTarget;
-                        break;
-                    case VAR_CAMERASTYLE:
-                        scriptEng.operands[i] = cameraStyle;
-                        break;
-                    case VAR_CAMERAXPOS:
-                        scriptEng.operands[i] = cameraXPos;
-                        break;
-                    case VAR_CAMERAYPOS:
-                        scriptEng.operands[i] = cameraYPos;
-                        break;
-                    case VAR_CAMERAADJUSTY:
-                        scriptEng.operands[i] = cameraAdjustY;
-                        break;
+                    case VAR_CAMERAENABLED: scriptEng.operands[i] = cameraEnabled; break;
+                    case VAR_CAMERATARGET: scriptEng.operands[i] = cameraTarget; break;
+                    case VAR_CAMERASTYLE: scriptEng.operands[i] = cameraStyle; break;
+                    case VAR_CAMERAXPOS: scriptEng.operands[i] = cameraXPos; break;
+                    case VAR_CAMERAYPOS: scriptEng.operands[i] = cameraYPos; break;
+                    case VAR_CAMERAADJUSTY: scriptEng.operands[i] = cameraAdjustY; break;
 
 #if RETRO_USE_HAPTICS
                     case VAR_HAPTICSENABLED: scriptEng.operands[i] = Engine.hapticsEnabled; break;
@@ -4055,21 +4043,13 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 scriptText[strLen] = 0;
                 for (int c = 0; c < strLen; ++c) {
                     switch (c % 4) {
-                        case 0: 
-                            scriptText[c] = scriptCode[scriptCodePtr] >> 24;
-                            break;
+                        case 0: scriptText[c] = scriptCode[scriptCodePtr] >> 24; break;
 
-                        case 1: 
-                            scriptText[c] = (0xFFFFFF & scriptCode[scriptCodePtr]) >> 16;
-                            break;
+                        case 1: scriptText[c] = (0xFFFFFF & scriptCode[scriptCodePtr]) >> 16; break;
 
-                        case 2: 
-                            scriptText[c] = (0xFFFF & scriptCode[scriptCodePtr]) >> 8;
-                            break;
+                        case 2: scriptText[c] = (0xFFFF & scriptCode[scriptCodePtr]) >> 8; break;
 
-                        case 3: 
-                            scriptText[c] = scriptCode[scriptCodePtr++];
-                            break;
+                        case 3: scriptText[c] = scriptCode[scriptCodePtr++]; break;
 
                         default: break;
                     }
@@ -4290,7 +4270,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 else
                     scriptCodePtr = scriptCodeStart
                                     + jumpTable[jumpTableStart + scriptEng.operands[0] + 4
-                                                    + (scriptEng.operands[1] - jumpTable[jumpTableStart + scriptEng.operands[0]])];
+                                                + (scriptEng.operands[1] - jumpTable[jumpTableStart + scriptEng.operands[0]])];
                 opcodeSize = 0;
                 break;
             case FUNC_BREAK:
@@ -4386,36 +4366,20 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 scriptEng.operands[0] = scriptEng.operands[1] > scriptEng.operands[2] ? scriptEng.operands[1] : scriptEng.operands[2];
                 break;
             case FUNC_CLAMP:
-                scriptEng.operands[0] = (scriptEng.operands[1] < scriptEng.operands[2]) ? scriptEng.operands[2] : ((scriptEng.operands[1] > scriptEng.operands[3]) ? scriptEng.operands[3] : scriptEng.operands[1]);
+                scriptEng.operands[0] = (scriptEng.operands[1] < scriptEng.operands[2])
+                                            ? scriptEng.operands[2]
+                                            : ((scriptEng.operands[1] > scriptEng.operands[3]) ? scriptEng.operands[3] : scriptEng.operands[1]);
                 break;
-            case FUNC_FABS:
-                scriptEng.operands[0] = scriptEng.operands[1] > 0 ? scriptEng.operands[1] : -scriptEng.operands[1];
-                break;
-            case FUNC_INTTOVOID:
-                (void *)(size_t)scriptEng.operands[0];
-                break;
-            case FUNC_FLOATTOVOID:
-                INT_TO_VOID(*(int *)&scriptEng.operands[0]);
-                break;
-            case FUNC_VOIDTOINT:
-                (int)(size_t)scriptEng.operands[0];
-                break;
-            case FUNC_VOIDTOFLOAT:
-                *(float *)&scriptEng.operands[0];
-                break;
+            case FUNC_FABS: scriptEng.operands[0] = scriptEng.operands[1] > 0 ? scriptEng.operands[1] : -scriptEng.operands[1]; break;
+            case FUNC_INTTOVOID: (void *)(size_t)scriptEng.operands[0]; break;
+            case FUNC_FLOATTOVOID: INT_TO_VOID(*(int *)&scriptEng.operands[0]); break;
+            case FUNC_VOIDTOINT: (int)(size_t)scriptEng.operands[0]; break;
+            case FUNC_VOIDTOFLOAT: *(float *)&scriptEng.operands[0]; break;
             case FUNC_UNUSED: (void)scriptEng.operands[0]; break;
-            case FUNC_TOFIXED:
-                scriptEng.operands[0] = scriptEng.operands[1] << 16;
-                break;
-            case FUNC_FROMFIXED:
-                scriptEng.operands[0] = scriptEng.operands[1] >> 16;
-                break;
-            case FUNC_TOFIXEDF:
-                scriptEng.operands[0] = scriptEng.operands[1]*65536.0;
-                break;
-            case FUNC_FROMFIXEDF:
-                scriptEng.operands[0] = scriptEng.operands[1] / 65536.0;
-                break;
+            case FUNC_TOFIXED: scriptEng.operands[0] = scriptEng.operands[1] << 16; break;
+            case FUNC_FROMFIXED: scriptEng.operands[0] = scriptEng.operands[1] >> 16; break;
+            case FUNC_TOFIXEDF: scriptEng.operands[0] = scriptEng.operands[1] * 65536.0; break;
+            case FUNC_FROMFIXEDF: scriptEng.operands[0] = scriptEng.operands[1] / 65536.0; break;
             case FUNC_LOADSPRITESHEET:
                 opcodeSize                = 0;
                 scriptInfo->spriteSheetID = AddGraphicsFile(scriptText);
@@ -4693,19 +4657,20 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
             case FUNC_DRAWSPRITEFX:
                 opcodeSize  = 0;
                 spriteFrame = &scriptFrames[scriptInfo->frameListOffset + scriptEng.operands[0]];
-                // again, credits to Elsie from Team Forever for this code, if she wants this code to be removed from Scarlet, then it'll be removed, we want things to be kept respectful between all the sides
-				DrawSpriteAllEffect(entity->direction, (scriptEng.operands[2] >> 16) - xScrollOffset,
-                                           (scriptEng.operands[3] >> 16) - yScrollOffset, -spriteFrame->pivotX, -spriteFrame->pivotY,
-                                           spriteFrame->sprX, spriteFrame->sprY, spriteFrame->width, spriteFrame->height, entity->rotation,
-                                           entity->scale, scriptInfo->spriteSheetID, entity->alpha, entity->inkEffect, scriptEng.operands[1]);
-				break;
+                // again, credits to Elsie from Team Forever for this code, if she wants this code to be removed from Scarlet, then it'll be removed,
+                // we want things to be kept respectful between all the sides
+                DrawSpriteAllEffect(entity->direction, (scriptEng.operands[2] >> 16) - xScrollOffset, (scriptEng.operands[3] >> 16) - yScrollOffset,
+                                    -spriteFrame->pivotX, -spriteFrame->pivotY, spriteFrame->sprX, spriteFrame->sprY, spriteFrame->width,
+                                    spriteFrame->height, entity->rotation, entity->scale, scriptInfo->spriteSheetID, entity->alpha, entity->inkEffect,
+                                    scriptEng.operands[1]);
+                break;
             case FUNC_DRAWSPRITESCREENFX:
                 opcodeSize  = 0;
                 spriteFrame = &scriptFrames[scriptInfo->frameListOffset + scriptEng.operands[0]];
-				DrawSpriteAllEffect(entity->direction, scriptEng.operands[2], scriptEng.operands[3], -spriteFrame->pivotX,
-                                           -spriteFrame->pivotY, spriteFrame->sprX, spriteFrame->sprY, spriteFrame->width, spriteFrame->height,
-                                           entity->rotation, entity->scale, scriptInfo->spriteSheetID, entity->alpha, entity->inkEffect, scriptEng.operands[1]);
-				break;
+                DrawSpriteAllEffect(entity->direction, scriptEng.operands[2], scriptEng.operands[3], -spriteFrame->pivotX, -spriteFrame->pivotY,
+                                    spriteFrame->sprX, spriteFrame->sprY, spriteFrame->width, spriteFrame->height, entity->rotation, entity->scale,
+                                    scriptInfo->spriteSheetID, entity->alpha, entity->inkEffect, scriptEng.operands[1]);
+                break;
             case FUNC_LOADANIMATION:
                 opcodeSize           = 0;
                 scriptInfo->animFile = AddAnimationFile(scriptText);
@@ -4866,7 +4831,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 opcodeSize = 0;
                 StopSfx(scriptEng.operands[0]);
                 break;
-             case FUNC_STOPALLSFX:
+            case FUNC_STOPALLSFX:
                 opcodeSize = 0;
                 StopAllSfx();
                 break;
@@ -4884,7 +4849,9 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                     case CSIDE_ROOF: ObjectRoofCollision(scriptEng.operands[1], scriptEng.operands[2] - 1, scriptEng.operands[3]); break;
                     // Yes, the right side used to also call for LWall, but this got fixed in Scarlet(?)
                     case CSIDE_LENTITY: ObjectLWallCollision(scriptEng.operands[2], 0, objectEntityList[scriptEng.operands[1]].collisionPlane); break;
-                    case CSIDE_RENTITY: ObjectRWallCollision(scriptEng.operands[2] - 1, 0, objectEntityList[scriptEng.operands[1]].collisionPlane); break;
+                    case CSIDE_RENTITY:
+                        ObjectRWallCollision(scriptEng.operands[2] - 1, 0, objectEntityList[scriptEng.operands[1]].collisionPlane);
+                        break;
                 }
                 break;
             case FUNC_OBJECTTILEGRIP:
@@ -5044,7 +5011,9 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 SetLayerDeformation(scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3], scriptEng.operands[4],
                                     scriptEng.operands[5]);
                 break;
-            case FUNC_CHECKTOUCHRECT: opcodeSize = 0; scriptEng.checkResult = -1;
+            case FUNC_CHECKTOUCHRECT:
+                opcodeSize            = 0;
+                scriptEng.checkResult = -1;
                 AddDebugHitbox(H_TYPE_FINGER, NULL, scriptEng.operands[0], scriptEng.operands[1], scriptEng.operands[2], scriptEng.operands[3]);
                 for (int f = 0; f < touches; ++f) {
                     if (touchDown[f] && touchX[f] > scriptEng.operands[0] && touchX[f] < scriptEng.operands[2] && touchY[f] > scriptEng.operands[1]
@@ -5059,7 +5028,9 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
             case FUNC_SETTILELAYERENTRY:
                 stageLayouts[scriptEng.operands[1]].tiles[scriptEng.operands[2] + 0x100 * scriptEng.operands[3]] = scriptEng.operands[0];
                 break;
-            case FUNC_GETBIT: scriptEng.operands[0] = scriptEng.operands[1] >> scriptEng.operands[2]&1; break; // This code kinda worries me out but that's how it looks like in Mania's/v5(U)'s code so...
+            case FUNC_GETBIT:
+                scriptEng.operands[0] = scriptEng.operands[1] >> scriptEng.operands[2] & 1;
+                break; // This code kinda worries me out but that's how it looks like in Mania's/v5(U)'s code so...
             case FUNC_SETBIT:
                 if (scriptEng.operands[2] <= 0)
                     scriptEng.operands[0] &= ~(1 << scriptEng.operands[1]);
@@ -5335,7 +5306,7 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 // FUNCTION NOTES:
                 // - Sets scriptEng.checkResult
 
-				// This half works, the screenCount stuff is there but the cameras themselves aren't present, so...
+                // This half works, the screenCount stuff is there but the cameras themselves aren't present, so...
                 if (scriptEng.operands[2] > 0 && scriptEng.operands[3] > 0) {
                     for (int s = 0; s < videoSettings.screenCount; ++s) {
                         int sx = abs(scriptEng.operands[0] - cameraXPos);
@@ -6163,24 +6134,12 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                     // Due to using regular v4, these wouldn't support array values like origins expects, so its always screen[0]
                     // But again, Scarlet exists and it'll make those work as origins expect, so here goes nothing!
                     case VAR_SCREENCURRENTID: break;
-                    case VAR_CAMERAENABLED:
-                        cameraEnabled = scriptEng.operands[i];
-                        break;
-                    case VAR_CAMERATARGET:
-                        cameraTarget = scriptEng.operands[i];
-                        break;
-                    case VAR_CAMERASTYLE:
-                        cameraStyle = scriptEng.operands[i];
-                        break;
-                    case VAR_CAMERAXPOS:
-                        cameraXPos = scriptEng.operands[i];
-                        break;
-                    case VAR_CAMERAYPOS:
-                        cameraYPos = scriptEng.operands[i];
-                        break;
-                    case VAR_CAMERAADJUSTY:
-                        cameraAdjustY = scriptEng.operands[i];
-                        break;
+                    case VAR_CAMERAENABLED: cameraEnabled = scriptEng.operands[i]; break;
+                    case VAR_CAMERATARGET: cameraTarget = scriptEng.operands[i]; break;
+                    case VAR_CAMERASTYLE: cameraStyle = scriptEng.operands[i]; break;
+                    case VAR_CAMERAXPOS: cameraXPos = scriptEng.operands[i]; break;
+                    case VAR_CAMERAYPOS: cameraYPos = scriptEng.operands[i]; break;
+                    case VAR_CAMERAADJUSTY: cameraAdjustY = scriptEng.operands[i]; break;
 
 #if RETRO_USE_HAPTICS
                     case VAR_HAPTICSENABLED: Engine.hapticsEnabled = scriptEng.operands[i]; break;
@@ -6194,7 +6153,8 @@ void ProcessScript(int scriptCodeStart, int jumpTableStart, byte scriptEvent)
                 int strLen = scriptCode[scriptCodePtr++];
                 for (int c = 0; c < strLen; ++c) {
                     switch (c % 4) {
-                        // there used to exist cases for values 0, 1 and 2, but the fact that the default case already did the same thing they did, and was also more efficient & simpler, it was replaced with it, only the case for value 3 is there to tell history, rip :(
+                        // there used to exist cases for values 0, 1 and 2, but the fact that the default case already did the same thing they did,
+                        // and was also more efficient & simpler, it was replaced with it, only the case for value 3 is there to tell history, rip :(
                         default: break;
                         case 3: ++scriptCodePtr; break;
                     }

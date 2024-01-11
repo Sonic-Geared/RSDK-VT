@@ -301,7 +301,6 @@ void ScanModFolder(ModInfo *info)
         }
     }
 
-
     // Check for Videos/ replacements
     fs::path videosPath = resolvePath(modDir + "/Videos");
 
@@ -435,17 +434,6 @@ void RefreshEngine()
     SDL_WM_SetCaption(gameTitle, NULL);
 #endif
 
-    ClearMeshData();
-    ClearTextures(true);
-
-    nativeEntityCountBackup = 0;
-    memset(backupEntityList, 0, sizeof(backupEntityList));
-    memset(objectEntityBackup, 0, sizeof(objectEntityBackup));
-
-    nativeEntityCountBackupS = 0;
-    memset(backupEntityListS, 0, sizeof(backupEntityListS));
-    memset(objectEntityBackupS, 0, sizeof(objectEntityBackupS));
-
     for (int i = 0; i < FONTLIST_COUNT; ++i) {
         fontList[i].count = 2;
     }
@@ -454,11 +442,6 @@ void RefreshEngine()
     ReleaseGlobalSfx();
     LoadGlobalSfx();
     InitLocalizedStrings();
-
-    for (nativeEntityPos = 0; nativeEntityPos < nativeEntityCount; ++nativeEntityPos) {
-        NativeEntity *entity = &objectEntityBank[activeEntityList[nativeEntityPos]];
-        entity->eventCreate(entity);
-    }
 
     forceUseScripts    = forceUseScripts_Config;
     skipStartMenu      = skipStartMenu_Config;

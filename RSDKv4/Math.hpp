@@ -30,7 +30,7 @@ struct Vector2 {
     int y;
 };
 
-#define MEM_ZERO(x) memset(&(x), 0, sizeof((x)))
+#define MEM_ZERO(x)  memset(&(x), 0, sizeof((x)))
 #define MEM_ZEROP(x) memset((x), 0, sizeof(*(x)))
 
 extern int sin1024LookupTable[0x400];
@@ -130,7 +130,7 @@ inline int Rand(int min, int max)
 {
     int seed1 = 1103515245 * randSeed + 12345;
     int seed2 = 1103515245 * seed1 + 12345;
-    randSeed    = 1103515245 * seed2 + 12345;
+    randSeed  = 1103515245 * seed2 + 12345;
 
     int result = ((randSeed >> 16) & 0x7FF) ^ ((((seed1 >> 6) & 0x1FFC00) ^ ((seed2 >> 16) & 0x7FF)) << 10);
     int size   = abs(max - min);
@@ -149,7 +149,7 @@ inline int RandSeeded(int min, int max, int *randSeed)
 
     int seed1 = 1103515245 * *randSeed + 12345;
     int seed2 = 1103515245 * seed1 + 12345;
-    *randSeed   = 1103515245 * seed2 + 12345;
+    *randSeed = 1103515245 * seed2 + 12345;
 
     int result = ((*randSeed >> 16) & 0x7FF) ^ ((((seed1 >> 6) & 0x1FFC00) ^ ((seed2 >> 16) & 0x7FF)) << 10);
     int size   = abs(max - min);

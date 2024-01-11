@@ -172,47 +172,6 @@ void ProcessStage(void)
             ResetBackgroundSettings();
             LoadStageFiles();
 
-#if RETRO_HARDWARE_RENDER
-            texBufferMode = 0;
-            for (int i = 0; i < LAYER_COUNT; i++) {
-                if (stageLayouts[i].type == LAYER_3DSKY)
-                    texBufferMode = 1;
-            }
-            for (int i = 0; i < hParallax.entryCount; i++) {
-                if (hParallax.deform[i])
-                    texBufferMode = 1;
-            }
-
-            if (tilesetGFXData[0x32002] > 0)
-                texBufferMode = 0;
-
-            if (texBufferMode) {
-                for (int i = 0; i < TILEUV_SIZE; i += 4) {
-                    tileUVArray[i + 0] = (i >> 2) % 28 * 18 + 1;
-                    tileUVArray[i + 1] = (i >> 2) / 28 * 18 + 1;
-                    tileUVArray[i + 2] = tileUVArray[i + 0] + 16;
-                    tileUVArray[i + 3] = tileUVArray[i + 1] + 16;
-                }
-                tileUVArray[TILEUV_SIZE - 4] = 487.0f;
-                tileUVArray[TILEUV_SIZE - 3] = 487.0f;
-                tileUVArray[TILEUV_SIZE - 2] = 503.0f;
-                tileUVArray[TILEUV_SIZE - 1] = 503.0f;
-            }
-            else {
-                for (int i = 0; i < TILEUV_SIZE; i += 4) {
-                    tileUVArray[i + 0] = (i >> 2 & 31) * 16;
-                    tileUVArray[i + 1] = (i >> 2 >> 5) * 16;
-                    tileUVArray[i + 2] = tileUVArray[i + 0] + 16;
-                    tileUVArray[i + 3] = tileUVArray[i + 1] + 16;
-                }
-            }
-
-            UpdateHardwareTextures();
-            gfxIndexSize        = 0;
-            gfxVertexSize       = 0;
-            gfxIndexSizeOpaque  = 0;
-            gfxVertexSizeOpaque = 0;
-#endif
             break;
 
         case STAGEMODE_NORMAL:
@@ -284,13 +243,6 @@ void ProcessStage(void)
 
             // Update
             ProcessPausedObjects();
-
-#if RETRO_HARDWARE_RENDER
-            gfxIndexSize        = 0;
-            gfxVertexSize       = 0;
-            gfxIndexSizeOpaque  = 0;
-            gfxVertexSizeOpaque = 0;
-#endif
 
             DrawObjectList(0);
             DrawObjectList(1);
@@ -462,13 +414,6 @@ void ProcessStage(void)
             CheckKeyPress(&keyPress);
 
             if (keyPress.C) {
-#if RETRO_HARDWARE_RENDER
-                gfxIndexSize        = 0;
-                gfxVertexSize       = 0;
-                gfxIndexSizeOpaque  = 0;
-                gfxVertexSizeOpaque = 0;
-#endif
-
                 keyPress.C = false;
                 ProcessPausedObjects();
                 DrawObjectList(0);
@@ -1144,10 +1089,6 @@ void LoadStageChunks()
 #if RETRO_SOFTWARE_RENDER
             tiles128x128.gfxDataPos[i] = tiles128x128.tileIndex[i] << 8;
 #endif
-#if RETRO_HARDWARE_RENDER
-            tiles128x128.gfxDataPos[i] = tiles128x128.tileIndex[i] << 2;
-#endif
-
             tiles128x128.collisionFlags[0][i] = entry[2] >> 4;
             tiles128x128.collisionFlags[1][i] = entry[2] - ((entry[2] >> 4) << 4);
         }
@@ -1415,10 +1356,6 @@ void SetLayerDeformation(int selectedDef, int waveLength, int waveWidth, int wav
 
 #if RETRO_SOFTWARE_RENDER
     int shift = 9;
-#endif
-
-#if RETRO_HARDWARE_RENDER
-    int shift = 5;
 #endif
 
     int id = 0;
@@ -2132,7 +2069,7 @@ void SetPlayerHLockedScreenPosition(Entity *target)
         cameraLockedY = false;
     }
     else if (cameraLockedY) {
-        camScroll = 0;
+        camScroll  = 0;
         cameraYPos = targetY;
     }
     else if (targetY > cameraYPos) {
