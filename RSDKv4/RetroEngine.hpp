@@ -215,7 +215,8 @@ enum RetroGameType {
 #endif
 #include <vorbis/vorbisfile.h>
 #include <theora/theora.h>
-#include <theoraplay.h>
+// incredibly hacky fix, but msvc sucks lol, dunno why it can't find the header file
+#include "../dependencies/all/theoraplay/theoraplay.h"
 #elif RETRO_PLATFORM == RETRO_OSX
 #include <SDL2/SDL.h>
 #include <Vorbis/vorbisfile.h>

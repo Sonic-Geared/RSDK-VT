@@ -1,7 +1,7 @@
 #ifndef VIDEO_H
 #define VIDEO_H
 
-#include "theoraplay.h"
+#include "../dependencies/all/theoraplay/theoraplay.h"
 
 extern int currentVideoFrame;
 extern int videoFrameCount;
