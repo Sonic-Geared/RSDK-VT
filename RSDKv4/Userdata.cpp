@@ -1359,7 +1359,7 @@ bool InitStorage()
 {
     // Storage limits.
     dataStorage[DATASET_STG].storageLimit = 24 * 1024 * 1024; // 24MB
-    dataStorage[DATASET_MUS].storageLimit = 20 * 1024 * 1024;  // Originally 8MB, 20MB now to match with the current music buffer
+    dataStorage[DATASET_MUS].storageLimit = 33 * 1024 * 1024;  // 33MB
     dataStorage[DATASET_SFX].storageLimit = 32 * 1024 * 1024; // 32MB
     dataStorage[DATASET_STR].storageLimit = 2 * 1024 * 1024;  //  2MB
     dataStorage[DATASET_TMP].storageLimit = 8 * 1024 * 1024;  //  8MB
