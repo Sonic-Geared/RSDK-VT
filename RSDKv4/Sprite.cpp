@@ -218,6 +218,8 @@ int AddGraphicsFile(const char *filePath)
         case 'f': LoadGIFFile(sheetPath, sheetID); break;
         case 'p': LoadBMPFile(sheetPath, sheetID); break;
         case 'r': LoadPVRFile(sheetPath, sheetID); break;
+        case 'v': LoadRSVFile(sheetPath, sheetID); break;
+        case 'x': LoadGFXFile(sheetPath, sheetID); break;
     }
 
     return sheetID;
@@ -284,14 +286,12 @@ int LoadBMPFile(const char *filePath, byte sheetID)
         }
         gfxDataPosition += surface->height * surface->width;
 
-#if RETRO_SOFTWARE_RENDER
         surface->widthShift = 0;
         int w               = surface->width;
         while (w > 1) {
             w >>= 1;
             ++surface->widthShift;
         }
-#endif
 
         if (gfxDataPosition >= GFXDATA_SIZE) {
             gfxDataPosition = 0;
@@ -323,8 +323,6 @@ int LoadGIFFile(const char *filePath, byte sheetID)
         surface->height |= fileBuffer << 8;
 
         FileRead(&fileBuffer, 1); // Palette Size
-        // int has_pallete  = (fileBuffer & 0x80) >> 7;
-        // int colors       = ((fileBuffer & 0x70) >> 4) + 1;
         int palette_size = (fileBuffer & 0x7) + 1;
         if (palette_size > 0)
             palette_size = 1 << palette_size;
@@ -358,14 +356,12 @@ int LoadGIFFile(const char *filePath, byte sheetID)
 
         surface->dataPosition = gfxDataPosition;
 
-#if RETRO_SOFTWARE_RENDER
         surface->widthShift = 0;
         int w               = surface->width;
         while (w > 1) {
             w >>= 1;
             ++surface->widthShift;
         }
-#endif
 
         gfxDataPosition += surface->width * surface->height;
         if (gfxDataPosition < GFXDATA_SIZE) {
@@ -381,8 +377,65 @@ int LoadGIFFile(const char *filePath, byte sheetID)
     }
     return false;
 }
-// Left-over from Sonic Nexus (2008)
-// We still support .rsv's though, so let's put it here, shall we?
+int LoadGFXFile(const char *filePath, byte sheetID)
+{
+    FileInfo info;
+    if (LoadFile(filePath, &info)) {
+        GFXSurface *surface = &gfxSurface[sheetID];
+        StrCopy(surface->fileName, filePath);
+
+        byte fileBuffer = 0;
+        FileRead(&fileBuffer, 1);
+        surface->width = fileBuffer << 8;
+        FileRead(&fileBuffer, 1);
+        surface->width += fileBuffer;
+        FileRead(&fileBuffer, 1);
+        surface->height = fileBuffer << 8;
+        FileRead(&fileBuffer, 1);
+        surface->height += fileBuffer;
+
+        byte clr[3];
+        for (int i = 0; i < 0xFF; ++i) FileRead(&clr, 3); // Palette
+
+        surface->dataPosition = gfxDataPosition;
+        byte *gfxData         = &graphicData[surface->dataPosition];
+        byte buf[3];
+        while (true) {
+            FileRead(&buf[0], 1);
+            if (buf[0] == 0xFF) {
+                FileRead(&buf[1], 1);
+                if (buf[1] == 0xFF) {
+                    break;
+                }
+                else {
+                    FileRead(&buf[2], 1);
+                    for (int i = 0; i < buf[2]; ++i) *gfxData++ = buf[1];
+                }
+            }
+            else {
+                *gfxData++ = buf[0];
+            }
+        }
+
+        gfxDataPosition += surface->height * surface->width;
+
+        surface->widthShifted = 0;
+        int w                 = surface->width;
+        while (w > 1) {
+            w >>= 1;
+            ++surface->widthShifted;
+        }
+
+        if (gfxDataPosition >= GFXDATA_SIZE) {
+            gfxDataPosition = 0;
+            PrintLog("WARNING: Exceeded max gfx size!");
+        }
+
+        CloseFile();
+        return true;
+    }
+    return false;
+}
 int LoadRSVFile(const char *filePath, byte sheetID)
 {
     FileInfo info;
@@ -456,14 +509,12 @@ int LoadPVRFile(const char *filePath, byte sheetID)
             PrintLog("WARNING: Exceeded max gfx size!");
         }
 
-#if RETRO_SOFTWARE_RENDER
         surface->widthShift = 0;
         int w               = surface->width;
         while (w > 1) {
             w >>= 1;
             ++surface->widthShift;
         }
-#endif
 
         return false; // yeah I have no clue how to handle this, cd lite has this be loaded every frame on framebuffer update and does it that way
 
