@@ -419,11 +419,11 @@ int LoadGFXFile(const char *filePath, byte sheetID)
 
         gfxDataPosition += surface->height * surface->width;
 
-        surface->widthShifted = 0;
+        surface->widthShift = 0;
         int w                 = surface->width;
         while (w > 1) {
             w >>= 1;
-            ++surface->widthShifted;
+            ++surface->widthShift;
         }
 
         if (gfxDataPosition >= GFXDATA_SIZE) {
